@@ -9,7 +9,7 @@
   </head>
   <body>
     <div class="page-shell">
-      <header class="site-header">
+      <header class="site-header{% if page.banner_image %} has-banner{% endif %}" style="{% if page.banner_image %}background-image: url('{{ page.banner_image | relative_url }}');{% endif %}">
         <div class="brand-line">
           <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
           <p class="site-tagline">{{ site.description }}</p>
