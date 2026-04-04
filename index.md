@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Kaso Law
+title: AI pro se
 ---
 
 
