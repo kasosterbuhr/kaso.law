@@ -1,3 +1,9 @@
+---
+layout: default
+title: Kaso Law
+---
+
+
 # AIProSe
 
 **AI-guided self-help for pro se litigants.**  
