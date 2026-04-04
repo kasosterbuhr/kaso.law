@@ -1,6 +1,7 @@
 ---
 layout: default
-title: AI pro se
+title: AIProSe
+banner_image: /assets/images/GC_sunrise.jpg
 ---
 
 

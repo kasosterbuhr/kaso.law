@@ -13,12 +13,42 @@ body {
 }
 
 .site-header {
-  padding-bottom: 24px;
+  padding: 36px 24px 28px;
   border-bottom: 1px solid #d8e2ea;
   margin-bottom: 36px;
+  background-color: #ffffff;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.site-header.has-banner {
+  min-height: 340px;
+  padding: 28px 24px 24px;
+  display: grid;
+  align-items: flex-end;
+  background-color: #111827;
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.site-header.has-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.16), rgba(15,23,42,0.72));
+  pointer-events: none;
+}
+
+.site-header.has-banner .site-title,
+.site-header.has-banner .site-tagline {
+  color: #f8fafc;
 }
 
 .brand-line {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
