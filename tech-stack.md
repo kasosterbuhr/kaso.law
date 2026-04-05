@@ -7,11 +7,11 @@ title: Tech Stack
 
 ## Built for Practical Legal Work
 
-AIProSe is being built with a simple priority: make legal problem-solving more structured, more transparent, and more usable for real people.
+**AI** *pro se* is being built with a simple priority: make legal problem-solving more structured, more transparent, and more usable for real people.
 
 This is not a black-box "AI lawyer" pitch. The stack is designed around clarity, iteration, and modularity. The goal is to create a system that can evolve quickly, remain understandable, and avoid locking itself into one model, one workflow, or one vendor.
 
-At a high level, AIProSe rests on three pillars:
+At a high level, **AI** *pro se* rests on three pillars:
 
 1. **GitHub** - for code, prompts, versioning, and public development  
 2. **AI models** - for reasoning, drafting, synthesis, and workflow support  
@@ -36,7 +36,7 @@ Legal tools should not feel magical. They should feel inspectable. GitHub helps 
 
 ## AI Models: The Reasoning Layer
 
-AIProSe is model-flexible by design.
+**AI** *pro se* is model-flexible by design.
 
 The project is not being built around blind loyalty to one provider. Different models are better at different things: some are stronger at structured reasoning, some at long-context synthesis, some at document handling, and some at speed or cost control.
 
@@ -59,7 +59,7 @@ That flexibility matters because legal workflows are varied. A user may need iss
 
 ## Human Judgment: The Constraint That Matters
 
-AIProSe is not based on the fantasy that model output is self-validating.
+**AI** *pro se* is not based on the fantasy that model output is self-validating.
 
 Human judgment remains essential - not as a marketing flourish, but as the actual constraint that keeps the system useful. Legal reasoning can be powerful without being final. The point is not to remove human review. The point is to make human review more efficient, more structured, and more informed.
 
