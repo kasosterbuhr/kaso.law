@@ -268,6 +268,74 @@ title: AI FIRAC
     color: var(--accent-dark);
   }
 
+  .brief-modal[hidden] {
+    display: none;
+  }
+
+  .brief-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(16, 36, 58, 0.48);
+  }
+
+  .brief-modal-panel {
+    width: min(920px, 100%);
+    max-height: min(86vh, 900px);
+    overflow: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 24px 48px rgba(16, 36, 58, 0.22);
+  }
+
+  .brief-modal-panel h3 {
+    margin: 0 0 10px;
+  }
+
+  .brief-case-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  .brief-case-card {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px;
+    background: var(--panel-soft);
+  }
+
+  .brief-case-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brief-case-name {
+    color: var(--ink);
+    font-weight: 800;
+  }
+
+  .brief-case-meta,
+  .brief-case-note {
+    margin-top: 8px;
+    color: var(--muted);
+  }
+
+  .brief-case-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   @media (max-width: 760px) {
     .brief-connect-grid {
       grid-template-columns: 1fr;
@@ -371,6 +439,19 @@ title: AI FIRAC
   </section>
 </div>
 
+<div class="brief-modal" id="case-picker-modal" hidden>
+  <div class="brief-modal-panel" role="dialog" aria-modal="true" aria-labelledby="case-picker-title">
+    <h3 id="case-picker-title">Pick The Right Case</h3>
+    <p id="case-picker-copy" class="brief-help">
+      The search found more than one plausible match. Pick the one you meant and the page will brief that exact case.
+    </p>
+    <div class="brief-case-list" id="case-picker-list"></div>
+    <div class="brief-case-actions">
+      <button class="brief-button-secondary" id="case-picker-cancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const cookies = window.kasoCookies;
@@ -421,11 +502,16 @@ title: AI FIRAC
     const output = document.getElementById("brief-output");
     const citationSourcesWrap = document.getElementById("citation-sources-wrap");
     const citationSourcesList = document.getElementById("citation-sources");
+    const casePickerModal = document.getElementById("case-picker-modal");
+    const casePickerCopy = document.getElementById("case-picker-copy");
+    const casePickerList = document.getElementById("case-picker-list");
+    const casePickerCancel = document.getElementById("case-picker-cancel");
 
     let selectedFile = null;
     let templateCache = "";
     let lastResultTitle = "firac-brief";
     let lastCitationSources = [];
+    let pendingCaseSelection = null;
     let isWorking = false;
 
     if (modelLabel) {
@@ -481,6 +567,11 @@ title: AI FIRAC
 
     fileInput.addEventListener("change", function () {
       setFile(fileInput.files && fileInput.files[0] ? fileInput.files[0] : null);
+    });
+
+    casePickerCancel.addEventListener("click", function () {
+      closeCasePicker();
+      setStatus("Case search paused. Pick a more specific search or try again.", true);
     });
 
     dropzone.addEventListener("click", function () {
@@ -545,10 +636,15 @@ title: AI FIRAC
           lastCitationSources = [];
           renderCitationSources(lastCitationSources);
         } else {
-          const citationResult = await generateFromCitation(apiKey, template, citation);
+          const citationResult = await resolveAndGenerateCitation(apiKey, template, citation);
+
+          if (!citationResult) {
+            return;
+          }
+
           text = citationResult.text;
           lastCitationSources = citationResult.sources;
-          lastResultTitle = sanitizeFilename(citation);
+          lastResultTitle = sanitizeFilename(citationResult.caseName || citation);
           renderCitationSources(lastCitationSources);
         }
 
@@ -648,12 +744,95 @@ title: AI FIRAC
       return text;
     }
 
-    async function generateFromCitation(apiKey, template, citation) {
+    async function resolveAndGenerateCitation(apiKey, template, citation) {
+      const resolution = await resolveCitationCandidates(apiKey, citation);
+      const autoCandidate = chooseAutoCandidate(citation, resolution);
+
+      if (!autoCandidate) {
+        openCasePicker({
+          apiKey: apiKey,
+          template: template,
+          query: citation,
+          candidates: Array.isArray(resolution.candidates) ? resolution.candidates : [],
+        });
+        return null;
+      }
+
+      return generateBriefFromResolvedCase(apiKey, template, citation, autoCandidate);
+    }
+
+    async function resolveCitationCandidates(apiKey, citation) {
       const timezone =
         (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
         "America/Chicago";
-      const requestedLooksLikeCitation = looksLikeReporterCitation(citation);
-      const normalizedRequestedCitation = normalizeCitation(citation);
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + apiKey
+        },
+        body: JSON.stringify({
+          model: reporterModel,
+          store: false,
+          reasoning: {
+            effort: "low"
+          },
+          tools: [{
+            type: "web_search",
+            user_location: {
+              type: "approximate",
+              country: "US",
+              timezone: timezone
+            }
+          }],
+          include: ["web_search_call.action.sources"],
+          input: [
+            {
+              role: "system",
+              content: [{
+                type: "input_text",
+                text:
+                  "You are a precise legal case resolver with web-search access. " +
+                  "Resolve the user's case search into likely candidate cases. " +
+                  "Return valid JSON only with the keys resolved_confidently, explanation, and candidates. " +
+                  "Candidates must be an array of up to 5 objects with the keys case_name, reporter_citation, confidence, short_topic, court_year, and why_this_might_match. " +
+                  "short_topic must be no more than 10 words. confidence must be an integer from 0 to 100. " +
+                  "Set resolved_confidently to true only when you are essentially certain which exact case the user means. " +
+                  "If the user supplied a reporter citation, do not confuse it with nearby citations."
+              }]
+            },
+            {
+              role: "user",
+              content: [{
+                type: "input_text",
+                text:
+                  "User case search: " + citation + "\n\n" +
+                  "Return the best matching cases ranked from most likely to least likely."
+              }]
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data && data.error && data.error.message ? data.error.message : "OpenAI citation resolver request failed.");
+      }
+
+      const parsed = parseCaseResolutionResult(extractOutputText(data));
+      parsed.sources = extractCitationSources(data);
+      return parsed;
+    }
+
+    async function generateBriefFromResolvedCase(apiKey, template, originalQuery, selectedCase) {
+      const timezone =
+        (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
+        "America/Chicago";
+      const selectedCitation = selectedCase && selectedCase.reporter_citation
+        ? selectedCase.reporter_citation
+        : "";
+      const normalizedSelectedCitation = normalizeCitation(selectedCitation);
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
@@ -682,10 +861,11 @@ title: AI FIRAC
                 type: "input_text",
                 text:
                   "You are a precise law-school case briefing assistant with web-search access. " +
-                  "Find the opinion identified by the reporter citation. If you cannot confidently verify the exact reporter citation, say that you could not verify the citation and stop. " +
+                  "Brief only the exact case selected by the user. " +
                   "Use authoritative case text or reliable reproductions of the opinion. Do not guess. " +
                   "Return valid JSON only with the keys verified, verified_citation, case_name, mismatch_reason, and brief. " +
-                  "Set verified to true only if the exact reporter citation matches. If the exact reporter citation does not match, set verified to false, explain briefly in mismatch_reason, and leave brief empty. " +
+                  "Set verified to true only if the selected case name and reporter citation match the sources you found. " +
+                  "If they do not match, set verified to false, explain briefly in mismatch_reason, and leave brief empty. " +
                   "The brief itself must have no embedded citations or source callouts."
               }]
             },
@@ -694,8 +874,11 @@ title: AI FIRAC
               content: [{
                 type: "input_text",
                 text:
-                  "Reporter citation: " + citation + "\n\n" +
-                  "Before briefing, verify the exact volume, reporter, and first page. Nearby citations are not good enough.\n\n" +
+                  "Original user search: " + originalQuery + "\n" +
+                  "Selected case name: " + (selectedCase.case_name || "") + "\n" +
+                  "Selected reporter citation: " + selectedCitation + "\n" +
+                  "Selected court/year: " + (selectedCase.court_year || "") + "\n\n" +
+                  "Before briefing, verify the selected case exactly. Nearby citations or similar case names are not good enough.\n\n" +
                   "Use my standard FIRAC instructions and template below.\n\n" +
                   firacPrompt +
                   "\n\nUse the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
@@ -722,17 +905,10 @@ title: AI FIRAC
         );
       }
 
-      if (
-        requestedLooksLikeCitation &&
-        (
-          !normalizedRequestedCitation ||
-          !normalizedVerifiedCitation ||
-          normalizedRequestedCitation !== normalizedVerifiedCitation
-        )
-      ) {
+      if (!normalizedSelectedCitation || !normalizedVerifiedCitation || normalizedSelectedCitation !== normalizedVerifiedCitation) {
         throw new Error(
-          "Citation mismatch: requested " +
-          citation +
+          "Case mismatch: selected " +
+          (selectedCitation || selectedCase.case_name || originalQuery) +
           " but the lookup verified " +
           (parsed.verified_citation || "a different citation") +
           "."
@@ -747,7 +923,8 @@ title: AI FIRAC
 
       return {
         text: text,
-        sources: extractCitationSources(data)
+        sources: extractCitationSources(data),
+        caseName: parsed.case_name || selectedCase.case_name || originalQuery
       };
     }
 
@@ -910,6 +1087,108 @@ title: AI FIRAC
       citationSourcesWrap.hidden = false;
     }
 
+    function openCasePicker(selection) {
+      pendingCaseSelection = selection;
+
+      if (!casePickerModal || !casePickerList || !casePickerCopy) {
+        return;
+      }
+
+      casePickerCopy.textContent =
+        "The search is not certain enough to auto-brief \"" +
+        selection.query +
+        "\". Pick the right case below and the page will brief that exact one.";
+      casePickerList.innerHTML = "";
+
+      (selection.candidates || []).forEach(function (candidate, index) {
+        const card = document.createElement("article");
+        card.className = "brief-case-card";
+        const confidence = formatConfidence(candidate.confidence);
+        const topic = String(candidate.short_topic || "").trim();
+        const note = String(candidate.why_this_might_match || "").trim();
+
+        card.innerHTML =
+          '<div class="brief-case-head">' +
+            '<div class="brief-case-name">' + escapeHtml(candidate.case_name || "Unnamed case") + "</div>" +
+            '<span class="brief-pill">' + confidence + "</span>" +
+          "</div>" +
+          '<div class="brief-case-meta">' +
+            escapeHtml(candidate.reporter_citation || "Reporter unavailable") +
+            (candidate.court_year ? " | " + escapeHtml(candidate.court_year) : "") +
+          "</div>" +
+          (topic ? '<div class="brief-case-meta">About: ' + escapeHtml(topic) + "</div>" : "") +
+          (note ? '<div class="brief-case-note">' + escapeHtml(note) + "</div>" : "");
+
+        const actions = document.createElement("div");
+        actions.className = "brief-case-actions";
+
+        const chooseButton = document.createElement("button");
+        chooseButton.type = "button";
+        chooseButton.className = "brief-button";
+        chooseButton.textContent = index === 0 ? "Use This Case" : "Choose This Case";
+        chooseButton.addEventListener("click", function () {
+          chooseResolvedCase(candidate);
+        });
+
+        actions.appendChild(chooseButton);
+        card.appendChild(actions);
+        casePickerList.appendChild(card);
+      });
+
+      casePickerModal.hidden = false;
+      setStatus("Pick the right case from the list to finish the brief.");
+    }
+
+    function closeCasePicker() {
+      pendingCaseSelection = null;
+
+      if (casePickerModal) {
+        casePickerModal.hidden = true;
+      }
+
+      if (casePickerList) {
+        casePickerList.innerHTML = "";
+      }
+    }
+
+    async function chooseResolvedCase(candidate) {
+      if (!pendingCaseSelection) {
+        closeCasePicker();
+        return;
+      }
+
+      const currentSelection = pendingCaseSelection;
+      closeCasePicker();
+      isWorking = true;
+      syncState();
+      setStatus("Briefing the case you selected...");
+
+      try {
+        const result = await generateBriefFromResolvedCase(
+          currentSelection.apiKey,
+          currentSelection.template,
+          currentSelection.query,
+          candidate
+        );
+
+        output.textContent = result.text;
+        lastCitationSources = result.sources;
+        renderCitationSources(lastCitationSources);
+        lastResultTitle = sanitizeFilename(result.caseName || candidate.case_name || currentSelection.query);
+
+        if (await tryAutoCopyText(result.text)) {
+          setStatus("FIRAC generated and copied to your clipboard.");
+        } else {
+          setStatus("FIRAC generated. Use Copy Brief to place it on your clipboard.", false);
+        }
+      } catch (error) {
+        setStatus(error && error.message ? error.message : "The FIRAC request did not complete.", true);
+      } finally {
+        isWorking = false;
+        syncState();
+      }
+    }
+
     function extractCitationSources(data) {
       if (!data || !Array.isArray(data.output)) {
         return [];
@@ -956,7 +1235,36 @@ title: AI FIRAC
       }
     }
 
+    function parseCaseResolutionResult(rawText) {
+      const parsed = parseJsonBlock(rawText, "OpenAI returned a case-resolution result that was not valid JSON.");
+      const candidates = Array.isArray(parsed.candidates) ? parsed.candidates : [];
+
+      return {
+        resolved_confidently: Boolean(parsed.resolved_confidently),
+        explanation: String(parsed.explanation || "").trim(),
+        candidates: candidates
+          .map(function (candidate) {
+            return {
+              case_name: String(candidate.case_name || "").trim(),
+              reporter_citation: String(candidate.reporter_citation || "").trim(),
+              confidence: clampConfidence(candidate.confidence),
+              short_topic: String(candidate.short_topic || "").trim().split(/\s+/).slice(0, 10).join(" "),
+              court_year: String(candidate.court_year || "").trim(),
+              why_this_might_match: String(candidate.why_this_might_match || "").trim(),
+            };
+          })
+          .filter(function (candidate) {
+            return candidate.case_name || candidate.reporter_citation;
+          })
+          .slice(0, 5),
+      };
+    }
+
     function parseCitationResult(rawText) {
+      return parseJsonBlock(rawText, "OpenAI returned a citation result that was not valid JSON.");
+    }
+
+    function parseJsonBlock(rawText, invalidMessage) {
       const text = String(rawText || "").trim();
 
       if (!text) {
@@ -975,7 +1283,7 @@ title: AI FIRAC
         try {
           return JSON.parse(cleaned);
         } catch (innerError) {
-          throw new Error("OpenAI returned a citation result that was not valid JSON.");
+          throw new Error(invalidMessage);
         }
       }
     }
@@ -996,6 +1304,59 @@ title: AI FIRAC
 
     function looksLikeReporterCitation(value) {
       return /(^|\s)\d+\s+[A-Za-z.]+\s+\d+($|\s)/.test(String(value || "").trim());
+    }
+
+    function chooseAutoCandidate(query, resolution) {
+      const candidates = Array.isArray(resolution && resolution.candidates)
+        ? resolution.candidates
+        : [];
+
+      if (!candidates.length) {
+        throw new Error("I could not identify a likely case from that search.");
+      }
+
+      const top = candidates[0];
+      const second = candidates[1];
+      const exactCitationRequested = looksLikeReporterCitation(query);
+      const normalizedRequested = normalizeCitation(query);
+      const normalizedTop = normalizeCitation(top.reporter_citation);
+
+      if (exactCitationRequested && normalizedRequested && normalizedTop && normalizedRequested === normalizedTop) {
+        return top;
+      }
+
+      if (resolution && resolution.resolved_confidently && top.confidence >= 100) {
+        return top;
+      }
+
+      if (top.confidence >= 98 && (!second || top.confidence - second.confidence >= 15)) {
+        return top;
+      }
+
+      return null;
+    }
+
+    function clampConfidence(value) {
+      const numeric = Number(value);
+
+      if (!Number.isFinite(numeric)) {
+        return 0;
+      }
+
+      return Math.max(0, Math.min(100, Math.round(numeric)));
+    }
+
+    function formatConfidence(value) {
+      return clampConfidence(value) + "% confidence";
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function extractOutputText(data) {
