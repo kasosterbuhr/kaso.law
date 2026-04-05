@@ -652,6 +652,7 @@ title: AI FIRAC
       const timezone =
         (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
         "America/Chicago";
+      const requestedLooksLikeCitation = looksLikeReporterCitation(citation);
       const normalizedRequestedCitation = normalizeCitation(citation);
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
@@ -721,7 +722,14 @@ title: AI FIRAC
         );
       }
 
-      if (!normalizedRequestedCitation || !normalizedVerifiedCitation || normalizedRequestedCitation !== normalizedVerifiedCitation) {
+      if (
+        requestedLooksLikeCitation &&
+        (
+          !normalizedRequestedCitation ||
+          !normalizedVerifiedCitation ||
+          normalizedRequestedCitation !== normalizedVerifiedCitation
+        )
+      ) {
         throw new Error(
           "Citation mismatch: requested " +
           citation +
@@ -984,6 +992,10 @@ title: AI FIRAC
       const reporter = match[2].replace(/\./g, "");
       const page = match[3];
       return [volume, reporter, page].join(" ");
+    }
+
+    function looksLikeReporterCitation(value) {
+      return /(^|\s)\d+\s+[A-Za-z.]+\s+\d+($|\s)/.test(String(value || "").trim());
     }
 
     function extractOutputText(data) {
