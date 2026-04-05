@@ -334,6 +334,8 @@ title: AI FIRAC
     }
 
     refreshConnectionStatus();
+    window.addEventListener("focus", refreshConnectionStatus);
+    window.addEventListener("pageshow", refreshConnectionStatus);
 
     connectButton.addEventListener("click", function () {
       const apiKey = apiKeyInput.value.trim();
@@ -511,7 +513,7 @@ title: AI FIRAC
     });
 
     function refreshConnectionStatus() {
-      isConnected = Boolean(cookies.get(openAiCookieName));
+      isConnected = Boolean(getSavedOpenAiKey());
       connectionStatus.textContent = isConnected
         ? "OpenAI key saved in this browser."
         : "No saved OpenAI key found yet.";
@@ -522,8 +524,9 @@ title: AI FIRAC
     }
 
     function syncState() {
-      generateButton.disabled = !(selectedFile && isConnected);
-      disconnectButton.disabled = !isConnected;
+      const hasSavedKey = Boolean(getSavedOpenAiKey());
+      generateButton.disabled = !(selectedFile && hasSavedKey);
+      disconnectButton.disabled = !hasSavedKey;
       connectButton.disabled = false;
     }
 
@@ -549,7 +552,12 @@ title: AI FIRAC
       selectedFile = file;
       fileName.textContent = file.name;
       setStatus("");
+      refreshConnectionStatus();
       syncState();
+    }
+
+    function getSavedOpenAiKey() {
+      return cookies.get(openAiCookieName) || "";
     }
 
     async function getBriefTemplate() {
