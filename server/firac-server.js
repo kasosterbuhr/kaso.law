@@ -6,9 +6,6 @@ const crypto = require("crypto");
 loadEnvFile(path.join(__dirname, ".env"));
 
 const PORT = Number(process.env.PORT || 8787);
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || "";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4.1-mini";
 const COOKIE_SECRET = process.env.COOKIE_SECRET || "";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -17,23 +14,20 @@ const PROVIDERS = {
   openai: {
     label: "OpenAI",
     cookieName: "kaso_key_openai",
-    fallbackValue: OPENAI_API_KEY,
   },
   gemini: {
     label: "Google Gemini",
     cookieName: "kaso_key_gemini",
-    fallbackValue: GEMINI_API_KEY,
   },
   claude: {
     label: "Anthropic Claude",
     cookieName: "kaso_key_claude",
-    fallbackValue: CLAUDE_API_KEY,
   },
 };
 const ALLOWED_ORIGINS = new Set(
   String(
     process.env.ALLOWED_ORIGINS ||
-      "http://localhost:4000,http://127.0.0.1:4000,https://kaso.law"
+      "http://localhost:4000,http://127.0.0.1:4000,https://kaso.law,https://www.kaso.law"
   )
     .split(",")
     .map((origin) => origin.trim())
@@ -52,9 +46,22 @@ const server = http.createServer(async (req, res) => {
   const requestCookies = parseCookies(req.headers.cookie || "");
 
   if (req.method === "OPTIONS") {
+    if (!isAllowedOrigin(origin)) {
+      res.writeHead(403);
+      res.end();
+      return;
+    }
+
     applyCors(res, origin);
     res.writeHead(204);
     res.end();
+    return;
+  }
+
+  if (!isAllowedOrigin(origin)) {
+    writeJson(res, 403, {
+      error: "This browser origin is not allowed to use the API.",
+    });
     return;
   }
 
@@ -155,6 +162,11 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      if (apiKey.length > 300) {
+        writeJson(res, 400, { error: "apiKey is too long." });
+        return;
+      }
+
       setCookie(res, provider.cookieName, encryptSecret(apiKey), {
         maxAge: COOKIE_MAX_AGE,
         httpOnly: true,
@@ -241,7 +253,6 @@ const server = http.createServer(async (req, res) => {
     writeJson(res, 200, {
       ok: true,
       connected: Boolean(getSecretFromCookie(PROVIDERS.openai.cookieName, requestCookies)),
-      fallbackConfigured: Boolean(OPENAI_API_KEY),
       model: OPENAI_MODEL,
     });
     return;
@@ -265,6 +276,11 @@ const server = http.createServer(async (req, res) => {
 
       if (!apiKey) {
         writeJson(res, 400, { error: "apiKey is required." });
+        return;
+      }
+
+      if (apiKey.length > 300) {
+        writeJson(res, 400, { error: "apiKey is too long." });
         return;
       }
 
@@ -309,7 +325,7 @@ const server = http.createServer(async (req, res) => {
     if (!apiKey) {
       writeJson(res, 500, {
         error:
-          "No OpenAI key is connected. Use Connect OpenAI first, or add an OpenAI key on the Account page, or set OPENAI_API_KEY on the server as a fallback.",
+          "No OpenAI key is connected. Use Connect OpenAI first, or add an OpenAI key on the Account page.",
       });
       return;
     }
@@ -463,7 +479,7 @@ function validatePayload(payload) {
     return "fileDataBase64 is required.";
   }
 
-  if (payload.fileDataBase64.length > 30_000_000) {
+  if (payload.fileDataBase64.length > 30000000) {
     return "The uploaded file is too large for this lightweight endpoint.";
   }
 
@@ -481,6 +497,10 @@ function applyCors(res, origin) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
+function isAllowedOrigin(origin) {
+  return !origin || ALLOWED_ORIGINS.has(origin);
+}
+
 function writeJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
@@ -495,7 +515,7 @@ function readJsonBody(req) {
     req.on("data", (chunk) => {
       body += chunk;
 
-      if (body.length > 35_000_000) {
+      if (body.length > 35000000) {
         reject(new Error("Request body too large."));
         req.destroy();
       }
@@ -569,13 +589,12 @@ function getProviderStatus(providerKey, cookies, assumeConnected) {
   return {
     label: provider.label,
     connected: userConnected,
-    fallbackConfigured: Boolean(provider.fallbackValue),
   };
 }
 
 function resolveProviderApiKey(providerKey, cookies) {
   const provider = PROVIDERS[providerKey];
-  return getSecretFromCookie(provider.cookieName, cookies) || provider.fallbackValue;
+  return getSecretFromCookie(provider.cookieName, cookies);
 }
 
 function getProfileName(cookies) {

@@ -202,15 +202,15 @@ title: Account
     <h2>Connection</h2>
     <form class="account-form" id="account-form">
       <div class="account-field">
-        <label for="api-base">API Base URL</label>
-        <input id="api-base" type="text" placeholder="http://localhost:8787" autocomplete="off">
-        <p class="account-help">This tells the site where your cookie-managing backend lives. Example: <code>http://localhost:8787</code> or <code>https://api.kaso.law</code>.</p>
+        <label for="trusted-api-base">Trusted API Backend</label>
+        <input id="trusted-api-base" type="text" value="" readonly>
+        <p class="account-help">For safety, this public site only sends API keys to the trusted backend shown here. The key is never written into the GitHub repo.</p>
       </div>
 
       <div class="account-field">
         <label for="display-name">Display Name</label>
         <input id="display-name" type="text" maxlength="80" placeholder="Kas" autocomplete="off">
-        <p class="account-help">Used for personalized greetings like “Welcome in Kas! Let’s go get ’em.”</p>
+        <p class="account-help">Used for personalized greetings like "Welcome in Kas! Let's go get 'em."</p>
       </div>
 
       <div class="account-actions">
@@ -219,7 +219,7 @@ title: Account
       </div>
 
       <div class="account-status" id="account-status" aria-live="polite"></div>
-      <p class="account-note">Provider keys are stored as encrypted persistent cookies on the backend domain. Your display name is also stored there so the site can greet you on future visits.</p>
+      <p class="account-note">Provider keys are stored as encrypted persistent cookies on the backend domain. Your display name is also stored there so the site can greet you on future visits from this browser.</p>
     </form>
   </section>
 
@@ -276,27 +276,26 @@ title: Account
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const storageKey = "kasoFiracApiBase";
-    const apiBaseInput = document.getElementById("api-base");
+    const trustedApiBaseInput = document.getElementById("trusted-api-base");
     const displayNameInput = document.getElementById("display-name");
     const saveProfileButton = document.getElementById("save-profile");
     const clearAllButton = document.getElementById("clear-all");
     const status = document.getElementById("account-status");
-    const providerKeys = ["openai", "gemini", "claude"];
+    const providerMap = {
+      openai: "OpenAI",
+      gemini: "Google Gemini",
+      claude: "Anthropic Claude"
+    };
+    const providerKeys = Object.keys(providerMap);
 
-    apiBaseInput.value = window.localStorage.getItem(storageKey) || "";
+    trustedApiBaseInput.value = getApiBase() || "No trusted backend configured yet.";
     refreshAccount();
-
-    apiBaseInput.addEventListener("input", function () {
-      window.localStorage.setItem(storageKey, apiBaseInput.value.trim());
-      refreshAccount();
-    });
 
     saveProfileButton.addEventListener("click", async function () {
       const endpoint = buildEndpoint("/api/account/profile");
 
       if (!endpoint) {
-        setStatus("Enter your backend URL first.", true);
+        setStatus("This deployment does not have a trusted backend configured yet.", true);
         return;
       }
 
@@ -332,7 +331,11 @@ title: Account
       const endpoint = buildEndpoint("/api/account/clear-all");
 
       if (!endpoint) {
-        setStatus("Enter your backend URL first.", true);
+        setStatus("This deployment does not have a trusted backend configured yet.", true);
+        return;
+      }
+
+      if (!window.confirm("Clear your saved display name and every provider cookie for this browser?")) {
         return;
       }
 
@@ -373,19 +376,27 @@ title: Account
         const input = document.getElementById("provider-" + provider);
         const endpoint = buildEndpoint("/api/account/provider");
         const apiKey = input ? input.value.trim() : "";
+        const providerLabel = providerMap[provider] || provider;
 
         if (!endpoint) {
-          setStatus("Enter your backend URL first.", true);
+          setStatus("This deployment does not have a trusted backend configured yet.", true);
           return;
         }
 
         if (!apiKey) {
-          setStatus("Paste a key for " + provider + " first.", true);
+          setStatus("Paste a key for " + providerLabel + " first.", true);
+          return;
+        }
+
+        if (
+          typeof window.kasoConfirmProviderStorage === "function" &&
+          !window.kasoConfirmProviderStorage(providerLabel)
+        ) {
           return;
         }
 
         button.disabled = true;
-        setStatus("Saving " + provider + " key...");
+        setStatus("Saving " + providerLabel + " key...");
 
         try {
           const response = await fetch(endpoint, {
@@ -406,6 +417,7 @@ title: Account
             input.value = "";
           }
           setStatus(data.status && data.status.label ? data.status.label + " key saved." : "Provider key saved.");
+          announceAccountUpdate();
           await refreshAccount();
         } catch (error) {
           setStatus(error && error.message ? error.message : "Could not save the provider key.", true);
@@ -419,14 +431,15 @@ title: Account
       button.addEventListener("click", async function () {
         const provider = button.getAttribute("data-provider");
         const endpoint = buildEndpoint("/api/account/provider/clear");
+        const providerLabel = providerMap[provider] || provider;
 
         if (!endpoint) {
-          setStatus("Enter your backend URL first.", true);
+          setStatus("This deployment does not have a trusted backend configured yet.", true);
           return;
         }
 
         button.disabled = true;
-        setStatus("Clearing " + provider + " key...");
+        setStatus("Clearing " + providerLabel + " key...");
 
         try {
           const response = await fetch(endpoint, {
@@ -443,7 +456,8 @@ title: Account
             throw new Error(data && data.error ? data.error : "Could not clear the provider key.");
           }
 
-          setStatus(provider + " key cleared.");
+          setStatus(providerLabel + " key cleared.");
+          announceAccountUpdate();
           await refreshAccount();
         } catch (error) {
           setStatus(error && error.message ? error.message : "Could not clear the provider key.", true);
@@ -459,7 +473,7 @@ title: Account
       if (!endpoint) {
         displayNameInput.value = "";
         providerKeys.forEach(function (provider) {
-          paintProviderStatus(provider, null);
+          paintProviderStatus(provider, null, false, true);
         });
         return;
       }
@@ -481,15 +495,21 @@ title: Account
         });
       } catch (error) {
         providerKeys.forEach(function (provider) {
-          paintProviderStatus(provider, null, true);
+          paintProviderStatus(provider, null, true, false);
         });
       }
     }
 
-    function paintProviderStatus(provider, providerData, unreachable) {
+    function paintProviderStatus(provider, providerData, unreachable, missingBackend) {
       const node = document.getElementById("status-" + provider);
 
       if (!node) {
+        return;
+      }
+
+      if (missingBackend) {
+        node.textContent = "No trusted backend is configured for this deployment.";
+        node.className = "provider-status disconnected";
         return;
       }
 
@@ -511,24 +531,26 @@ title: Account
         return;
       }
 
-      if (providerData.fallbackConfigured) {
-        node.textContent = providerData.label + " is available through a server fallback key.";
-        node.className = "provider-status connected";
-        return;
-      }
-
       node.textContent = providerData.label + " is not connected yet.";
       node.className = "provider-status disconnected";
     }
 
     function buildEndpoint(path) {
-      const base = apiBaseInput.value.trim();
+      const base = getApiBase();
 
       if (!base) {
         return "";
       }
 
-      return base.replace(/\/+$/, "") + path;
+      return base + path;
+    }
+
+    function getApiBase() {
+      if (typeof window.kasoGetApiBase !== "function") {
+        return "";
+      }
+
+      return window.kasoGetApiBase();
     }
 
     function setStatus(message, isError) {

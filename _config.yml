@@ -2,6 +2,8 @@ title: AI pro se
 description: AI-guided self-help for **AI** *pro se* litigants.
 url: https://kaso.law
 baseurl: ""
+api_base_url: https://api.kaso.law
+local_api_base_url: http://localhost:8787
 markdown: kramdown
 kramdown:
   input: GFM
