@@ -1,3 +1,7 @@
+:root {
+  --nav-height: 64px;
+}
+
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -7,7 +11,7 @@ body {
 }
 
 .top-nav {
-  height: 35px;
+  height: var(--nav-height);
   background: #ffffff;
   border-bottom: 1px solid #d8e2ea;
   position: fixed;
@@ -18,7 +22,7 @@ body {
 }
 
 .nav-container {
-  max-width: 860px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
@@ -32,18 +36,26 @@ body {
   font-weight: 800;
   color: #111827;
   text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-menu {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.6vw, 24px);
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 16px;
 }
 
 .nav-menu a {
   color: #475569;
   text-decoration: none;
   font-weight: 500;
-  padding: 8px 12px;
+  white-space: nowrap;
+  padding: 6px 8px;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
@@ -61,13 +73,29 @@ body {
   font-weight: 600;
   font-size: 0.9rem;
   transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .github-cta:hover {
   background-color: #0040a3;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
+  .nav-container {
+    padding: 0 18px;
+  }
+
+  .nav-menu {
+    gap: 12px;
+    margin: 0 12px;
+  }
+
+  .nav-menu a {
+    font-size: 0.92rem;
+    padding: 6px;
+  }
+
   .github-cta {
     display: none;
   }
@@ -90,11 +118,11 @@ body {
   transition: 0.3s;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 980px) {
   .nav-menu {
     display: none;
     position: absolute;
-    top: 35px;
+    top: var(--nav-height);
     left: 0;
     right: 0;
     background: #ffffff;
@@ -102,6 +130,7 @@ body {
     flex-direction: column;
     padding: 12px 24px;
     gap: 12px;
+    margin: 0;
   }
   .nav-menu.active {
     display: flex;
@@ -200,7 +229,7 @@ body {
   max-width: 860px;
   margin: 0 auto;
   padding: 36px 24px;
-  margin-top: 35px; /* account for fixed nav */
+  margin-top: var(--nav-height); /* account for fixed nav */
 }
 
 .site-content {
