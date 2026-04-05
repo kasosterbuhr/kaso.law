@@ -29,17 +29,8 @@
       </div>
     </header>
     <div class="site-banner">
-      <img src="{{ '/assets/images/banner.jpg' | relative_url }}" alt="AI Pro Se Banner" />
+      <img src="{{ '/assets/images/banner.jpg' | relative_url }}" alt="AI Pro Se" class="banner-image" />
     </div>
-    <header class="site-hero{% if page.banner_image %} has-banner{% endif %}" style="{% if page.banner_image %}background-image: url('{{ page.banner_image | relative_url }}');{% endif %}{% if page.banner_height %} height: {{ page.banner_height }};{% endif %}">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <div class="brand-line">
-          <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-          <p class="site-tagline">{{ site.description }}</p>
-        </div>
-      </div>
-    </header>
     <div class="page-shell">
       <main class="site-content">
         {{ content }}
