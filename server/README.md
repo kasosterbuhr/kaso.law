@@ -1,54 +1,45 @@
-# Kaso Audio Server
+# Kaso Server
 
-This `server/` folder now contains the optional backend for the Classroom audio builder.
+This `server/` folder now contains the optional backend for two things:
 
-It does one job well:
+- Classroom audio generation through Google's podcast and NotebookLM APIs
+- a safe OpenAI fallback for `/brief` when a visitor has not saved their own key
 
-- accept 1 to 5 uploaded opinions or class readings
-- send them to Google's Podcast API for a downloadable MP3
-- optionally create a NotebookLM Enterprise notebook and request an audio overview there too
-- return a job URL that the frontend can poll until the MP3 is ready
+## Why this backend exists
 
-## What this backend is for
+The public site is static by default. That means any OpenAI key placed in browser config or committed to the repo would be exposed.
 
-The public GitHub Pages site is still static by default. That means server-side Google credentials cannot live safely in the page itself.
-
-This backend keeps the Google Cloud service account on the server and exposes a thin JSON API to the Classroom page.
+This backend keeps secrets on the server and exposes only narrow JSON endpoints to the site.
 
 ## Endpoints
 
-- `GET /health`
+Audio:
 - `GET /api/classroom/audio-capabilities`
 - `POST /api/classroom/audio-jobs`
 - `GET /api/classroom/audio-jobs/:id`
 - `GET /api/classroom/audio-jobs/:id/download`
 
+Brief fallback:
+- `GET /api/brief/capabilities`
+- `POST /api/brief/pdf`
+- `POST /api/brief/citation/resolve`
+- `POST /api/brief/citation/brief`
+
+Shared:
+- `GET /health`
+
 ## Environment
 
-Copy `.env.example` to `.env` and fill in the Google values.
+Copy `.env.example` to `.env` and fill in what you need.
 
-Minimum configuration for MP3 podcast downloads:
+For `/brief` fallback:
+- `OPENAI_SITE_API_KEY`
+- optional model overrides: `OPENAI_CLIENT_MODEL`, `OPENAI_REPORTER_MODEL`
 
+For Classroom audio:
 - `GOOGLE_CLOUD_PROJECT_ID`
-- `GOOGLE_SERVICE_ACCOUNT_JSON` or the split service-account env vars
-
-Additional configuration for NotebookLM notebook creation:
-
-- `GOOGLE_CLOUD_PROJECT_NUMBER`
-- `GOOGLE_CLOUD_LOCATION`
-
-## Google-side requirements
-
-For the Podcast API path:
-
-- Discovery Engine API enabled
-- service account able to mint access tokens
-- Podcast API access from Google, which is currently allowlisted
-
-For the NotebookLM path:
-
-- NotebookLM Enterprise enabled in the project
-- users who open shared notebooks must already be in the same project or workforce pool and have the required NotebookLM access and license
+- `GOOGLE_SERVICE_ACCOUNT_JSON` or the split service-account vars
+- `GOOGLE_CLOUD_PROJECT_NUMBER` and `GOOGLE_CLOUD_LOCATION` for NotebookLM notebook creation
 
 ## Local run
 
@@ -56,9 +47,8 @@ For the NotebookLM path:
 2. create `server/.env`
 3. `npm start`
 
-The classroom page can point at this backend through `server_api_base_url` in `_config.yml`.
+Then point the site at the backend with `server_api_base_url` in `_config.yml`.
 
-## Notes
+## Important note
 
-- Generated MP3 files are stored temporarily in `server/generated-audio/` and cleaned up after the TTL window.
-- The backend does not currently fetch opinions by citation or Justia search. The shipped MVP is upload-first.
+Do not commit `OPENAI_SITE_API_KEY` into the repo and do not expose it through browser-side config. The whole point of this backend is to let anonymous users use the site without revealing your key publicly.

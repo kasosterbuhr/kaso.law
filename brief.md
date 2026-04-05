@@ -457,6 +457,7 @@ title: AI FIRAC
     const cookies = window.kasoCookies;
     const openAiCookieName = "kaso_key_openai";
     const siteOpenAiKey = ((window.KASO_CONFIG && window.KASO_CONFIG.openaiPublicApiKey) || "").trim();
+    const serverApiBaseUrl = ((window.KASO_CONFIG && window.KASO_CONFIG.serverApiBaseUrl) || "").trim().replace(/\/$/, "");
     const directModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiModel) || "gpt-5.4";
     const reporterModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiReporterModel) || "gpt-5.2";
     const templatePath = "/assets/downloads/BriefTemplate.txt";
@@ -512,6 +513,7 @@ title: AI FIRAC
     let lastResultTitle = "firac-brief";
     let lastCitationSources = [];
     let pendingCaseSelection = null;
+    let serverBriefCapabilities = { configured: false, clientModel: directModel, reporterModel: reporterModel };
     let isWorking = false;
 
     if (modelLabel) {
@@ -522,6 +524,7 @@ title: AI FIRAC
       reporterModelLabel.textContent = reporterModel;
     }
 
+    loadBriefCapabilities();
     refreshConnectionStatus();
     updateSourceSummary();
 
@@ -531,8 +534,8 @@ title: AI FIRAC
     connectButton.addEventListener("click", function () {
       const apiKey = apiKeyInput.value.trim();
 
-      if (!apiKey) {
-        setStatus("Paste an OpenAI API key first.", true);
+      if (!apiKey || isDisplayedKeyStatus(apiKey)) {
+        setStatus("Paste a real OpenAI API key first.", true);
         return;
       }
 
@@ -609,9 +612,10 @@ title: AI FIRAC
 
       const apiKey = resolveApiKey();
       const citation = citationInput.value.trim();
+      const useServerFallback = !apiKey && hasServerFallback();
 
-      if (!apiKey) {
-        setStatus("Add a built-in site key in _config.yml or save a browser key first.", true);
+      if (!apiKey && !useServerFallback) {
+        setStatus("Add your own key or configure the server-side site key first.", true);
         return;
       }
 
@@ -631,12 +635,16 @@ title: AI FIRAC
         let text = "";
 
         if (selectedFile) {
-          text = await generateFromPdf(apiKey, template, citation);
+          text = useServerFallback
+            ? await generateFromPdfViaServer(template, citation)
+            : await generateFromPdf(apiKey, template, citation);
           lastResultTitle = sanitizeFilename(selectedFile.name.replace(/\.pdf$/i, ""));
           lastCitationSources = [];
           renderCitationSources(lastCitationSources);
         } else {
-          const citationResult = await resolveAndGenerateCitation(apiKey, template, citation);
+          const citationResult = useServerFallback
+            ? await resolveAndGenerateCitationViaServer(template, citation)
+            : await resolveAndGenerateCitation(apiKey, template, citation);
 
           if (!citationResult) {
             return;
@@ -744,7 +752,68 @@ title: AI FIRAC
       return text;
     }
 
-    async function resolveAndGenerateCitation(apiKey, template, citation) {
+
+    async function generateFromPdfViaServer(template, citation) {
+      const fileDataBase64 = await fileToBase64(selectedFile);
+      const response = await fetch(buildBriefApiUrl("/api/brief/pdf"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          filename: selectedFile.name,
+          mimeType: "application/pdf",
+          fileDataBase64: fileDataBase64,
+          template: template,
+          citation: citation
+        })
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data && data.error ? data.error : "Server PDF FIRAC request failed.");
+      }
+
+      const text = String(data.text || "").trim();
+
+      if (!text) {
+        throw new Error("The server returned an empty FIRAC response for the PDF.");
+      }
+
+      return text;
+    }`r`n
+    async function resolveAndGenerateCitationViaServer(template, citation) {
+      const resolutionResponse = await fetch(buildBriefApiUrl("/api/brief/citation/resolve"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query: citation,
+          timezone: (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) || "America/Chicago"
+        })
+      });
+      const resolutionData = await resolutionResponse.json();
+
+      if (!resolutionResponse.ok) {
+        throw new Error(resolutionData && resolutionData.error ? resolutionData.error : "Server citation resolver request failed.");
+      }
+
+      const resolution = resolutionData.resolution || { candidates: [] };
+      const autoCandidate = chooseAutoCandidate(citation, resolution);
+
+      if (!autoCandidate) {
+        openCasePicker({
+          template: template,
+          query: citation,
+          candidates: Array.isArray(resolution.candidates) ? resolution.candidates : [],
+          useServerFallback: true,
+        });
+        return null;
+      }
+
+      return generateBriefFromResolvedCaseViaServer(template, citation, autoCandidate);
+    }`r`n    async function resolveAndGenerateCitation(apiKey, template, citation) {
       const resolution = await resolveCitationCandidates(apiKey, citation);
       const autoCandidate = chooseAutoCandidate(citation, resolution);
 
@@ -754,6 +823,7 @@ title: AI FIRAC
           template: template,
           query: citation,
           candidates: Array.isArray(resolution.candidates) ? resolution.candidates : [],
+          useServerFallback: false,
         });
         return null;
       }
@@ -825,7 +895,28 @@ title: AI FIRAC
       return parsed;
     }
 
-    async function generateBriefFromResolvedCase(apiKey, template, originalQuery, selectedCase) {
+
+    async function generateBriefFromResolvedCaseViaServer(template, originalQuery, selectedCase) {
+      const response = await fetch(buildBriefApiUrl("/api/brief/citation/brief"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          template: template,
+          originalQuery: originalQuery,
+          selectedCase: selectedCase,
+          timezone: (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) || "America/Chicago"
+        })
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data && data.error ? data.error : "Server citation FIRAC request failed.");
+      }
+
+      return data.result;
+    }`r`n    async function generateBriefFromResolvedCase(apiKey, template, originalQuery, selectedCase) {
       const timezone =
         (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
         "America/Chicago";
@@ -928,22 +1019,59 @@ title: AI FIRAC
       };
     }
 
+
+    async function loadBriefCapabilities() {
+      if (!serverApiBaseUrl) {
+        serverBriefCapabilities = {
+          configured: false,
+          clientModel: directModel,
+          reporterModel: reporterModel,
+        };
+        return;
+      }
+
+      try {
+        const response = await fetch(buildBriefApiUrl("/api/brief/capabilities"), {
+          method: "GET"
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data && data.error ? data.error : "Brief capability check failed.");
+        }
+
+        serverBriefCapabilities = data.capabilities || serverBriefCapabilities;
+      } catch (error) {
+        serverBriefCapabilities = {
+          configured: false,
+          clientModel: directModel,
+          reporterModel: reporterModel,
+        };
+      }
+
+      refreshConnectionStatus();
+    }
+
+    function hasServerFallback() {
+      return Boolean(serverApiBaseUrl && serverBriefCapabilities && serverBriefCapabilities.configured);
+    }
+
+    function buildBriefApiUrl(pathname) {
+      return serverApiBaseUrl + pathname;
+    }
+
     function refreshConnectionStatus() {
       const hasSiteKey = Boolean(siteOpenAiKey);
       const hasSavedBrowserKey = Boolean(cookies.get(openAiCookieName));
-      const hasAnyKey = Boolean(resolveApiKey());
+      const hasServerKey = hasServerFallback();
 
-      if (hasSavedBrowserKey && hasSiteKey) {
-        accessMode.value = "Browser override key saved plus built-in site key";
-        connectionStatus.textContent = "Browser override key saved. Site-wide key also configured.";
-        connectionStatus.className = "brief-connection connected";
-        apiKeyInput.type = "text";
-        apiKeyInput.value = "OpenAI key already saved in this browser";
-        apiKeyInput.placeholder = "OpenAI key already saved in this browser";
-        apiKeyInput.classList.add("is-saved");
-      } else if (hasSavedBrowserKey) {
-        accessMode.value = "Browser cookie key only";
-        connectionStatus.textContent = "OpenAI key saved in this browser.";
+      if (hasSavedBrowserKey) {
+        accessMode.value = hasServerKey
+          ? "Browser key saved plus site fallback available"
+          : "Browser cookie key only";
+        connectionStatus.textContent = hasServerKey
+          ? "OpenAI key saved in this browser. Site fallback is also available."
+          : "OpenAI key saved in this browser.";
         connectionStatus.className = "brief-connection connected";
         apiKeyInput.type = "text";
         apiKeyInput.value = "OpenAI key already saved in this browser";
@@ -957,9 +1085,17 @@ title: AI FIRAC
         apiKeyInput.value = "Site-wide OpenAI key active";
         apiKeyInput.placeholder = "Site-wide OpenAI key active";
         apiKeyInput.classList.add("is-saved");
+      } else if (hasServerKey) {
+        accessMode.value = "Server-side site key active";
+        connectionStatus.textContent = "The site will use the server-side OpenAI key if you do not save your own.";
+        connectionStatus.className = "brief-connection connected";
+        apiKeyInput.type = "text";
+        apiKeyInput.value = "Site hosted OpenAI access is active";
+        apiKeyInput.placeholder = "Site hosted OpenAI access is active";
+        apiKeyInput.classList.add("is-saved");
       } else {
         accessMode.value = "No OpenAI key configured yet";
-        connectionStatus.textContent = "No built-in site key or browser-saved key found yet.";
+        connectionStatus.textContent = "No browser key or server-side site key found yet.";
         connectionStatus.className = "brief-connection disconnected";
         apiKeyInput.type = "password";
         apiKeyInput.value = "";
@@ -1031,6 +1167,14 @@ title: AI FIRAC
       updateSourceSummary();
       refreshConnectionStatus();
       syncState();
+    }
+
+    function isDisplayedKeyStatus(value) {
+      return [
+        "OpenAI key already saved in this browser",
+        "Site-wide OpenAI key active",
+        "Site hosted OpenAI access is active"
+      ].includes(String(value || "").trim());
     }
 
     function resolveApiKey() {
@@ -1164,12 +1308,18 @@ title: AI FIRAC
       setStatus("Briefing the case you selected...");
 
       try {
-        const result = await generateBriefFromResolvedCase(
-          currentSelection.apiKey,
-          currentSelection.template,
-          currentSelection.query,
-          candidate
-        );
+        const result = currentSelection.useServerFallback
+          ? await generateBriefFromResolvedCaseViaServer(
+              currentSelection.template,
+              currentSelection.query,
+              candidate
+            )
+          : await generateBriefFromResolvedCase(
+              currentSelection.apiKey,
+              currentSelection.template,
+              currentSelection.query,
+              candidate
+            );
 
         output.textContent = result.text;
         lastCitationSources = result.sources;
@@ -1623,6 +1773,20 @@ title: AI FIRAC
     }
   });
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
