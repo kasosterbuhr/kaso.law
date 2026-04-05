@@ -52,6 +52,27 @@ body {
   background-color: #f1f5f9;
 }
 
+.github-cta {
+  background: #0056b3;
+  color: #ffffff;
+  padding: 6px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.github-cta:hover {
+  background-color: #0040a3;
+}
+
+@media (max-width: 768px) {
+  .github-cta {
+    display: none;
+  }
+}
+
 .hamburger {
   display: none;
   flex-direction: column;
