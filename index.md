@@ -18,7 +18,7 @@ AIProSe starts with a free, public library of high-quality legal prompts and pro
 
 ## The Problem
 
-Legal help is too expensive, too fragmented, and too inaccessible for most people.
+Legal help is too expensive, too fragmented, and too inaccessible for most people. Furthermore, the legal system presently operates as a cabal. It's untouchable by the layperson and nearly inaccessible by anyone without significant financial burden. This needs to change.
 
 Millions of people are forced to handle legal problems on their own. They do not know where to start, what facts matter, what rules apply, what documents to prepare, or how to think through their case in a logical way. Existing legal tech often falls into one of two buckets:
 
