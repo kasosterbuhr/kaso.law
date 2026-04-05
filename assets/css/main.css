@@ -210,6 +210,17 @@ body {
   word-break: break-word;
 }
 
+.account-greeting {
+  margin: 0 0 20px;
+  padding: 14px 18px;
+  border: 1px solid #cfe1f1;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8fbff 0%, #edf5ff 100%);
+  color: #0a4c85;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(16, 36, 58, 0.05);
+}
+
 .site-title {
   font-size: 2rem;
   font-weight: 800;

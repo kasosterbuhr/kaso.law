@@ -1,0 +1,9 @@
+{
+  "name": "kaso-law-firac-server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Server-side FIRAC proxy for kaso.law",
+  "scripts": {
+    "start": "node firac-server.js"
+  }
+}

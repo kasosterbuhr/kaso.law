@@ -167,6 +167,7 @@ title: Prompt Library
     font: inherit;
     font-weight: 700;
     cursor: pointer;
+    text-decoration: none;
   }
 
   .prompt-previews {
@@ -264,6 +265,7 @@ title: Prompt Library
     <button class="prompt-action" type="button" data-copy-key="firac">Copy FIRAC</button>
     <button class="prompt-action" type="button" data-copy-key="nlm">Copy NLM</button>
     <button class="prompt-action" type="button" data-copy-key="voice">DRQ MyVoice</button>
+    <a class="prompt-action" href="/brief">AI FIRAC</a>
     <a class="prompt-download" href="/assets/downloads/BriefTemplate.txt" download>Download Brief Template</a>
   </section>
 
@@ -300,6 +302,17 @@ title: Prompt Library
       </p>
       <div class="prompt-card-footer">
         <button class="prompt-secondary" type="button" data-copy-key="voice">Copy Prompt</button>
+      </div>
+    </article>
+
+    <article class="prompt-card">
+      <span class="prompt-tag">Live Tool</span>
+      <h2>AI FIRAC Builder</h2>
+      <p>
+        Want the site to do the FIRAC itself instead of just copying a prompt? Open the upload tool, point it at your private backend, and let it return a full clipboard-ready brief.
+      </p>
+      <div class="prompt-card-footer">
+        <a class="prompt-secondary" href="/brief">Open Tool</a>
       </div>
     </article>
   </section>
