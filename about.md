@@ -5,6 +5,8 @@ title: About
 
 # About AI<em>Pro</em>&#8202;<em>Se</em>
 
+![Our mission](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
+
 ## A Personal Journey Through the Legal System
 
 AI<em>Pro</em>&#8202;<em>Se</em> wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came after years of legal education and practice, where I discovered that knowing the law and actually using it are two entirely different skills.

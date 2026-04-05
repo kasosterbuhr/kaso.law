@@ -185,6 +185,10 @@ body {
   margin-top: 35px; /* account for fixed nav */
 }
 
+.site-content {
+  max-width: 100%;
+}
+
 .site-title {
   font-size: 2rem;
   font-weight: 800;
