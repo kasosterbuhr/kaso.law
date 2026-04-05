@@ -117,8 +117,8 @@ body {
   display: grid;
   align-items: flex-end;
   background-color: #111827;
-  background-size: cover;
-  background-position: top center;
+  background-size: contain;
+  background-position: center;
   background-repeat: no-repeat;
   position: relative;
 }
