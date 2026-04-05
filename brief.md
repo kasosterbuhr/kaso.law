@@ -109,6 +109,13 @@ title: AI FIRAC
     background: #ffffff;
   }
 
+  .brief-field input.is-saved {
+    background: #eef8f2;
+    border-color: rgba(24, 121, 78, 0.35);
+    color: var(--success);
+    font-weight: 700;
+  }
+
   .brief-pill-row {
     display: flex;
     flex-wrap: wrap;
@@ -721,18 +728,34 @@ title: AI FIRAC
         accessMode.value = "Browser override key saved plus built-in site key";
         connectionStatus.textContent = "Browser override key saved. Site-wide key also configured.";
         connectionStatus.className = "brief-connection connected";
+        apiKeyInput.type = "text";
+        apiKeyInput.value = "OpenAI key already saved in this browser";
+        apiKeyInput.placeholder = "OpenAI key already saved in this browser";
+        apiKeyInput.classList.add("is-saved");
       } else if (hasSavedBrowserKey) {
         accessMode.value = "Browser cookie key only";
         connectionStatus.textContent = "OpenAI key saved in this browser.";
         connectionStatus.className = "brief-connection connected";
+        apiKeyInput.type = "text";
+        apiKeyInput.value = "OpenAI key already saved in this browser";
+        apiKeyInput.placeholder = "OpenAI key already saved in this browser";
+        apiKeyInput.classList.add("is-saved");
       } else if (hasSiteKey) {
         accessMode.value = "Built-in site key active";
         connectionStatus.textContent = "A built-in site key is active for this page.";
         connectionStatus.className = "brief-connection connected";
+        apiKeyInput.type = "text";
+        apiKeyInput.value = "Site-wide OpenAI key active";
+        apiKeyInput.placeholder = "Site-wide OpenAI key active";
+        apiKeyInput.classList.add("is-saved");
       } else {
         accessMode.value = "No OpenAI key configured yet";
         connectionStatus.textContent = "No built-in site key or browser-saved key found yet.";
         connectionStatus.className = "brief-connection disconnected";
+        apiKeyInput.type = "password";
+        apiKeyInput.value = "";
+        apiKeyInput.placeholder = "Paste an OpenAI API key once if you want a browser override";
+        apiKeyInput.classList.remove("is-saved");
       }
 
       disconnectButton.disabled = !hasSavedBrowserKey;
