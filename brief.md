@@ -547,10 +547,9 @@ title: AI FIRAC
 
         output.textContent = text;
 
-        try {
-          await copyText(text);
+        if (await tryAutoCopyText(text)) {
           setStatus("FIRAC generated and copied to your clipboard.");
-        } catch (copyError) {
+        } else {
           setStatus("FIRAC generated. Use Copy Brief to place it on your clipboard.", false);
         }
       } catch (error) {
@@ -576,7 +575,7 @@ title: AI FIRAC
       }
 
       downloadWordDoc(output.textContent, lastResultTitle || deriveSourceTitle());
-      setStatus("Word document downloaded.");
+      setStatus("Word-compatible document downloaded.");
     });
 
     pdfButton.addEventListener("click", function () {
@@ -946,6 +945,19 @@ title: AI FIRAC
       });
     }
 
+    async function tryAutoCopyText(text) {
+      if (!(navigator.clipboard && window.isSecureContext)) {
+        return false;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
     async function copyText(text) {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
@@ -969,9 +981,9 @@ title: AI FIRAC
 
     function downloadWordDoc(text, baseName) {
       const title = baseName || "firac-brief";
-      const html = makeWordHtml(text, title);
-      const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
-      downloadBlob(blob, title + ".doc");
+      const rtf = makeRtfDoc(text, title);
+      const blob = new Blob([rtf], { type: "application/rtf;charset=utf-8" });
+      downloadBlob(blob, title + ".rtf");
     }
 
     function downloadPdfDoc(text, baseName) {
@@ -1044,6 +1056,42 @@ title: AI FIRAC
       printWindow.print();
     }
 
+    function makeRtfDoc(text, title) {
+      const lines = String(text || "").split(/\r?\n/);
+      const parts = [
+        "{\\rtf1\\ansi\\deff0",
+        "{\\fonttbl{\\f0 Georgia;}{\\f1 Helvetica;}}",
+        "\\viewkind4\\uc1\\pard\\sa180\\sl276\\slmult1\\f0\\fs24 ",
+        escapeRtf(title),
+        "\\par\\par "
+      ];
+
+      lines.forEach(function (line) {
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+          parts.push("\\par ");
+          return;
+        }
+
+        if (/^\*\*.+\*\*$/.test(trimmed)) {
+          const heading = trimmed.replace(/^\*\*/, "").replace(/\*\*$/, "");
+          parts.push("\\b\\f1\\fs28 " + escapeRtf(heading) + "\\b0\\f0\\fs24\\par ");
+          return;
+        }
+
+        if (/^-\s+/.test(trimmed)) {
+          parts.push("\\li360\\tx360\\bullet\\tab " + escapeRtf(trimmed.replace(/^-\s+/, "")) + "\\li0\\par ");
+          return;
+        }
+
+        parts.push(escapeRtf(line) + "\\par ");
+      });
+
+      parts.push("}");
+      return parts.join("");
+    }
+
     function makeWordHtml(text, title) {
       const body = String(text || "")
         .replace(/&/g, "&amp;")
@@ -1062,6 +1110,17 @@ title: AI FIRAC
         body +
         "</p></body></html>"
       );
+    }
+
+    function escapeRtf(value) {
+      return String(value || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/{/g, "\\{")
+        .replace(/}/g, "\\}")
+        .replace(/\r?\n/g, "\\par ")
+        .replace(/[^\x00-\x7F]/g, function (character) {
+          return "\\u" + character.charCodeAt(0) + "?";
+        });
     }
 
     function downloadBlob(blob, filename) {
