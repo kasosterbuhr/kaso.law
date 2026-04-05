@@ -8,6 +8,21 @@
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
   </head>
   <body>
+    <header class="top-nav">
+      <div class="nav-container">
+        <a class="nav-brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+        <nav class="nav-menu">
+          <a href="{{ '/about' | relative_url }}">About</a>
+          <a href="{{ '/why' | relative_url }}">Why</a>
+          <a href="{{ '/tech-stack' | relative_url }}">Tech Stack</a>
+        </nav>
+        <button class="hamburger" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
     <header class="site-hero{% if page.banner_image %} has-banner{% endif %}" style="{% if page.banner_image %}background-image: url('{{ page.banner_image | relative_url }}');{% endif %}{% if page.banner_height %} height: {{ page.banner_height }};{% endif %}">
       <div class="hero-overlay"></div>
       <div class="hero-content">
@@ -25,5 +40,15 @@
         © {{ site.time | date: "%Y" }} {{ site.title }}
       </footer>
     </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        hamburger.addEventListener('click', function() {
+          navMenu.classList.toggle('active');
+        });
+      });
+    </script>
   </body>
 </html>
