@@ -47,6 +47,15 @@ title: Account
     text-transform: uppercase;
   }
 
+  .account-warning {
+    background: #fff3cd;
+    border: 1px solid #f0d48a;
+    color: #6a4a00;
+    border-radius: 16px;
+    padding: 16px 18px;
+    font-weight: 600;
+  }
+
   .account-hero h1,
   .account-panel h2,
   .provider-card h2 {
@@ -141,14 +150,6 @@ title: Account
     background: var(--accent-dark);
   }
 
-  .account-button[disabled],
-  .account-button-secondary[disabled],
-  .account-button-danger[disabled] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-  }
-
   .provider-status.connected {
     color: var(--success);
     font-weight: 700;
@@ -194,32 +195,36 @@ title: Account
     <span class="account-kicker">Cookie Account</span>
     <h1>Account</h1>
     <p class="account-help">
-      This is a lightweight account layer backed by browser cookies instead of real user accounts. You can save your display name, connect provider API keys, and clear everything whenever you want.
+      This account is fully browser-side. Your display name and any provider keys you save live in cookies on this device, not in the repo and not on a server you run.
     </p>
   </section>
 
+  <div class="account-warning">
+    Save provider keys only on a browser profile you trust. This keeps control client-side, but it also means scripts on this site can read those cookies in order to reuse them.
+  </div>
+
   <section class="account-panel">
-    <h2>Connection</h2>
+    <h2>Profile</h2>
     <form class="account-form" id="account-form">
       <div class="account-field">
-        <label for="trusted-api-base">Trusted API Backend</label>
-        <input id="trusted-api-base" type="text" value="" readonly>
-        <p class="account-help">For safety, this public site only sends API keys to the trusted backend shown here. The key is never written into the GitHub repo.</p>
+        <label for="storage-mode">Storage Mode</label>
+        <input id="storage-mode" type="text" value="Browser cookies on this device only" readonly>
+        <p class="account-help">If you clear cookies or switch browsers, this account disappears there.</p>
       </div>
 
       <div class="account-field">
         <label for="display-name">Display Name</label>
         <input id="display-name" type="text" maxlength="80" placeholder="Kas" autocomplete="off">
-        <p class="account-help">Used for personalized greetings like "Welcome in Kas! Let's go get 'em."</p>
+        <p class="account-help">Used for greetings like "Welcome in Kas! Let's go get 'em."</p>
       </div>
 
       <div class="account-actions">
         <button class="account-button" id="save-profile" type="button">Save Name</button>
-        <button class="account-button-danger" id="clear-all" type="button">Clear All Account Data</button>
+        <button class="account-button-danger" id="clear-all" type="button">Clear All Cookies</button>
       </div>
 
       <div class="account-status" id="account-status" aria-live="polite"></div>
-      <p class="account-note">Provider keys are stored as encrypted persistent cookies on the backend domain. Your display name is also stored there so the site can greet you on future visits from this browser.</p>
+      <p class="account-note">Provider keys are stored in browser cookies for this device only. Nothing is written back into GitHub Pages content.</p>
     </form>
   </section>
 
@@ -229,7 +234,7 @@ title: Account
       <article class="provider-card" data-provider="openai">
         <span class="provider-pill">OpenAI</span>
         <h2>OpenAI</h2>
-        <p class="provider-meta">Used now for the AI FIRAC builder and ready for future OpenAI-powered tools.</p>
+        <p class="provider-meta">Used by the AI FIRAC page when you want the site to generate a brief directly from this browser.</p>
         <div class="account-field">
           <label for="provider-openai">API Key</label>
           <input id="provider-openai" type="password" placeholder="Paste OpenAI API key" autocomplete="off" spellcheck="false">
@@ -244,7 +249,7 @@ title: Account
       <article class="provider-card" data-provider="gemini">
         <span class="provider-pill">Gemini</span>
         <h2>Google Gemini</h2>
-        <p class="provider-meta">Stored now so we can wire Gemini-powered tools into the site later without asking again.</p>
+        <p class="provider-meta">Saved locally now so future Gemini tools on this site can reuse it without asking again.</p>
         <div class="account-field">
           <label for="provider-gemini">API Key</label>
           <input id="provider-gemini" type="password" placeholder="Paste Gemini API key" autocomplete="off" spellcheck="false">
@@ -259,7 +264,7 @@ title: Account
       <article class="provider-card" data-provider="claude">
         <span class="provider-pill">Claude</span>
         <h2>Anthropic Claude</h2>
-        <p class="provider-meta">Stored now so Claude-specific workflows can reuse it later from this same browser account layer.</p>
+        <p class="provider-meta">Saved locally now so Claude-specific tools can reuse it later from this same browser.</p>
         <div class="account-field">
           <label for="provider-claude">API Key</label>
           <input id="provider-claude" type="password" placeholder="Paste Claude API key" autocomplete="off" spellcheck="false">
@@ -276,281 +281,130 @@ title: Account
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const trustedApiBaseInput = document.getElementById("trusted-api-base");
+    const cookies = window.kasoCookies;
     const displayNameInput = document.getElementById("display-name");
     const saveProfileButton = document.getElementById("save-profile");
     const clearAllButton = document.getElementById("clear-all");
     const status = document.getElementById("account-status");
     const providerMap = {
-      openai: "OpenAI",
-      gemini: "Google Gemini",
-      claude: "Anthropic Claude"
+      openai: { label: "OpenAI", cookieName: "kaso_key_openai" },
+      gemini: { label: "Google Gemini", cookieName: "kaso_key_gemini" },
+      claude: { label: "Anthropic Claude", cookieName: "kaso_key_claude" }
     };
+    const profileCookie = "kaso_profile_name";
     const providerKeys = Object.keys(providerMap);
 
-    trustedApiBaseInput.value = getApiBase() || "No trusted backend configured yet.";
     refreshAccount();
 
-    saveProfileButton.addEventListener("click", async function () {
-      const endpoint = buildEndpoint("/api/account/profile");
+    saveProfileButton.addEventListener("click", function () {
+      const displayName = displayNameInput.value.trim();
 
-      if (!endpoint) {
-        setStatus("This deployment does not have a trusted backend configured yet.", true);
+      if (displayName.length > 80) {
+        setStatus("Keep the display name under 80 characters.", true);
         return;
       }
 
-      saveProfileButton.disabled = true;
-      setStatus("Saving your display name...");
-
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ displayName: displayNameInput.value.trim() }),
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data && data.error ? data.error : "Could not save your display name.");
-        }
-
-        setStatus(data.displayName ? "Display name saved." : "Display name cleared.");
-        announceAccountUpdate();
-        await refreshAccount();
-      } catch (error) {
-        setStatus(error && error.message ? error.message : "Could not save your display name.", true);
-      } finally {
-        saveProfileButton.disabled = false;
+      if (displayName) {
+        cookies.set(profileCookie, displayName);
+        setStatus("Display name saved in this browser.");
+      } else {
+        cookies.remove(profileCookie);
+        setStatus("Display name cleared from this browser.");
       }
+
+      announceAccountUpdate();
+      refreshAccount();
     });
 
-    clearAllButton.addEventListener("click", async function () {
-      const endpoint = buildEndpoint("/api/account/clear-all");
-
-      if (!endpoint) {
-        setStatus("This deployment does not have a trusted backend configured yet.", true);
+    clearAllButton.addEventListener("click", function () {
+      if (!window.confirm("Clear your saved display name and every provider cookie from this browser?")) {
         return;
       }
 
-      if (!window.confirm("Clear your saved display name and every provider cookie for this browser?")) {
-        return;
-      }
+      cookies.remove(profileCookie);
+      providerKeys.forEach(function (provider) {
+        cookies.remove(providerMap[provider].cookieName);
+        const input = document.getElementById("provider-" + provider);
 
-      clearAllButton.disabled = true;
-      setStatus("Clearing all saved account cookies...");
-
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          credentials: "include",
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data && data.error ? data.error : "Could not clear account data.");
+        if (input) {
+          input.value = "";
         }
+      });
 
-        displayNameInput.value = "";
-        providerKeys.forEach(function (provider) {
-          const input = document.getElementById("provider-" + provider);
-          if (input) {
-            input.value = "";
-          }
-        });
-        setStatus("All saved account cookies cleared.");
-        announceAccountUpdate();
-        await refreshAccount();
-      } catch (error) {
-        setStatus(error && error.message ? error.message : "Could not clear account data.", true);
-      } finally {
-        clearAllButton.disabled = false;
-      }
+      displayNameInput.value = "";
+      setStatus("All saved cookies cleared from this browser.");
+      announceAccountUpdate();
+      refreshAccount();
     });
 
     document.querySelectorAll(".provider-save").forEach(function (button) {
-      button.addEventListener("click", async function () {
+      button.addEventListener("click", function () {
         const provider = button.getAttribute("data-provider");
+        const providerData = providerMap[provider];
         const input = document.getElementById("provider-" + provider);
-        const endpoint = buildEndpoint("/api/account/provider");
         const apiKey = input ? input.value.trim() : "";
-        const providerLabel = providerMap[provider] || provider;
 
-        if (!endpoint) {
-          setStatus("This deployment does not have a trusted backend configured yet.", true);
+        if (!providerData) {
+          setStatus("Unknown provider.", true);
           return;
         }
 
         if (!apiKey) {
-          setStatus("Paste a key for " + providerLabel + " first.", true);
+          setStatus("Paste a key for " + providerData.label + " first.", true);
           return;
         }
 
-        if (
-          typeof window.kasoConfirmProviderStorage === "function" &&
-          !window.kasoConfirmProviderStorage(providerLabel)
-        ) {
+        if (!window.kasoConfirmProviderStorage(providerData.label)) {
           return;
         }
 
-        button.disabled = true;
-        setStatus("Saving " + providerLabel + " key...");
-
-        try {
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ provider: provider, apiKey: apiKey }),
-          });
-          const data = await response.json();
-
-          if (!response.ok) {
-            throw new Error(data && data.error ? data.error : "Could not save the provider key.");
-          }
-
-          if (input) {
-            input.value = "";
-          }
-          setStatus(data.status && data.status.label ? data.status.label + " key saved." : "Provider key saved.");
-          announceAccountUpdate();
-          await refreshAccount();
-        } catch (error) {
-          setStatus(error && error.message ? error.message : "Could not save the provider key.", true);
-        } finally {
-          button.disabled = false;
+        cookies.set(providerData.cookieName, apiKey);
+        if (input) {
+          input.value = "";
         }
+
+        setStatus(providerData.label + " key saved in this browser.");
+        announceAccountUpdate();
+        refreshAccount();
       });
     });
 
     document.querySelectorAll(".provider-clear").forEach(function (button) {
-      button.addEventListener("click", async function () {
+      button.addEventListener("click", function () {
         const provider = button.getAttribute("data-provider");
-        const endpoint = buildEndpoint("/api/account/provider/clear");
-        const providerLabel = providerMap[provider] || provider;
+        const providerData = providerMap[provider];
 
-        if (!endpoint) {
-          setStatus("This deployment does not have a trusted backend configured yet.", true);
+        if (!providerData) {
+          setStatus("Unknown provider.", true);
           return;
         }
 
-        button.disabled = true;
-        setStatus("Clearing " + providerLabel + " key...");
-
-        try {
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ provider: provider }),
-          });
-          const data = await response.json();
-
-          if (!response.ok) {
-            throw new Error(data && data.error ? data.error : "Could not clear the provider key.");
-          }
-
-          setStatus(providerLabel + " key cleared.");
-          announceAccountUpdate();
-          await refreshAccount();
-        } catch (error) {
-          setStatus(error && error.message ? error.message : "Could not clear the provider key.", true);
-        } finally {
-          button.disabled = false;
-        }
+        cookies.remove(providerData.cookieName);
+        setStatus(providerData.label + " key cleared from this browser.");
+        announceAccountUpdate();
+        refreshAccount();
       });
     });
 
-    async function refreshAccount() {
-      const endpoint = buildEndpoint("/api/account");
+    function refreshAccount() {
+      displayNameInput.value = cookies.get(profileCookie) || "";
 
-      if (!endpoint) {
-        displayNameInput.value = "";
-        providerKeys.forEach(function (provider) {
-          paintProviderStatus(provider, null, false, true);
-        });
-        return;
-      }
+      providerKeys.forEach(function (provider) {
+        const providerData = providerMap[provider];
+        const connected = Boolean(cookies.get(providerData.cookieName));
+        const node = document.getElementById("status-" + provider);
 
-      try {
-        const response = await fetch(endpoint, {
-          method: "GET",
-          credentials: "include",
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data && data.error ? data.error : "Could not load account data.");
+        if (!node) {
+          return;
         }
 
-        displayNameInput.value = data.displayName || "";
-        providerKeys.forEach(function (provider) {
-          paintProviderStatus(provider, data.providers && data.providers[provider] ? data.providers[provider] : null);
-        });
-      } catch (error) {
-        providerKeys.forEach(function (provider) {
-          paintProviderStatus(provider, null, true, false);
-        });
-      }
-    }
-
-    function paintProviderStatus(provider, providerData, unreachable, missingBackend) {
-      const node = document.getElementById("status-" + provider);
-
-      if (!node) {
-        return;
-      }
-
-      if (missingBackend) {
-        node.textContent = "No trusted backend is configured for this deployment.";
-        node.className = "provider-status disconnected";
-        return;
-      }
-
-      if (unreachable) {
-        node.textContent = "Could not reach the backend.";
-        node.className = "provider-status disconnected";
-        return;
-      }
-
-      if (!providerData) {
-        node.textContent = "No status yet.";
-        node.className = "provider-status";
-        return;
-      }
-
-      if (providerData.connected) {
-        node.textContent = providerData.label + " key connected for this browser.";
-        node.className = "provider-status connected";
-        return;
-      }
-
-      node.textContent = providerData.label + " is not connected yet.";
-      node.className = "provider-status disconnected";
-    }
-
-    function buildEndpoint(path) {
-      const base = getApiBase();
-
-      if (!base) {
-        return "";
-      }
-
-      return base + path;
-    }
-
-    function getApiBase() {
-      if (typeof window.kasoGetApiBase !== "function") {
-        return "";
-      }
-
-      return window.kasoGetApiBase();
+        node.textContent = connected
+          ? providerData.label + " key saved in this browser."
+          : providerData.label + " is not saved yet.";
+        node.className = connected
+          ? "provider-status connected"
+          : "provider-status disconnected";
+      });
     }
 
     function setStatus(message, isError) {

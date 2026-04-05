@@ -1,4 +1,4 @@
-# **AI** *pro se* — The Future of Distributed Legal Intelligence
+# **AI** *pro se* Ã¢â‚¬â€ The Future of Distributed Legal Intelligence
 
 > A practical, scalable, open-source platform bridging the $100B access-to-justice crisis.
 
@@ -6,7 +6,7 @@
 
 ## The Problem
 
-Justice is a right, yet competent legal representation is a luxury. Millions of individuals become *pro se* (self-represented) litigants annually—not by choice, but by financial necessity. They face a massive cognitive gap:
+Justice is a right, yet competent legal representation is a luxury. Millions of individuals become *pro se* (self-represented) litigants annuallyÃ¢â‚¬â€not by choice, but by financial necessity. They face a massive cognitive gap:
 
 - **Identifying** which facts are legally material
 - **Understanding** procedural requirements and deadlines
@@ -20,7 +20,7 @@ Current legal technology is built for professionals behind firm walls. The unrep
 
 ## What You Get Here
 
-### 🎓 Free Classroom Resources
+### Ã°Å¸Å½â€œ Free Classroom Resources
 Access organized course materials across multiple legal domains:
 - **PDFs**: Study guides, case briefs, procedural summaries
 - **Videos**: Explainer videos breaking down complex concepts
@@ -28,7 +28,7 @@ Access organized course materials across multiple legal domains:
 
 **Browse courses at:** [`/classroom`](https://kaso.law/classroom)
 
-### 📚 Prompt Library
+### Ã°Å¸â€œÅ¡ Prompt Library
 Copy-paste ready legal reasoning prompts for any AI tool (ChatGPT, Claude, Gemini, ROSS):
 - **FIRAC case briefing templates**
 - **Issue spotting workflows**
@@ -38,20 +38,20 @@ Copy-paste ready legal reasoning prompts for any AI tool (ChatGPT, Claude, Gemin
 
 **View prompts at:** [`/prompts`](https://kaso.law/prompts)
 
-### 🤖 AI FIRAC Builder
-Upload a case opinion PDF, send it to your private backend, and get a full clipboard-ready FIRAC brief back:
+### Ã°Å¸Â¤â€“ AI FIRAC Builder
+Upload a case opinion PDF, use your own browser-saved OpenAI key, and get a full clipboard-ready FIRAC brief back:
 - **Drag-and-drop PDF upload**
-- **Server-side OpenAI call**
+- **Browser-side OpenAI call**
 - **Clipboard-ready Word-friendly output**
-- **API key kept off the public website**
+- **API key stored in browser cookies on your device**
 
 **Open the tool at:** [`/brief`](https://kaso.law/brief)
 
-### 🏗️ Transparent Architecture
+### Ã°Å¸Ââ€”Ã¯Â¸Â Transparent Architecture
 Every aspect of this project is open-source and inspectable:
-- **GitHub as the operational backbone** — all code, prompts, and content tracked and versioned
-- **AI models used transparently** — never hidden or proprietary
-- **Human judgment as the constraint** — not removed, but made more efficient
+- **GitHub as the operational backbone** Ã¢â‚¬â€ all code, prompts, and content tracked and versioned
+- **AI models used transparently** Ã¢â‚¬â€ never hidden or proprietary
+- **Human judgment as the constraint** Ã¢â‚¬â€ not removed, but made more efficient
 
 **Read the tech stack:** [`/tech-stack`](https://kaso.law/tech-stack)
 
@@ -70,13 +70,13 @@ Every aspect of this project is open-source and inspectable:
 2. **Add your course materials** to `/assets/courses/`:
    ```
    /assets/courses/
-   ├── CourseName/
-   │   └── YYYY.MM.DD/
-   │       ├── pdfs/
-   │       ├── videos/
-   │       └── podcasts/
+   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ CourseName/
+   Ã¢â€â€š   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ YYYY.MM.DD/
+   Ã¢â€â€š       Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ pdfs/
+   Ã¢â€â€š       Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ videos/
+   Ã¢â€â€š       Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ podcasts/
    ```
-3. **Push changes** — the site updates automatically
+3. **Push changes** Ã¢â‚¬â€ the site updates automatically
 4. **Create a pull request** to contribute to the main branch
 
 [See course upload guide](./assets/courses/README.md)
@@ -87,46 +87,46 @@ Every aspect of this project is open-source and inspectable:
 
 ```
 kaso.law/
-├── README.md                      # This file
-├── CNAME                          # GitHub Pages custom domain
-├── _config.yml                    # Jekyll site configuration
-├── _layouts/
-│   └── default.html              # Master page template
-├── assets/
-│   ├── css/
-│   │   └── main.css              # Site styling
-│   ├── images/
-│   │   ├── banner.jpg            # Header banner
-│   │   └── [course images]
-│   └── courses/                  # 🎓 Course materials (PDFs, videos, podcasts)
-│       ├── ExampleCourse/
-│       │   └── 2026.04.04/
-│       │       ├── pdfs/
-│       │       ├── videos/
-│       │       └── podcasts/
-│       └── README.md             # Upload instructions
-├── index.md                       # Homepage
-├── about.md                       # About AI pro se & founder
-├── why.md                         # Market analysis & why this exists
-├── tech-stack.md                  # Technical architecture
-├── prompts.md                     # Prompt library showcase
-└── classroom.md                   # 🎓 Dynamic course browser
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ README.md                      # This file
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ CNAME                          # GitHub Pages custom domain
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ _config.yml                    # Jekyll site configuration
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ _layouts/
+Ã¢â€â€š   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ default.html              # Master page template
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ assets/
+Ã¢â€â€š   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ css/
+Ã¢â€â€š   Ã¢â€â€š   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ main.css              # Site styling
+Ã¢â€â€š   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ images/
+Ã¢â€â€š   Ã¢â€â€š   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ banner.jpg            # Header banner
+Ã¢â€â€š   Ã¢â€â€š   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ [course images]
+Ã¢â€â€š   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ courses/                  # Ã°Å¸Å½â€œ Course materials (PDFs, videos, podcasts)
+Ã¢â€â€š       Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ ExampleCourse/
+Ã¢â€â€š       Ã¢â€â€š   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ 2026.04.04/
+Ã¢â€â€š       Ã¢â€â€š       Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ pdfs/
+Ã¢â€â€š       Ã¢â€â€š       Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ videos/
+Ã¢â€â€š       Ã¢â€â€š       Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ podcasts/
+Ã¢â€â€š       Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ README.md             # Upload instructions
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ index.md                       # Homepage
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ about.md                       # About AI pro se & founder
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ why.md                         # Market analysis & why this exists
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ tech-stack.md                  # Technical architecture
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ prompts.md                     # Prompt library showcase
+Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ classroom.md                   # Ã°Å¸Å½â€œ Dynamic course browser
 ```
 
 ---
 
 ## Key Features
 
-### 🔍 Dynamic Course Discovery
+### Ã°Å¸â€Â Dynamic Course Discovery
 The **Classroom** page automatically scans GitHub and lists:
 - All courses organized hierarchically
 - Classes sorted by date (newest first)
 - Materials grouped by type (PDF/Video/Podcast)
 - Direct download links for each file
 
-No manual updates needed. Just upload → commit → sites updates automatically.
+No manual updates needed. Just upload Ã¢â€ â€™ commit Ã¢â€ â€™ sites updates automatically.
 
-### 📖 Reusable Legal Reasoning Prompts
+### Ã°Å¸â€œâ€“ Reusable Legal Reasoning Prompts
 Structured, copy-paste ready workflows for:
 - Case briefing (FIRAC format)
 - Issue spotting and legal theory application
@@ -136,13 +136,13 @@ Structured, copy-paste ready workflows for:
 
 All prompts work across any LLM (OpenAI, Claude, Gemini, etc.).
 
-### 🎯 Transparent, Open-Source Design
-- **No hidden algorithms** — every workflow is inspectable
-- **No vendor lock-in** — prompts transfer across AI platforms
-- **No paywalls** — all resources free and publicly accessible
-- **No proprietary models** — works with standard APIs
+### Ã°Å¸Å½Â¯ Transparent, Open-Source Design
+- **No hidden algorithms** Ã¢â‚¬â€ every workflow is inspectable
+- **No vendor lock-in** Ã¢â‚¬â€ prompts transfer across AI platforms
+- **No paywalls** Ã¢â‚¬â€ all resources free and publicly accessible
+- **No proprietary models** Ã¢â‚¬â€ works with standard APIs
 
-### 📱 Mobile-Responsive Design
+### Ã°Å¸â€œÂ± Mobile-Responsive Design
 - Full responsive layout (desktop, tablet, mobile)
 - Hamburger navigation on smaller screens
 - Optimized for reading and navigation
@@ -153,19 +153,19 @@ All prompts work across any LLM (OpenAI, Claude, Gemini, etc.).
 
 ### For Learners
 
-1. **Browse the Classroom** — visit `/classroom` to see available courses
-2. **Select a course and date** — organized hierarchically (e.g., Civil Procedure → 2026.04.15)
-3. **Choose your format** — download PDFs, watch videos, or listen to podcasts
-4. **Use the prompts** — reference templates from `/prompts` to structure your legal thinking
-5. **Get to work** — prepare your case like a lawyer would
+1. **Browse the Classroom** Ã¢â‚¬â€ visit `/classroom` to see available courses
+2. **Select a course and date** Ã¢â‚¬â€ organized hierarchically (e.g., Civil Procedure Ã¢â€ â€™ 2026.04.15)
+3. **Choose your format** Ã¢â‚¬â€ download PDFs, watch videos, or listen to podcasts
+4. **Use the prompts** Ã¢â‚¬â€ reference templates from `/prompts` to structure your legal thinking
+5. **Get to work** Ã¢â‚¬â€ prepare your case like a lawyer would
 
 ### For Contributors
 
-1. **Create a course folder** — e.g., `/assets/courses/CivilProcedure/`
-2. **Add date subfolders** — use `YYYY.MM.DD` format (e.g., `2026.04.15`)
-3. **Organize materials** — place files in `/pdfs`, `/videos`, or `/podcasts` subfolders
-4. **Commit and push** — the site regenerates on deploy
-5. **GitHub API does the rest** — course appears instantly in the Classroom browser
+1. **Create a course folder** Ã¢â‚¬â€ e.g., `/assets/courses/CivilProcedure/`
+2. **Add date subfolders** Ã¢â‚¬â€ use `YYYY.MM.DD` format (e.g., `2026.04.15`)
+3. **Organize materials** Ã¢â‚¬â€ place files in `/pdfs`, `/videos`, or `/podcasts` subfolders
+4. **Commit and push** Ã¢â‚¬â€ the site regenerates on deploy
+5. **GitHub API does the rest** Ã¢â‚¬â€ course appears instantly in the Classroom browser
 
 [See detailed instructions](./assets/courses/README.md)
 
@@ -174,20 +174,20 @@ All prompts work across any LLM (OpenAI, Claude, Gemini, etc.).
 ## Technology Stack
 
 ### Site Layer
-- **Jekyll** — Static site generation
-- **Markdown** — Fast, editable content
-- **GitHub Pages** — Simple deployment and hosting
-- **Custom HTML/CSS/JavaScript** — Interactive elements
+- **Jekyll** Ã¢â‚¬â€ Static site generation
+- **Markdown** Ã¢â‚¬â€ Fast, editable content
+- **GitHub Pages** Ã¢â‚¬â€ Simple deployment and hosting
+- **Custom HTML/CSS/JavaScript** Ã¢â‚¬â€ Interactive elements
 
 ### AI Layer
-- **GitHub API** — Dynamic course listing and file discovery
-- **LLM-compatible prompts** — Works with OpenAI, Claude, Gemini, and other models
-- **Optional FIRAC backend** — Separate Node service for secure PDF-to-FIRAC generation
-- **Modular architecture** — Workflows upgrade as models improve
+- **GitHub API** Ã¢â‚¬â€ Dynamic course listing and file discovery
+- **LLM-compatible prompts** Ã¢â‚¬â€ Works with OpenAI, Claude, Gemini, and other models
+- **Browser-cookie account layer** — User-controlled local cookies for display name and provider keys
+- **Modular architecture** Ã¢â‚¬â€ Workflows upgrade as models improve
 
 ### Version Control
-- **Git** — All prompts, content, and materials versioned
-- **GitHub** — Transparent iteration and public development
+- **Git** Ã¢â‚¬â€ All prompts, content, and materials versioned
+- **GitHub** Ã¢â‚¬â€ Transparent iteration and public development
 
 ---
 
@@ -200,24 +200,24 @@ All prompts work across any LLM (OpenAI, Claude, Gemini, etc.).
 | [**Why**](https://kaso.law/why) | Market analysis of legal tech and access-to-justice |
 | [**Tech Stack**](https://kaso.law/tech-stack) | Technical architecture and operational design |
 | [**Prompts**](https://kaso.law/prompts) | Library of legal reasoning templates (copy-paste ready) |
-| [**Classroom**](https://kaso.law/classroom) | 🆕 Course materials hub (PDFs, videos, podcasts) |
+| [**Classroom**](https://kaso.law/classroom) | Ã°Å¸â€ â€¢ Course materials hub (PDFs, videos, podcasts) |
 
 ---
 
 ## Supported File Formats
 
 ### PDFs
-- `.pdf` — Study guides, case briefs, outlines, procedural summaries
+- `.pdf` Ã¢â‚¬â€ Study guides, case briefs, outlines, procedural summaries
 
 ### Videos
-- `.mp4` — Explainer videos, recorded lectures
-- `.webm` — Web-optimized video
-- `.mov` — Support for Mac video formats
+- `.mp4` Ã¢â‚¬â€ Explainer videos, recorded lectures
+- `.webm` Ã¢â‚¬â€ Web-optimized video
+- `.mov` Ã¢â‚¬â€ Support for Mac video formats
 
 ### Podcasts
-- `.mp3` — Standard audio format
-- `.m4a` — Apple audio format
-- `.wav` — High-quality uncompressed audio
+- `.mp3` Ã¢â‚¬â€ Standard audio format
+- `.m4a` Ã¢â‚¬â€ Apple audio format
+- `.wav` Ã¢â‚¬â€ High-quality uncompressed audio
 
 ---
 
@@ -227,17 +227,17 @@ For consistency and discoverability:
 
 ```
 Supported Courses (Examples):
-├── CivPro (Civil Procedure)
-├── AnimalLaw (Animal Law)
-├── ConstitutionalLaw (or ConLaw)
-├── ContractLaw
-├── CriminalLaw
-├── Evidence
-├── FamilyLaw
-├── IntellectualProperty
-├── Torts
-├── Admin
-└── [Any other legal domain]
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ CivPro (Civil Procedure)
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ AnimalLaw (Animal Law)
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ ConstitutionalLaw (or ConLaw)
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ ContractLaw
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ CriminalLaw
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Evidence
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ FamilyLaw
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ IntellectualProperty
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Torts
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Admin
+Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ [Any other legal domain]
 
 Class Naming:
 YYYY.MM.DD (e.g., 2026.04.15)
@@ -249,11 +249,11 @@ YYYY.MM.DD (e.g., 2026.04.15)
 
 ### Ways to Contribute
 
-1. **Submit course materials** — Create a PR with PDFs, videos, or podcasts
-2. **Improve documentation** — Clarify existing guides or add new ones
-3. **Suggest prompts** — Recommend new legal reasoning workflows
-4. **Report issues** — Found a broken link or display issue? Let us know
-5. **Share feedback** — What would make this more useful?
+1. **Submit course materials** Ã¢â‚¬â€ Create a PR with PDFs, videos, or podcasts
+2. **Improve documentation** Ã¢â‚¬â€ Clarify existing guides or add new ones
+3. **Suggest prompts** Ã¢â‚¬â€ Recommend new legal reasoning workflows
+4. **Report issues** Ã¢â‚¬â€ Found a broken link or display issue? Let us know
+5. **Share feedback** Ã¢â‚¬â€ What would make this more useful?
 
 ### Pull Request Process
 
@@ -281,7 +281,7 @@ YYYY.MM.DD (e.g., 2026.04.15)
 
 ## License
 
-[Add your chosen license here — e.g., MIT, Apache 2.0, or CC BY-SA]
+[Add your chosen license here Ã¢â‚¬â€ e.g., MIT, Apache 2.0, or CC BY-SA]
 
 ---
 
@@ -318,6 +318,6 @@ This is not about replacing lawyers. It's about empowering people to think clear
 
 ---
 
-**Made with ❤️ for the 86% of low-income Americans without access to legal counsel.**
+**Made with Ã¢ÂÂ¤Ã¯Â¸Â for the 86% of low-income Americans without access to legal counsel.**
 
 *Last Updated: 2026.04.04*

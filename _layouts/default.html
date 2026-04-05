@@ -48,33 +48,61 @@
     </div>
     <script>
       window.KASO_CONFIG = {
-        apiBase: {{ site.api_base_url | default: "" | jsonify }},
-        localApiBase: {{ site.local_api_base_url | default: "" | jsonify }}
+        openaiModel: {{ site.openai_client_model | default: "gpt-4.1-mini" | jsonify }}
       };
 
-      window.kasoGetApiBase = function () {
-        const host = window.location.hostname;
-        const useLocal = host === "localhost" || host === "127.0.0.1";
-        const base = useLocal && window.KASO_CONFIG.localApiBase
-          ? window.KASO_CONFIG.localApiBase
-          : window.KASO_CONFIG.apiBase;
+      window.kasoCookies = {
+        get: function (name) {
+          const prefix = String(name || "") + "=";
+          const parts = document.cookie ? document.cookie.split(";") : [];
 
-        return String(base || "").replace(/\/+$/, "");
+          for (let index = 0; index < parts.length; index += 1) {
+            const part = parts[index].trim();
+
+            if (part.indexOf(prefix) === 0) {
+              return decodeURIComponent(part.slice(prefix.length));
+            }
+          }
+
+          return "";
+        },
+        set: function (name, value, maxAgeSeconds) {
+          const encodedName = String(name || "");
+          const encodedValue = encodeURIComponent(String(value || ""));
+          const cookieParts = [
+            encodedName + "=" + encodedValue,
+            "path=/",
+            "SameSite=Lax",
+            "Max-Age=" + String(maxAgeSeconds || 31536000)
+          ];
+
+          if (window.location.protocol === "https:") {
+            cookieParts.push("Secure");
+          }
+
+          document.cookie = cookieParts.join("; ");
+        },
+        remove: function (name) {
+          const cookieParts = [
+            String(name || "") + "=",
+            "path=/",
+            "SameSite=Lax",
+            "Max-Age=0"
+          ];
+
+          if (window.location.protocol === "https:") {
+            cookieParts.push("Secure");
+          }
+
+          document.cookie = cookieParts.join("; ");
+        }
       };
 
       window.kasoConfirmProviderStorage = function (providerLabel) {
-        const apiBase = window.kasoGetApiBase();
-
-        if (!apiBase) {
-          window.alert("No trusted API backend is configured for this site yet.");
-          return false;
-        }
-
         return window.confirm(
           providerLabel +
-            " API keys are never written to the GitHub repo, but they will be sent to " +
-            apiBase +
-            " and stored there in an encrypted cookie for this browser. Continue?"
+            " will be stored in a browser cookie on this device so this site can reuse it later. " +
+            "That means it stays client-side and under your control, but it is not secret from this browser. Continue only on a trusted personal device."
         );
       };
     </script>
@@ -95,39 +123,19 @@
             return;
           }
 
-          const base = typeof window.kasoGetApiBase === 'function'
-            ? window.kasoGetApiBase()
+          const cookies = window.kasoCookies;
+          const displayName = cookies && typeof cookies.get === 'function'
+            ? cookies.get('kaso_profile_name').trim()
             : '';
 
-          if (!base) {
+          if (!displayName) {
             greeting.hidden = true;
             greeting.textContent = '';
             return;
           }
 
-          fetch(base + '/api/account', {
-            method: 'GET',
-            credentials: 'include'
-          })
-            .then(function(response) {
-              return response.json().then(function(data) {
-                return { ok: response.ok, data: data };
-              });
-            })
-            .then(function(result) {
-              if (!result.ok || !result.data || !result.data.displayName) {
-                greeting.hidden = true;
-                greeting.textContent = '';
-                return;
-              }
-
-              greeting.textContent = "Welcome in " + result.data.displayName + "! Let's go get 'em.";
-              greeting.hidden = false;
-            })
-            .catch(function() {
-              greeting.hidden = true;
-              greeting.textContent = '';
-            });
+          greeting.textContent = "Welcome in " + displayName + "! Let's go get 'em.";
+          greeting.hidden = false;
         }
 
         updateGreeting();
