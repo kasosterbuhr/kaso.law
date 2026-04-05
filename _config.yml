@@ -4,7 +4,8 @@ url: https://kaso.law
 baseurl: ""
 openai_public_api_key: ""
 openai_client_model: gpt-5.4
-openai_reporter_model: gpt-4o-search-preview
+openai_reporter_model: gpt-5.2
+server_api_base_url: ""
 markdown: kramdown
 kramdown:
-  input: GFM`r`nserver_api_base_url: ""`r`n
+  input: GFM

@@ -51,7 +51,7 @@
       window.KASO_CONFIG = {
         openaiPublicApiKey: {{ site.openai_public_api_key | default: "" | jsonify }},
         openaiModel: {{ site.openai_client_model | default: "gpt-5.4" | jsonify }},
-        openaiReporterModel: {{ site.openai_reporter_model | default: "gpt-4o-search-preview" | jsonify }},
+        openaiReporterModel: {{ site.openai_reporter_model | default: "gpt-5.2" | jsonify }},
         serverApiBaseUrl: {{ site.server_api_base_url | default: "" | jsonify }}
       };
 
@@ -148,4 +148,5 @@
     </script>
   </body>
 </html>
+
 
