@@ -263,7 +263,7 @@ title: Prompt Library
   <section class="prompt-actions" aria-label="Quick prompt actions">
     <button class="prompt-action" type="button" data-copy-key="firac">Copy FIRAC</button>
     <button class="prompt-action" type="button" data-copy-key="nlm">Copy NLM</button>
-    <button class="prompt-action" type="button" data-copy-key="voice">Copy Voice</button>
+    <button class="prompt-action" type="button" data-copy-key="voice">DRQ MyVoice</button>
     <a class="prompt-download" href="/assets/downloads/BriefTemplate.txt" download>Download Brief Template</a>
   </section>
 
