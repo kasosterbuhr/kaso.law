@@ -207,6 +207,7 @@ body {
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .site-title {
@@ -249,12 +250,14 @@ body {
   color: #1e293b;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-word;
 }
 
-.site-content img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 12px;
+.site-content * {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
  
 
 .site-content pre {
@@ -266,13 +269,21 @@ body {
   overflow-x: auto;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-all;
   white-space: pre-wrap;
 }
 
 .site-content code {
   word-wrap: break-word;
   overflow-wrap: break-word;
-} box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  word-break: break-all;
+}
+
+.site-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 24px 0;
 }
 
