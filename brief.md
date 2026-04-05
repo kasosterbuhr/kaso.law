@@ -652,6 +652,7 @@ title: AI FIRAC
       const timezone =
         (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
         "America/Chicago";
+      const normalizedRequestedCitation = normalizeCitation(citation);
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
@@ -680,9 +681,11 @@ title: AI FIRAC
                 type: "input_text",
                 text:
                   "You are a precise law-school case briefing assistant with web-search access. " +
-                  "Find the opinion identified by the reporter citation. If you cannot confidently verify the correct case text, say that you could not verify the citation and stop. " +
+                  "Find the opinion identified by the reporter citation. If you cannot confidently verify the exact reporter citation, say that you could not verify the citation and stop. " +
                   "Use authoritative case text or reliable reproductions of the opinion. Do not guess. " +
-                  "Return a clean FIRAC brief with no embedded citations or source callouts in the brief itself."
+                  "Return valid JSON only with the keys verified, verified_citation, case_name, mismatch_reason, and brief. " +
+                  "Set verified to true only if the exact reporter citation matches. If the exact reporter citation does not match, set verified to false, explain briefly in mismatch_reason, and leave brief empty. " +
+                  "The brief itself must have no embedded citations or source callouts."
               }]
             },
             {
@@ -691,6 +694,7 @@ title: AI FIRAC
                 type: "input_text",
                 text:
                   "Reporter citation: " + citation + "\n\n" +
+                  "Before briefing, verify the exact volume, reporter, and first page. Nearby citations are not good enough.\n\n" +
                   "Use my standard FIRAC instructions and template below.\n\n" +
                   firacPrompt +
                   "\n\nUse the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
@@ -707,10 +711,30 @@ title: AI FIRAC
         throw new Error(data && data.error && data.error.message ? data.error.message : "OpenAI citation FIRAC request failed.");
       }
 
-      const text = extractOutputText(data).trim();
+      const parsed = parseCitationResult(extractOutputText(data));
+      const normalizedVerifiedCitation = normalizeCitation(parsed.verified_citation);
+
+      if (!parsed.verified) {
+        throw new Error(
+          parsed.mismatch_reason ||
+          "I could not verify that the citation matched an exact case report."
+        );
+      }
+
+      if (!normalizedRequestedCitation || !normalizedVerifiedCitation || normalizedRequestedCitation !== normalizedVerifiedCitation) {
+        throw new Error(
+          "Citation mismatch: requested " +
+          citation +
+          " but the lookup verified " +
+          (parsed.verified_citation || "a different citation") +
+          "."
+        );
+      }
+
+      const text = String(parsed.brief || "").trim();
 
       if (!text) {
-        throw new Error("OpenAI returned an empty FIRAC response for the citation.");
+        throw new Error("OpenAI verified the citation but returned an empty FIRAC response.");
       }
 
       return {
@@ -922,6 +946,44 @@ title: AI FIRAC
           title: title || url,
         });
       }
+    }
+
+    function parseCitationResult(rawText) {
+      const text = String(rawText || "").trim();
+
+      if (!text) {
+        throw new Error("OpenAI returned an empty citation verification response.");
+      }
+
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        const cleaned = text
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/\s*```$/i, "")
+          .trim();
+
+        try {
+          return JSON.parse(cleaned);
+        } catch (innerError) {
+          throw new Error("OpenAI returned a citation result that was not valid JSON.");
+        }
+      }
+    }
+
+    function normalizeCitation(value) {
+      const raw = String(value || "").toUpperCase().trim();
+      const match = raw.match(/(\d+)\s+([A-Z.]+)\s+(\d+)/);
+
+      if (!match) {
+        return raw.replace(/\s+/g, " ");
+      }
+
+      const volume = match[1];
+      const reporter = match[2].replace(/\./g, "");
+      const page = match[3];
+      return [volume, reporter, page].join(" ");
     }
 
     function extractOutputText(data) {
