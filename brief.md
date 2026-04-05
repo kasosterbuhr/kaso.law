@@ -230,16 +230,16 @@ title: AI FIRAC
     <span class="brief-kicker">Server-Powered FIRAC</span>
     <h1>AI FIRAC Builder</h1>
     <p>
-      Connect your OpenAI key once, let the backend store it in an encrypted persistent cookie, and then drag in case-opinion PDFs whenever you want a clipboard-ready FIRAC brief.
+      Connect your OpenAI key once, let the trusted backend store it in an encrypted persistent cookie, and then drag in case-opinion PDFs whenever you want a clipboard-ready FIRAC brief.
     </p>
   </section>
 
   <section class="brief-panel">
     <form class="brief-form" id="brief-form">
       <div class="brief-field">
-        <label for="api-base">API Base URL</label>
-        <input id="api-base" name="api-base" type="text" placeholder="http://localhost:8787" autocomplete="off">
-        <p class="brief-help">Use your backend root URL here. Example: <code>http://localhost:8787</code> or <code>https://api.kaso.law</code>.</p>
+        <label for="trusted-api-base">Trusted API Backend</label>
+        <input id="trusted-api-base" name="trusted-api-base" type="text" value="" readonly>
+        <p class="brief-help">For safety, this public site only sends OpenAI keys to the trusted backend shown here. The key is never written into the GitHub repo.</p>
       </div>
 
       <div class="brief-field">
@@ -250,7 +250,7 @@ title: AI FIRAC
           <button class="brief-button-secondary" id="disconnect-button" type="button">Forget Key</button>
         </div>
         <div class="brief-connection" id="connection-status" aria-live="polite">Checking connection status...</div>
-        <p class="brief-help">The raw key is sent only to your backend. The backend encrypts it into an <code>HttpOnly</code> cookie so future FIRAC requests can use it without keeping the key in page JavaScript.</p>
+        <p class="brief-help">The raw key is sent only to the trusted backend. The backend encrypts it into an <code>HttpOnly</code> cookie so future FIRAC requests can use it without keeping the key in page JavaScript.</p>
       </div>
 
       <div class="brief-field">
@@ -283,8 +283,7 @@ title: AI FIRAC
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const storageKey = "kasoFiracApiBase";
-    const apiBaseInput = document.getElementById("api-base");
+    const trustedApiBaseInput = document.getElementById("trusted-api-base");
     const apiKeyInput = document.getElementById("api-key");
     const connectButton = document.getElementById("connect-button");
     const disconnectButton = document.getElementById("disconnect-button");
@@ -299,31 +298,28 @@ title: AI FIRAC
     let selectedFile = null;
     let isConnected = false;
 
-    apiBaseInput.value = window.localStorage.getItem(storageKey) || "";
+    trustedApiBaseInput.value = getApiBase() || "No trusted backend configured yet.";
     syncState();
     refreshConnectionStatus();
 
-    apiBaseInput.addEventListener("input", function () {
-      window.localStorage.setItem(storageKey, apiBaseInput.value.trim());
-      connectionStatus.textContent = apiBaseInput.value.trim()
-        ? "Checking connection status..."
-        : "Enter your backend URL to connect your key.";
-      connectionStatus.className = "brief-connection";
-      syncState();
-      refreshConnectionStatus();
-    });
-
     connectButton.addEventListener("click", async function () {
       const apiKey = apiKeyInput.value.trim();
-      const endpoint = buildEndpoint(apiBaseInput.value, "/api/connect-key");
+      const endpoint = buildEndpoint("/api/connect-key");
 
       if (!endpoint) {
-        setStatus("Enter your backend URL first.", true);
+        setStatus("This deployment does not have a trusted backend configured yet.", true);
         return;
       }
 
       if (!apiKey) {
         setStatus("Paste an OpenAI API key first.", true);
+        return;
+      }
+
+      if (
+        typeof window.kasoConfirmProviderStorage === "function" &&
+        !window.kasoConfirmProviderStorage("OpenAI")
+      ) {
         return;
       }
 
@@ -358,10 +354,10 @@ title: AI FIRAC
     });
 
     disconnectButton.addEventListener("click", async function () {
-      const endpoint = buildEndpoint(apiBaseInput.value, "/api/disconnect-key");
+      const endpoint = buildEndpoint("/api/disconnect-key");
 
       if (!endpoint) {
-        setStatus("Enter your backend URL first.", true);
+        setStatus("This deployment does not have a trusted backend configured yet.", true);
         return;
       }
 
@@ -431,10 +427,10 @@ title: AI FIRAC
         return;
       }
 
-      const endpoint = buildEndpoint(apiBaseInput.value, "/api/firac");
+      const endpoint = buildEndpoint("/api/firac");
 
       if (!endpoint) {
-        setStatus("Enter your backend URL first.", true);
+        setStatus("This deployment does not have a trusted backend configured yet.", true);
         return;
       }
 
@@ -512,12 +508,12 @@ title: AI FIRAC
     }
 
     async function refreshConnectionStatus() {
-      const endpoint = buildEndpoint(apiBaseInput.value, "/api/key-status");
+      const endpoint = buildEndpoint("/api/key-status");
 
       if (!endpoint) {
         isConnected = false;
-        connectionStatus.textContent = "Enter your backend URL to connect your key.";
-        connectionStatus.className = "brief-connection";
+        connectionStatus.textContent = "This deployment does not have a trusted backend configured yet.";
+        connectionStatus.className = "brief-connection disconnected";
         syncState();
         return;
       }
@@ -533,12 +529,10 @@ title: AI FIRAC
           throw new Error(data && data.error ? data.error : "Could not read connection status.");
         }
 
-        isConnected = Boolean(data.connected || data.fallbackConfigured);
+        isConnected = Boolean(data.connected);
         connectionStatus.textContent = data.connected
           ? "OpenAI key connected for this browser."
-          : data.fallbackConfigured
-            ? "Using the server fallback OpenAI key."
-            : "No connected OpenAI key found yet.";
+          : "No connected OpenAI key found yet.";
         connectionStatus.className = isConnected
           ? "brief-connection connected"
           : "brief-connection disconnected";
@@ -552,7 +546,7 @@ title: AI FIRAC
     }
 
     function syncState() {
-      const hasApiBase = Boolean(apiBaseInput.value.trim());
+      const hasApiBase = Boolean(getApiBase());
       generateButton.disabled = !(selectedFile && hasApiBase && isConnected);
       disconnectButton.disabled = !hasApiBase;
       connectButton.disabled = !hasApiBase;
@@ -563,14 +557,22 @@ title: AI FIRAC
       status.classList.toggle("error", Boolean(isError));
     }
 
-    function buildEndpoint(apiBase, path) {
-      const trimmed = (apiBase || "").trim();
+    function buildEndpoint(path) {
+      const base = getApiBase();
 
-      if (!trimmed) {
+      if (!base) {
         return "";
       }
 
-      return trimmed.replace(/\/+$/, "") + path;
+      return base + path;
+    }
+
+    function getApiBase() {
+      if (typeof window.kasoGetApiBase !== "function") {
+        return "";
+      }
+
+      return window.kasoGetApiBase();
     }
 
     function fileToBase64(file) {

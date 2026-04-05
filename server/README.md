@@ -13,21 +13,19 @@ This backend solves that by letting the browser:
 3. Reuse that cookie later for site tools such as FIRAC generation.
 4. Store a display name in a cookie-backed profile so the site can greet the user.
 
+It does **not** write user keys into the GitHub repo, markdown files, or other site content.
+
 ## Local setup
 
 1. Install Node.js 20 or newer.
 2. Copy `server/.env.example` to `server/.env`.
 3. Set a long random value in `COOKIE_SECRET`.
-4. Optionally set fallback provider keys in `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `CLAUDE_API_KEY`.
-5. Run `node server/firac-server.js` from the repo root.
-6. Open the site locally and point the Account or AI FIRAC page to `http://localhost:8787`.
+4. Run `node server/firac-server.js` from the repo root.
+5. Open the site locally. When the site is running on `localhost`, it will use `http://localhost:8787` automatically.
 
 ## Environment variables
 
 - `COOKIE_SECRET`: required for encrypted persistent cookies.
-- `OPENAI_API_KEY`: optional fallback OpenAI key.
-- `GEMINI_API_KEY`: optional fallback Gemini key.
-- `CLAUDE_API_KEY`: optional fallback Claude key.
 - `OPENAI_MODEL`: optional. Defaults to `gpt-4.1-mini`.
 - `PORT`: optional. Defaults to `8787`.
 - `ALLOWED_ORIGINS`: comma-separated list of browser origins allowed to call this server.
@@ -43,7 +41,7 @@ This backend solves that by letting the browser:
 - `GET /api/key-status`: legacy OpenAI-only status endpoint kept for the FIRAC page.
 - `POST /api/connect-key`: legacy OpenAI-only connect endpoint kept for the FIRAC page.
 - `POST /api/disconnect-key`: legacy OpenAI-only clear endpoint kept for the FIRAC page.
-- `POST /api/firac`: generates the FIRAC using the connected OpenAI cookie or fallback server key.
+- `POST /api/firac`: generates the FIRAC using the connected OpenAI cookie.
 
 ## Cookie behavior
 
@@ -52,6 +50,7 @@ This backend solves that by letting the browser:
 - Cookies use `SameSite=Lax`.
 - In production over HTTPS, cookies are marked `Secure`.
 - In local HTTP development, cookies stay non-secure so the workflow still works.
+- The server rejects browser origins that are not listed in `ALLOWED_ORIGINS`.
 
 ## Production deployment
 
@@ -60,7 +59,14 @@ GitHub Pages cannot run this server for you. Deploy the `server/` app to a backe
 Suggested production setup:
 
 1. Deploy this server on a subdomain such as `api.kaso.law`.
-2. Store `COOKIE_SECRET` and any fallback provider keys in the host's secret manager.
-3. Set `ALLOWED_ORIGINS=https://kaso.law`.
-4. In the site, use `https://api.kaso.law` as the API base URL.
+2. Store `COOKIE_SECRET` in the host's secret manager.
+3. Set `ALLOWED_ORIGINS=https://kaso.law,https://www.kaso.law`.
+4. Set `api_base_url: https://api.kaso.law` in [_config.yml](../_config.yml).
 5. Let users manage their provider keys and display name from the Account page.
+
+## Security model
+
+- The only provider keys used by the site are user-supplied keys stored in encrypted cookies.
+- There is no server-wide fallback provider key in this public workflow.
+- The frontend is locked to a trusted backend origin instead of letting users type arbitrary API endpoints.
+- Users should still be warned that cookies are browser-specific and should not be used on a shared computer unless they plan to clear them afterward.

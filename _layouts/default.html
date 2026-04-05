@@ -26,7 +26,7 @@
           <a href="{{ '/account' | relative_url }}">Account</a>
           <a href="{{ '/classroom' | relative_url }}">Classroom</a>
         </nav>
-        <a href="https://github.com/ai-prose" class="github-cta" target="_blank">View on GitHub →</a>
+        <a href="https://github.com/ai-prose" class="github-cta" target="_blank" rel="noreferrer">View on GitHub &rarr;</a>
         <button class="hamburger" aria-label="Menu">
           <span></span>
           <span></span>
@@ -43,15 +43,46 @@
         {{ content }}
       </main>
       <footer class="site-footer">
-        © {{ site.time | date: "%Y" }} {{ site.title }}
+        &copy; {{ site.time | date: "%Y" }} {{ site.title }}
       </footer>
     </div>
+    <script>
+      window.KASO_CONFIG = {
+        apiBase: {{ site.api_base_url | default: "" | jsonify }},
+        localApiBase: {{ site.local_api_base_url | default: "" | jsonify }}
+      };
+
+      window.kasoGetApiBase = function () {
+        const host = window.location.hostname;
+        const useLocal = host === "localhost" || host === "127.0.0.1";
+        const base = useLocal && window.KASO_CONFIG.localApiBase
+          ? window.KASO_CONFIG.localApiBase
+          : window.KASO_CONFIG.apiBase;
+
+        return String(base || "").replace(/\/+$/, "");
+      };
+
+      window.kasoConfirmProviderStorage = function (providerLabel) {
+        const apiBase = window.kasoGetApiBase();
+
+        if (!apiBase) {
+          window.alert("No trusted API backend is configured for this site yet.");
+          return false;
+        }
+
+        return window.confirm(
+          providerLabel +
+            " API keys are never written to the GitHub repo, but they will be sent to " +
+            apiBase +
+            " and stored there in an encrypted cookie for this browser. Continue?"
+        );
+      };
+    </script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const hamburger = document.querySelector('.hamburger');
         const navMenu = document.querySelector('.nav-menu');
         const greeting = document.getElementById('account-greeting');
-        const apiBase = window.localStorage.getItem('kasoFiracApiBase') || '';
 
         if (hamburger && navMenu) {
           hamburger.addEventListener('click', function() {
@@ -64,14 +95,17 @@
             return;
           }
 
-          const base = (window.localStorage.getItem('kasoFiracApiBase') || '').trim();
+          const base = typeof window.kasoGetApiBase === 'function'
+            ? window.kasoGetApiBase()
+            : '';
+
           if (!base) {
             greeting.hidden = true;
             greeting.textContent = '';
             return;
           }
 
-          fetch(base.replace(/\/+$/, '') + '/api/account', {
+          fetch(base + '/api/account', {
             method: 'GET',
             credentials: 'include'
           })
