@@ -8,8 +8,7 @@ body {
 
 .site-hero {
   width: 100%;
-  min-height: 42vh;
-  max-height: 460px;
+  height: 300px; /* fallback */
   display: grid;
   align-items: flex-end;
   background-color: #111827;

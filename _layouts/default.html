@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
   </head>
   <body>
-    <header class="site-hero{% if page.banner_image %} has-banner{% endif %}" style="{% if page.banner_image %}background-image: url('{{ page.banner_image | relative_url }}');{% endif %}">
+    <header class="site-hero{% if page.banner_image %} has-banner{% endif %}" style="{% if page.banner_image %}background-image: url('{{ page.banner_image | relative_url }}');{% endif %}{% if page.banner_height %} height: {{ page.banner_height }};{% endif %}">
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <div class="brand-line">
