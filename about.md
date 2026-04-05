@@ -3,13 +3,13 @@ layout: default
 title: About
 ---
 
-# About AI<em>Pro</em>&#8202;<em>Se</em>
+# About **AI** *pro se*
 
 ![Our mission](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
 
 ## A Personal Journey Through the Legal System
 
-AI<em>Pro</em>&#8202;<em>Se</em> wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came after years of legal education and practice, where I discovered that knowing the law and actually using it are two entirely different skills.
+**AI** *pro se* wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came after years of legal education and practice, where I discovered that knowing the law and actually using it are two entirely different skills.
 
 ### From Theory to Reality
 
@@ -34,11 +34,11 @@ The legal system assumes you have representation. When you don't, you're expecte
 
 ![AIProSe workflow](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
 
-### Why AI<em>Pro</em>&#8202;<em>Se</em> Matters
+### Why **AI** *pro se* Matters
 
 I've seen too many capable, educated people get ground down by this system. I've watched family disputes escalate because people couldn't access basic procedural justice. I've witnessed the frustration of individuals who are right on the merits but lose on technicalities.
 
-AIProSe exists to bridge this gap. We're not trying to replace lawyers—we're trying to make people lawyer-ready. Our platform combines academic legal rigor with practical AI assistance to help users:
+**AI** *pro se* exists to bridge this gap. We're not trying to replace lawyers—we're trying to make people lawyer-ready. Our platform combines academic legal rigor with practical AI assistance to help users:
 
 - Spot legal issues before they become crises
 - Organize their facts and arguments logically
@@ -48,13 +48,13 @@ AIProSe exists to bridge this gap. We're not trying to replace lawyers—we're t
 
 ### Our Foundation
 
-AIProSe is built by a unique blend of legal and technical expertise. Our team includes attorneys with deep doctrinal knowledge and technologists with experience in AI and workflow automation. We've all been in situations where the legal system felt like an adversary rather than an ally.
+**AI** *pro se* is built by a unique blend of legal and technical expertise. Our team includes attorneys with deep doctrinal knowledge and technologists with experience in AI and workflow automation. We've all been in situations where the legal system felt like an adversary rather than an ally.
 
-We believe legal reasoning should be as accessible as information access became with search engines. AIProSe is our attempt to democratize legal thinking, giving ordinary people the tools professionals use every day.
+We believe legal reasoning should be as accessible as information access became with search engines. **AI** *pro se* is our attempt to democratize legal thinking, giving ordinary people the tools professionals use every day.
 
 ### Join the Movement
 
-Whether you're a law student facing your first real case, a small business owner dealing with contracts, or anyone navigating legal challenges alone, AIProSe is designed for you. We're building a future where procedural justice isn't gated by wealth or connections.
+Whether you're a law student facing your first real case, a small business owner dealing with contracts, or anyone navigating legal challenges alone, **AI** *pro se* is designed for you. We're building a future where procedural justice isn't gated by wealth or connections.
 
 **The legal system should work for everyone. Let's make that happen.**
 
@@ -63,7 +63,7 @@ That matters.
 A lot of legal tools are built by people who understand rules but not users.
 A lot of consumer tools are built by people who understand users but not law.
 
-AIProSe is built to bridge that divide.
+**AI** *pro se* is built to bridge that divide.
 
 ## The Mission
 
@@ -80,7 +80,7 @@ And access to justice should mean more than being handed a dead PDF and told goo
 
 ## Who This Is For
 
-AIProSe is for the person dealing with a real legal problem and trying to keep their head above water.
+**AI** *pro se* is for the person dealing with a real legal problem and trying to keep their head above water.
 
 It is for the student who has learned doctrine but has not yet learned how law behaves in the wild.
 
@@ -97,4 +97,4 @@ It comes from seeing how procedure can become its own weapon.
 It comes from battles that were not hypothetical.
 And it comes from the belief that even in a broken system, clearer thinking still matters.
 
-AIProSe is my attempt to build something useful in that gap.
+**AI** *pro se* is my attempt to build something useful in that gap.

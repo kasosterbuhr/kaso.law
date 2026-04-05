@@ -1,17 +1,17 @@
 ---
 layout: default
-title: AIProSe
+title: AI pro se
 banner_image: /assets/images/KasoLaw.png
 banner_height: 300px
 ---
 
-# AI<em>Pro</em>&#8202;<em>Se</em>: The Future of Distributed Legal Intelligence
+# **AI** *pro se*: The Future of Distributed Legal Intelligence
 
 ### Solving the $100 Billion Access-to-Justice Crisis
 
 The current legal system is built on a paradox: justice is a right, yet competent representation is a luxury. Millions of individuals are forced into the *pro se* (self-represented) category annually—not by choice, but by financial necessity. They face a **<span style="color:#0056b3">massive cognitive gap</span>** between identifying a legal problem and executing a legal solution.
 
-**AI<em>Pro</em>&#8202;<em>Se</em>** is a practical, scalable, and open-source platform designed to bridge that gap. By combining <span style="color:#28a745">Advanced Large Language Model (LLM) workflows</span> with <span style="color:#0056b3">Academic Legal Rigor</span>, we are building the first "Law-School-in-a-Box" for the general public.
+**AI** *pro se* is a practical, scalable, and open-source platform designed to bridge that gap. By combining <span style="color:#28a745">Advanced Large Language Model (LLM) workflows</span> with <span style="color:#0056b3">Academic Legal Rigor</span>, we are building the first "Law-School-in-a-Box" for the general public.
 
 ![AIProSe core concept](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
 
@@ -27,7 +27,7 @@ Legal help today is binary: you either pay thousands for full representation or 
 
 ## The Innovation: A Multi-Layered Ecosystem {#tech-stack}
 
-AIProSe is more than a chatbot; it is a **<span style="color:#28a745">Legal RLHF (Reinforcement Learning from Human Feedback)</span>** ecosystem. We focus on four core pillars:
+**AI** *pro se* is more than a chatbot; it is a **<span style="color:#28a745">Legal RLHF (Reinforcement Learning from Human Feedback)</span>** ecosystem. We focus on four core pillars:
 
 ### 1. Free-Tier Prompt Engineering
 
@@ -43,7 +43,7 @@ We translate raw AI potential into intuitive User Interfaces. Our platform guide
 
 ### 3. The Hybrid "Attorney-in-the-Loop" Model
 
-We do not aim to replace lawyers; we aim to optimize them. AIProSe prepares "Attorney Review Packets." A user does 80% of the heavy lifting using our AI tools; an attorney then provides high-value strategy and risk control at a <span style="color:#28a745">fraction of the cost</span> of traditional billable hours.
+We do not aim to replace lawyers; we aim to optimize them. **AI** *pro se* prepares "Attorney Review Packets." A user does 80% of the heavy lifting using our AI tools; an attorney then provides high-value strategy and risk control at a <span style="color:#28a745">fraction of the cost</span> of traditional billable hours.
 
 ### 4. Real-Time Litigation Assistance
 
@@ -51,13 +51,13 @@ Our endgame is a system that supports litigants in active environments—from de
 
 -----
 
-## The Investment Thesis: Why AI<em>Pro</em>&#8202;<em>Se</em>? {#why}
+## The Investment Thesis: Why **AI** *pro se*? {#why}
 
 ### **Scalable Monetization (Freemium + Marketplace)**
 
   * **Free Tier:** Open access to the prompt library and basic self-help resources.
   * **Premium SaaS:** Advanced document automation, saved matter organization, and jurisdiction-specific strategy packs.
-  * **Attorney Network:** A professional layer where lawyers pay a fee to be matched with <span style="color:#0056b3">pre-qualified, highly organized leads</span> who have already used AIProSe to frame their case.
+  * **Attorney Network:** A professional layer where lawyers pay a fee to be matched with <span style="color:#0056b3">pre-qualified, highly organized leads</span> who have already used **AI** *pro se* to frame their case.
 
 ### **The "Why Now" Factor**
 
@@ -81,10 +81,10 @@ We are at the intersection of three massive trends:
 
 ## End-State Ambition
 
-AIProSe will become the standard operating system for the unrepresented. We are building the infrastructure for a world where <span style="color:#0056b3">procedural justice</span> is not gated by a bank account, and where legal reasoning is a utility available to all.
+**AI** *pro se* will become the standard operating system for the unrepresented. We are building the infrastructure for a world where <span style="color:#0056b3">procedural justice</span> is not gated by a bank account, and where legal reasoning is a utility available to all.
 
 ### **[Explore the Library]** | **[Review the Pitch Deck]** | **[Join the Board]**
 
 -----
 
-**<span style="color:#0056b3">Disclaimer</span>**: *AI<em>Pro</em>&#8202;<em>Se</em> is a legal technology and self-help project. We are not a law firm and do not provide legal representation. Our platform is designed to provide guided reasoning and clerical assistance. All AI-generated outputs must be reviewed by a human professional.*
+**<span style="color:#0056b3">Disclaimer</span>**: ***AI** *pro se* is a legal technology and self-help project. We are not a law firm and do not provide legal representation. Our platform is designed to provide guided reasoning and clerical assistance. All AI-generated outputs must be reviewed by a human professional.*
