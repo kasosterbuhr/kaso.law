@@ -330,7 +330,7 @@ title: AI FIRAC
       <div class="brief-source-grid">
         <div class="brief-field">
           <label for="reporter-citation">Reporter Citation</label>
-          <input id="reporter-citation" name="reporter-citation" type="text" placeholder="446 U.S. 620" autocomplete="off" spellcheck="false">
+          <input id="reporter-citation" name="reporter-citation" type="text" placeholder="478 U.S. 654" autocomplete="off" spellcheck="false">
           <p class="brief-help">Use this if you want the page to fetch and brief a case by citation instead of by uploaded PDF.</p>
         </div>
 
