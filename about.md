@@ -9,28 +9,13 @@ title: About
 
 ## A Personal Journey Through the Legal System
 
-**AI** *pro se* wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came after years of legal education and practice, where I discovered that knowing the law and actually using it are two entirely different skills.
+**AI** *pro se* wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came from years of dealing with legal issues. It's not until you swim in the pool that you know what temperature the water will be, and in this situation I've learned exactly the temperature of the water.
 
 ### From Theory to Reality
 
-I entered law school with the naive assumption that legal education would equip me to handle any legal challenge. I studied contracts, torts, constitutional law, and procedure. I could dissect Supreme Court opinions and debate policy implications. But when real legal problems entered my life (family estate disputes, property co-ownership conflicts, probate proceedings), I realized how woefully unprepared I was.
+THIS ALL GETS RE-WRITTEN
 
-The court websites were labyrinths of outdated PDFs and contradictory instructions. There were no downloadable forms for basic filings. When I called clerk's offices for help, I was told, "We don't provide forms or assistance." Even as someone with legal training, I spent weeks researching, drafting, and redrafting documents that a paralegal could complete in hours. The final filing cost hundreds in fees and notary costs, all for what should have been a straightforward process.
 
-This wasn't just inconvenient, it was a revelation. If someone with legal education struggled this much, what hope did ordinary people have?
-
-### The Cognitive Gap
-
-What I experienced was the "cognitive gap" that plagues *pro se* litigants everywhere. It's not just about knowing legal rules; it's about:
-
-- Understanding which facts are legally relevant
-- Knowing the correct procedural sequence
-- Anticipating opposing arguments
-- Framing your case strategically
-- Navigating court-specific requirements
-- Avoiding common procedural pitfalls
-
-The legal system assumes you have representation. When you don't, you're expected to think like a lawyer while being treated like an amateur. This creates a paradox: the system demands professional-level competence but provides amateur-level support.
 
 ![AIProSe workflow](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
 
