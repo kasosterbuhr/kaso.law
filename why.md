@@ -3,7 +3,9 @@ layout: default
 title: Why AIProSe
 ---
 
-# Why AIProSe
+# Why AI<em>Pro</em>&#8202;<em>Se</em>
+
+![Access to justice](/assets/images/AIProSe%20second%20image.png){: .inline-left }
 
 ## The Problem Is Not Just Law. It Is Access.
 
