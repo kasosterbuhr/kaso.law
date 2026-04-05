@@ -5,11 +5,6 @@ banner_image: /assets/images/GC_sunrise.jpg
 banner_height: 181px
 ---
 
-
-This version restores the comprehensive detail of the original vision while framing it as a scalable, high-impact investment opportunity. It integrates technical sophistication with legal rigor, utilizing HTML color coding (compatible with most modern Markdown/Web editors) to highlight key themes.
-
------
-
 # <span style="color:#0056b3">AIProSe</span>: The Future of Distributed Legal Intelligence
 
 ### <span style="color:#d39e00">Solving the $100 Billion Access-to-Justice Crisis</span>
@@ -20,7 +15,7 @@ The current legal system is built on a paradox: justice is a right, yet competen
 
 -----
 
-## <span style="color:#0056b3">The Problem: A Broken Market</span>
+## <span style="color:#0056b3">The Problem: A Broken Market</span> {#about}
 
 Legal help today is binary: you either pay thousands for full representation or navigate the labyrinth alone with generic, static blogs. This fragmentation leaves litigants without:
 
@@ -30,7 +25,7 @@ Legal help today is binary: you either pay thousands for full representation or 
 
 -----
 
-## <span style="color:#28a745">The Innovation: A Multi-Layered Ecosystem</span>
+## <span style="color:#28a745">The Innovation: A Multi-Layered Ecosystem</span> {#tech-stack}
 
 AIProSe is more than a chatbot; it is a **<span style="color:#28a745">Legal RLHF (Reinforcement Learning from Human Feedback)</span>** ecosystem. We focus on four core pillars:
 
@@ -56,7 +51,7 @@ Our endgame is a system that supports litigants in active environments—from de
 
 -----
 
-## <span style="color:#d39e00">The Investment Thesis: Why AIProSe?</span>
+## <span style="color:#d39e00">The Investment Thesis: Why AIProSe?</span> {#why}
 
 ### **Scalable Monetization (Freemium + Marketplace)**
 
