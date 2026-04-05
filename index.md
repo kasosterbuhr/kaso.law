@@ -5,9 +5,9 @@ banner_image: /assets/images/KasoLaw.png
 banner_height: 300px
 ---
 
-# <span style="color:#0056b3">AI<em>Pro</em>&#8202;<em>Se</em></span>: The Future of Distributed Legal Intelligence
+# AI<em>Pro</em>&#8202;<em>Se</em>: The Future of Distributed Legal Intelligence
 
-### <span style="color:#d39e00">Solving the $100 Billion Access-to-Justice Crisis</span>
+### Solving the $100 Billion Access-to-Justice Crisis
 
 The current legal system is built on a paradox: justice is a right, yet competent representation is a luxury. Millions of individuals are forced into the *pro se* (self-represented) category annually—not by choice, but by financial necessity. They face a **<span style="color:#0056b3">massive cognitive gap</span>** between identifying a legal problem and executing a legal solution.
 
@@ -15,7 +15,7 @@ The current legal system is built on a paradox: justice is a right, yet competen
 
 ![AIProSe core concept](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
 
-## <span style="color:#0056b3">The Problem: A Broken Market</span> {#about}
+## The Problem: A Broken Market {#about}
 
 Legal help today is binary: you either pay thousands for full representation or navigate the labyrinth alone with generic, static blogs. This fragmentation leaves litigants without:
 
@@ -25,15 +25,15 @@ Legal help today is binary: you either pay thousands for full representation or 
 
 -----
 
-## <span style="color:#28a745">The Innovation: A Multi-Layered Ecosystem</span> {#tech-stack}
+## The Innovation: A Multi-Layered Ecosystem {#tech-stack}
 
 AIProSe is more than a chatbot; it is a **<span style="color:#28a745">Legal RLHF (Reinforcement Learning from Human Feedback)</span>** ecosystem. We focus on four core pillars:
 
-### 1. <span style="color:#28a745">Free-Tier Prompt Engineering</span>
+### 1. Free-Tier Prompt Engineering
 
 We start with a comprehensive, public library of high-quality legal prompts. These are not simple queries; they are <span style="color:#0056b3">jurisdiction-aware templates</span> and <span style="color:#28a745">reasoning workflows</span>. By making the "logic" layer open-source, we build immediate trust and a massive user base.
 
-### 2. <span style="color:#0056b3">Structured Self-Help Workflows</span>
+### 2. Structured Self-Help Workflows
 
 We translate raw AI potential into intuitive User Interfaces. Our platform guides users through:
 
@@ -41,17 +41,17 @@ We translate raw AI potential into intuitive User Interfaces. Our platform guide
   * **Fact Chronology:** Building a timeline that meets the evidentiary standards of the court.
   * **Filing Generation:** Moving from abstract theory to <span style="color:#d39e00">usable work product</span>—pleadings, motions, subpoenas, and affidavits.
 
-### 3. <span style="color:#d39e00">The Hybrid "Attorney-in-the-Loop" Model</span>
+### 3. The Hybrid "Attorney-in-the-Loop" Model
 
 We do not aim to replace lawyers; we aim to optimize them. AIProSe prepares "Attorney Review Packets." A user does 80% of the heavy lifting using our AI tools; an attorney then provides high-value strategy and risk control at a <span style="color:#28a745">fraction of the cost</span> of traditional billable hours.
 
-### 4. <span style="color:#28a745">Real-Time Litigation Assistance</span>
+### 4. Real-Time Litigation Assistance
 
 Our endgame is a system that supports litigants in active environments—from desktop preparation to real-time mobile assistance in the courtroom hallway, eventually moving toward AR-assisted oral arguments and hearing preparation.
 
 -----
 
-## <span style="color:#d39e00">The Investment Thesis: Why AIProSe?</span> {#why}
+## The Investment Thesis: Why AI<em>Pro</em>&#8202;<em>Se</em>? {#why}
 
 ### **Scalable Monetization (Freemium + Marketplace)**
 
@@ -69,17 +69,17 @@ We are at the intersection of three massive trends:
 
 -----
 
-## <span style="color:#0056b3">Strategic Roadmap</span>
+## Strategic Roadmap
 
   * **<span style="color:#28a745">Phase 1: Foundation</span>** – Launch of the Open Prompt Library for Family Law, Debt Defense, and Small Claims.
-  * **<span style="color:#0056b3">Phase 2: Platform</span>** – Deployment of the "Guided Interview" UI to translate raw prompts into structured case theory.
-  * **<span style="color:#d39e00">Phase 3: Automation</span>** – Integration of sophisticated document assembly tools for state-specific filings.
-  * **<span style="color:#0056b3">Phase 4: Ecosystem</span>** – Launch of the Attorney Match network and professional review layer.
+  * **<span style="color:#28a745">Phase 2: Platform</span>** – Deployment of the "Guided Interview" UI to translate raw prompts into structured case theory.
+  * **<span style="color:#28a745">Phase 3: Automation</span>** – Integration of sophisticated document assembly tools for state-specific filings.
+  * **<span style="color:#28a745">Phase 4: Ecosystem</span>** – Launch of the Attorney Match network and professional review layer.
   * **<span style="color:#28a745">Phase 5: Real-Time</span>** – Introduction of mobile and wearable-assisted litigation support.
 
 -----
 
-## <span style="color:#d39e00">End-State Ambition</span>
+## End-State Ambition
 
 AIProSe will become the standard operating system for the unrepresented. We are building the infrastructure for a world where <span style="color:#0056b3">procedural justice</span> is not gated by a bank account, and where legal reasoning is a utility available to all.
 

@@ -56,7 +56,7 @@ The issue is that they are often built inside ecosystems that assume too much: p
 
 That matters because access to justice is not solved merely by making a strong tool. It is solved by making a strong tool reachable, understandable, and usable by the people who actually need it.
 
-## Why AIProSe Exists
+## Why AI<em>Pro</em>&#8202;<em>Se</em> Exists
 
 AIProSe starts from a different premise.
 

@@ -226,9 +226,19 @@ body {
   color: #0f172a;
 }
 
+.site-content h2 {
+  color: #0056b3;
+}
+
+.site-content h3 {
+  color: #28a745;
+}
+
 .site-content h1 {
   font-size: clamp(2rem, 3vw, 3rem);
   margin-top: 0;
+  line-height: 1.2;
+  margin-bottom: 12px;
 }
 
 .site-content p,
