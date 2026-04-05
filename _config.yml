@@ -2,7 +2,7 @@ title: AI pro se
 description: AI-guided self-help for **AI** *pro se* litigants.
 url: https://kaso.law
 baseurl: ""
-openai_client_model: gpt-4.1-mini
+openai_client_model: gpt-5.2
 markdown: kramdown
 kramdown:
   input: GFM
