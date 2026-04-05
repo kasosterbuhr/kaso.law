@@ -1,5 +1,7 @@
 title: AI pro se
 description: AI-guided self-help for **AI** *pro se* litigants.
+url: https://kaso.law
+baseurl: ""
 markdown: kramdown
 kramdown:
   input: GFM
