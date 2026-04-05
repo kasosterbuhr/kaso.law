@@ -7,4 +7,4 @@ openai_client_model: gpt-5.4
 openai_reporter_model: gpt-4o-search-preview
 markdown: kramdown
 kramdown:
-  input: GFM
+  input: GFM`r`nserver_api_base_url: ""`r`n
