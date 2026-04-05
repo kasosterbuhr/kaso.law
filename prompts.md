@@ -3,7 +3,7 @@ layout: default
 title: Prompt Library
 ---
 
-# AIProSe Prompt Library
+# AI<em>Pro</em>&#8202;<em>Se</em> Prompt Library
 
 A collection of reusable legal reasoning prompts designed to help you think through legal problems like a lawyer, even without representation. Each prompt is open-source, free to use, and works with any AI platform—OpenAI, Claude, Gemini, or others.
 

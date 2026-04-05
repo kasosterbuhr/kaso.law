@@ -5,13 +5,13 @@ banner_image: /assets/images/GC_sunrise.jpg
 banner_height: 181px
 ---
 
-# <span style="color:#0056b3">AIProSe</span>: The Future of Distributed Legal Intelligence
+# <span style="color:#0056b3">AI<em>Pro</em>&#8202;<em>Se</em></span>: The Future of Distributed Legal Intelligence
 
 ### <span style="color:#d39e00">Solving the $100 Billion Access-to-Justice Crisis</span>
 
-The current legal system is built on a paradox: justice is a right, yet competent representation is a luxury. Millions of individuals are forced into the "Pro Se" (self-represented) category annually—not by choice, but by financial necessity. They face a **<span style="color:#0056b3">massive cognitive gap</span>** between identifying a legal problem and executing a legal solution.
+The current legal system is built on a paradox: justice is a right, yet competent representation is a luxury. Millions of individuals are forced into the *pro se* (self-represented) category annually—not by choice, but by financial necessity. They face a **<span style="color:#0056b3">massive cognitive gap</span>** between identifying a legal problem and executing a legal solution.
 
-**AIProSe** is a practical, scalable, and open-source platform designed to bridge that gap. By combining <span style="color:#28a745">Advanced Large Language Model (LLM) workflows</span> with <span style="color:#0056b3">Academic Legal Rigor</span>, we are building the first "Law-School-in-a-Box" for the general public.
+**AI<em>Pro</em>&#8202;<em>Se</em>** is a practical, scalable, and open-source platform designed to bridge that gap. By combining <span style="color:#28a745">Advanced Large Language Model (LLM) workflows</span> with <span style="color:#0056b3">Academic Legal Rigor</span>, we are building the first "Law-School-in-a-Box" for the general public.
 
 -----
 
@@ -87,4 +87,4 @@ AIProSe will become the standard operating system for the unrepresented. We are 
 
 -----
 
-**<span style="color:#0056b3">Disclaimer</span>**: *AIProSe is a legal technology and self-help project. We are not a law firm and do not provide legal representation. Our platform is designed to provide guided reasoning and clerical assistance. All AI-generated outputs must be reviewed by a human professional.*
+**<span style="color:#0056b3">Disclaimer</span>**: *AI<em>Pro</em>&#8202;<em>Se</em> is a legal technology and self-help project. We are not a law firm and do not provide legal representation. Our platform is designed to provide guided reasoning and clerical assistance. All AI-generated outputs must be reviewed by a human professional.*

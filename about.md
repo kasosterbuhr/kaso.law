@@ -3,11 +3,11 @@ layout: default
 title: About
 ---
 
-# About AIProSe
+# About AI<em>Pro</em>&#8202;<em>Se</em>
 
 ## A Personal Journey Through the Legal System
 
-AIProSe wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came after years of legal education and practice, where I discovered that knowing the law and actually using it are two entirely different skills.
+AI<em>Pro</em>&#8202;<em>Se</em> wasn't born in a boardroom or from market research. It emerged from the raw, frustrating reality of trying to navigate a legal system that claims to be accessible but often feels deliberately opaque. My path to creating this platform came after years of legal education and practice, where I discovered that knowing the law and actually using it are two entirely different skills.
 
 ### From Theory to Reality
 
@@ -19,7 +19,7 @@ This wasn't just inconvenient, it was a revelation. If someone with legal educat
 
 ### The Cognitive Gap
 
-What I experienced was the "cognitive gap" that plagues pro se litigants everywhere. It's not just about knowing legal rules; it's about:
+What I experienced was the "cognitive gap" that plagues *pro se* litigants everywhere. It's not just about knowing legal rules; it's about:
 
 - Understanding which facts are legally relevant
 - Knowing the correct procedural sequence
@@ -30,7 +30,7 @@ What I experienced was the "cognitive gap" that plagues pro se litigants everywh
 
 The legal system assumes you have representation. When you don't, you're expected to think like a lawyer while being treated like an amateur. This creates a paradox: the system demands professional-level competence but provides amateur-level support.
 
-### Why AIProSe Matters
+### Why AI<em>Pro</em>&#8202;<em>Se</em> Matters
 
 I've seen too many capable, educated people get ground down by this system. I've watched family disputes escalate because people couldn't access basic procedural justice. I've witnessed the frustration of individuals who are right on the merits but lose on technicalities.
 
