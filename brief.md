@@ -546,8 +546,13 @@ title: AI FIRAC
         }
 
         output.textContent = text;
-        await copyText(text);
-        setStatus("FIRAC generated and copied to your clipboard.");
+
+        try {
+          await copyText(text);
+          setStatus("FIRAC generated and copied to your clipboard.");
+        } catch (copyError) {
+          setStatus("FIRAC generated. Use Copy Brief to place it on your clipboard.", false);
+        }
       } catch (error) {
         setStatus(error && error.message ? error.message : "The FIRAC request did not complete.", true);
       } finally {
@@ -954,8 +959,12 @@ title: AI FIRAC
       helper.style.left = "-9999px";
       document.body.appendChild(helper);
       helper.select();
-      document.execCommand("copy");
+      const copied = document.execCommand("copy");
       document.body.removeChild(helper);
+
+      if (!copied) {
+        throw new Error("Clipboard copy was not permitted in this browser.");
+      }
     }
 
     function downloadWordDoc(text, baseName) {
