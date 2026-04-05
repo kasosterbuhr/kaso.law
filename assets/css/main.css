@@ -205,6 +205,8 @@ body {
 
 .site-content {
   max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .site-title {
@@ -245,13 +247,32 @@ body {
 .site-content li {
   font-size: 1rem;
   color: #1e293b;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .site-content img {
   max-width: 100%;
   height: auto;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+ 
+
+.site-content pre {
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  max-width: 100%;
+  overflow-x: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.site-content code {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+} box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 24px 0;
 }
 
