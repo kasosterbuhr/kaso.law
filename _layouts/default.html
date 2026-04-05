@@ -22,6 +22,8 @@
           <a href="{{ '/why' | relative_url }}">Why</a>
           <a href="{{ '/tech-stack' | relative_url }}">Tech Stack</a>
           <a href="{{ '/prompts' | relative_url }}">Prompts</a>
+          <a href="{{ '/brief' | relative_url }}">AI FIRAC</a>
+          <a href="{{ '/account' | relative_url }}">Account</a>
           <a href="{{ '/classroom' | relative_url }}">Classroom</a>
         </nav>
         <a href="https://github.com/ai-prose" class="github-cta" target="_blank">View on GitHub →</a>
@@ -36,6 +38,7 @@
       <img src="{{ '/assets/images/banner.jpg' | relative_url }}?v={{ site.time | date: '%s' }}" alt="AI Pro Se" class="banner-image" />
     </div>
     <div class="page-shell">
+      <div class="account-greeting" id="account-greeting" hidden></div>
       <main class="site-content">
         {{ content }}
       </main>
@@ -47,10 +50,54 @@
       document.addEventListener('DOMContentLoaded', function() {
         const hamburger = document.querySelector('.hamburger');
         const navMenu = document.querySelector('.nav-menu');
-        
-        hamburger.addEventListener('click', function() {
-          navMenu.classList.toggle('active');
-        });
+        const greeting = document.getElementById('account-greeting');
+        const apiBase = window.localStorage.getItem('kasoFiracApiBase') || '';
+
+        if (hamburger && navMenu) {
+          hamburger.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+          });
+        }
+
+        function updateGreeting() {
+          if (!greeting) {
+            return;
+          }
+
+          const base = (window.localStorage.getItem('kasoFiracApiBase') || '').trim();
+          if (!base) {
+            greeting.hidden = true;
+            greeting.textContent = '';
+            return;
+          }
+
+          fetch(base.replace(/\/+$/, '') + '/api/account', {
+            method: 'GET',
+            credentials: 'include'
+          })
+            .then(function(response) {
+              return response.json().then(function(data) {
+                return { ok: response.ok, data: data };
+              });
+            })
+            .then(function(result) {
+              if (!result.ok || !result.data || !result.data.displayName) {
+                greeting.hidden = true;
+                greeting.textContent = '';
+                return;
+              }
+
+              greeting.textContent = "Welcome in " + result.data.displayName + "! Let's go get 'em.";
+              greeting.hidden = false;
+            })
+            .catch(function() {
+              greeting.hidden = true;
+              greeting.textContent = '';
+            });
+        }
+
+        updateGreeting();
+        window.addEventListener('kaso-account-updated', updateGreeting);
       });
     </script>
   </body>

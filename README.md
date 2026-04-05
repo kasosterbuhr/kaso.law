@@ -38,6 +38,15 @@ Copy-paste ready legal reasoning prompts for any AI tool (ChatGPT, Claude, Gemin
 
 **View prompts at:** [`/prompts`](https://kaso.law/prompts)
 
+### 🤖 AI FIRAC Builder
+Upload a case opinion PDF, send it to your private backend, and get a full clipboard-ready FIRAC brief back:
+- **Drag-and-drop PDF upload**
+- **Server-side OpenAI call**
+- **Clipboard-ready Word-friendly output**
+- **API key kept off the public website**
+
+**Open the tool at:** [`/brief`](https://kaso.law/brief)
+
 ### 🏗️ Transparent Architecture
 Every aspect of this project is open-source and inspectable:
 - **GitHub as the operational backbone** — all code, prompts, and content tracked and versioned
@@ -173,6 +182,7 @@ All prompts work across any LLM (OpenAI, Claude, Gemini, etc.).
 ### AI Layer
 - **GitHub API** — Dynamic course listing and file discovery
 - **LLM-compatible prompts** — Works with OpenAI, Claude, Gemini, and other models
+- **Optional FIRAC backend** — Separate Node service for secure PDF-to-FIRAC generation
 - **Modular architecture** — Workflows upgrade as models improve
 
 ### Version Control
