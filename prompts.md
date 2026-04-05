@@ -13,6 +13,8 @@ Legal reasoning isn't just about knowing rules; it's about asking the right ques
 
 **All prompts are copy-paste ready.** Use them directly in your AI tool with minimal customization.
 
+![Prompt engineering workflow](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
+
 ---
 
 ## Core Legal Prompts

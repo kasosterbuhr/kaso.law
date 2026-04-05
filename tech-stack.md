@@ -71,6 +71,8 @@ Human judgment remains essential - not as a marketing flourish, but as the actua
 
 That is a better foundation than pretending software alone can carry the full weight of legal judgment.
 
+![Moderated feedback loop](/assets/images/AIProSe%20second%20image.png){: .inline-left }
+
 ## Technical Structure
 
 The current stack is intentionally lean.
