@@ -1,9 +1,9 @@
 {
-  "name": "kaso-law-firac-server",
+  "name": "kaso-law-audio-server",
   "private": true,
-  "version": "0.1.0",
-  "description": "Server-side FIRAC proxy for kaso.law",
+  "version": "0.2.0",
+  "description": "Server-side Google audio builder for kaso.law classroom packets",
   "scripts": {
-    "start": "node firac-server.js"
+    "start": "node app-server.js"
   }
 }

@@ -1,23 +1,64 @@
-# FIRAC Server (Legacy Prototype)
+# Kaso Audio Server
 
-This `server/` folder is a leftover prototype from an earlier backend-based FIRAC workflow.
+This `server/` folder now contains the optional backend for the Classroom audio builder.
 
-The current `kaso.law` site does **not** require this server. The live account and FIRAC flow now run fully client-side:
+It does one job well:
 
-1. Display name is stored in browser cookies.
-2. Provider keys are stored in browser cookies on the user's device.
-3. The AI FIRAC page uses the saved OpenAI key directly from the browser.
-4. Nothing is written back into the GitHub repo when a user saves a name or API key.
+- accept 1 to 5 uploaded opinions or class readings
+- send them to Google's Podcast API for a downloadable MP3
+- optionally create a NotebookLM Enterprise notebook and request an audio overview there too
+- return a job URL that the frontend can poll until the MP3 is ready
 
-If you want the current production behavior, you can ignore this folder.
+## What this backend is for
 
-## Current production model
+The public GitHub Pages site is still static by default. That means server-side Google credentials cannot live safely in the page itself.
 
-- No backend required.
-- No server-managed cookies.
-- User stays in control of data on their own browser profile.
-- If the user clears cookies or switches browsers, the saved values disappear there.
+This backend keeps the Google Cloud service account on the server and exposes a thin JSON API to the Classroom page.
 
-## Important security note
+## Endpoints
 
-This fully client-side model is convenient, but browser-stored API keys are not secret from that browser. Users should only save provider keys on a device and browser profile they trust.
+- `GET /health`
+- `GET /api/classroom/audio-capabilities`
+- `POST /api/classroom/audio-jobs`
+- `GET /api/classroom/audio-jobs/:id`
+- `GET /api/classroom/audio-jobs/:id/download`
+
+## Environment
+
+Copy `.env.example` to `.env` and fill in the Google values.
+
+Minimum configuration for MP3 podcast downloads:
+
+- `GOOGLE_CLOUD_PROJECT_ID`
+- `GOOGLE_SERVICE_ACCOUNT_JSON` or the split service-account env vars
+
+Additional configuration for NotebookLM notebook creation:
+
+- `GOOGLE_CLOUD_PROJECT_NUMBER`
+- `GOOGLE_CLOUD_LOCATION`
+
+## Google-side requirements
+
+For the Podcast API path:
+
+- Discovery Engine API enabled
+- service account able to mint access tokens
+- Podcast API access from Google, which is currently allowlisted
+
+For the NotebookLM path:
+
+- NotebookLM Enterprise enabled in the project
+- users who open shared notebooks must already be in the same project or workforce pool and have the required NotebookLM access and license
+
+## Local run
+
+1. `cd server`
+2. create `server/.env`
+3. `npm start`
+
+The classroom page can point at this backend through `server_api_base_url` in `_config.yml`.
+
+## Notes
+
+- Generated MP3 files are stored temporarily in `server/generated-audio/` and cleaned up after the TTL window.
+- The backend does not currently fetch opinions by citation or Justia search. The shipped MVP is upload-first.
