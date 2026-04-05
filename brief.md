@@ -238,6 +238,29 @@ title: AI FIRAC
     color: #17324d;
   }
 
+  .brief-sources {
+    margin-top: 16px;
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: var(--panel-soft);
+  }
+
+  .brief-sources h3 {
+    margin: 0 0 10px;
+    color: var(--ink);
+    font-size: 1rem;
+  }
+
+  .brief-sources ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .brief-sources a {
+    color: var(--accent-dark);
+  }
+
   @media (max-width: 760px) {
     .brief-connect-grid {
       grid-template-columns: 1fr;
@@ -334,6 +357,10 @@ title: AI FIRAC
   <section class="brief-output">
     <h2>Generated Brief</h2>
     <pre id="brief-output">Your FIRAC brief will appear here after the request finishes.</pre>
+    <div class="brief-sources" id="citation-sources-wrap" hidden>
+      <h3>Lookup Sources</h3>
+      <ul id="citation-sources"></ul>
+    </div>
   </section>
 </div>
 
@@ -343,7 +370,7 @@ title: AI FIRAC
     const openAiCookieName = "kaso_key_openai";
     const siteOpenAiKey = ((window.KASO_CONFIG && window.KASO_CONFIG.openaiPublicApiKey) || "").trim();
     const directModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiModel) || "gpt-5.4";
-    const reporterModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiReporterModel) || "gpt-4o-search-preview";
+    const reporterModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiReporterModel) || "gpt-5.2";
     const templatePath = "/assets/downloads/BriefTemplate.txt";
     const fallbackTemplate =
       "Short/Smart Case Name, State Abbrev. (Year): [Short caption plus jurisdiction and year.]\n" +
@@ -385,10 +412,13 @@ title: AI FIRAC
     const pdfButton = document.getElementById("pdf-button");
     const status = document.getElementById("brief-status");
     const output = document.getElementById("brief-output");
+    const citationSourcesWrap = document.getElementById("citation-sources-wrap");
+    const citationSourcesList = document.getElementById("citation-sources");
 
     let selectedFile = null;
     let templateCache = "";
     let lastResultTitle = "firac-brief";
+    let lastCitationSources = [];
     let isWorking = false;
 
     if (modelLabel) {
@@ -435,9 +465,11 @@ title: AI FIRAC
       refreshConnectionStatus();
     });
 
-    citationInput.addEventListener("input", function () {
-      updateSourceSummary();
-      syncState();
+    ["input", "change", "keyup", "paste"].forEach(function (eventName) {
+      citationInput.addEventListener(eventName, function () {
+        updateSourceSummary();
+        syncState();
+      });
     });
 
     fileInput.addEventListener("change", function () {
@@ -490,6 +522,8 @@ title: AI FIRAC
         return;
       }
 
+      lastCitationSources = [];
+      renderCitationSources(lastCitationSources);
       isWorking = true;
       syncState();
       setStatus(selectedFile ? "Uploading the opinion and building your FIRAC brief..." : "Looking up that citation and building your FIRAC brief...");
@@ -501,9 +535,14 @@ title: AI FIRAC
         if (selectedFile) {
           text = await generateFromPdf(apiKey, template, citation);
           lastResultTitle = sanitizeFilename(selectedFile.name.replace(/\.pdf$/i, ""));
+          lastCitationSources = [];
+          renderCitationSources(lastCitationSources);
         } else {
-          text = await generateFromCitation(apiKey, template, citation);
+          const citationResult = await generateFromCitation(apiKey, template, citation);
+          text = citationResult.text;
+          lastCitationSources = citationResult.sources;
           lastResultTitle = sanitizeFilename(citation);
+          renderCitationSources(lastCitationSources);
         }
 
         output.textContent = text;
@@ -599,6 +638,9 @@ title: AI FIRAC
     }
 
     async function generateFromCitation(apiKey, template, citation) {
+      const timezone =
+        (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
+        "America/Chicago";
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
@@ -608,6 +650,18 @@ title: AI FIRAC
         body: JSON.stringify({
           model: reporterModel,
           store: false,
+          reasoning: {
+            effort: "low"
+          },
+          tools: [{
+            type: "web_search",
+            user_location: {
+              type: "approximate",
+              country: "US",
+              timezone: timezone
+            }
+          }],
+          include: ["web_search_call.action.sources"],
           input: [
             {
               role: "system",
@@ -616,7 +670,8 @@ title: AI FIRAC
                 text:
                   "You are a precise law-school case briefing assistant with web-search access. " +
                   "Find the opinion identified by the reporter citation. If you cannot confidently verify the correct case text, say that you could not verify the citation and stop. " +
-                  "Once verified, produce a full FIRAC brief with no embedded citations or source callouts."
+                  "Use authoritative case text or reliable reproductions of the opinion. Do not guess. " +
+                  "Return a clean FIRAC brief with no embedded citations or source callouts in the brief itself."
               }]
             },
             {
@@ -625,7 +680,6 @@ title: AI FIRAC
                 type: "input_text",
                 text:
                   "Reporter citation: " + citation + "\n\n" +
-                  "Use authoritative case text or reliable reproductions of the opinion to identify the case. Do not guess. " +
                   "Use my standard FIRAC instructions and template below.\n\n" +
                   firacPrompt +
                   "\n\nUse the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
@@ -648,7 +702,10 @@ title: AI FIRAC
         throw new Error("OpenAI returned an empty FIRAC response for the citation.");
       }
 
-      return text;
+      return {
+        text: text,
+        sources: extractCitationSources(data)
+      };
     }
 
     function refreshConnectionStatus() {
@@ -680,10 +737,9 @@ title: AI FIRAC
 
     function syncState() {
       const hasSource = Boolean(selectedFile || citationInput.value.trim());
-      const hasKey = Boolean(resolveApiKey());
       const hasResult = hasResultText();
 
-      generateButton.disabled = !(hasSource && hasKey) || isWorking;
+      generateButton.disabled = !hasSource || isWorking;
       copyButton.disabled = !hasResult || isWorking;
       wordButton.disabled = !hasResult || isWorking;
       pdfButton.disabled = !hasResult || isWorking;
@@ -767,6 +823,78 @@ title: AI FIRAC
       }
 
       return templateCache;
+    }
+
+    function renderCitationSources(sources) {
+      if (!citationSourcesWrap || !citationSourcesList) {
+        return;
+      }
+
+      citationSourcesList.innerHTML = "";
+
+      if (!Array.isArray(sources) || !sources.length) {
+        citationSourcesWrap.hidden = true;
+        return;
+      }
+
+      sources.forEach(function (source) {
+        const listItem = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = source.title || source.url;
+        listItem.appendChild(link);
+        citationSourcesList.appendChild(listItem);
+      });
+
+      citationSourcesWrap.hidden = false;
+    }
+
+    function extractCitationSources(data) {
+      if (!data || !Array.isArray(data.output)) {
+        return [];
+      }
+
+      const seen = new Set();
+      const sources = [];
+
+      data.output.forEach(function (item) {
+        if (item && item.type === "web_search_call" && item.action && Array.isArray(item.action.sources)) {
+          item.action.sources.forEach(pushSource);
+        }
+
+        if (!Array.isArray(item.content)) {
+          return;
+        }
+
+        item.content.forEach(function (contentItem) {
+          if (!Array.isArray(contentItem.annotations)) {
+            return;
+          }
+
+          contentItem.annotations.forEach(function (annotation) {
+            pushSource(annotation);
+          });
+        });
+      });
+
+      return sources;
+
+      function pushSource(source) {
+        const url = source && typeof source.url === "string" ? source.url.trim() : "";
+        const title = source && typeof source.title === "string" ? source.title.trim() : "";
+
+        if (!url || seen.has(url)) {
+          return;
+        }
+
+        seen.add(url);
+        sources.push({
+          url: url,
+          title: title || url,
+        });
+      }
     }
 
     function extractOutputText(data) {
@@ -969,3 +1097,12 @@ title: AI FIRAC
     }
   });
 </script>
+
+
+
+
+
+
+
+
+
