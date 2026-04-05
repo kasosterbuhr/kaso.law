@@ -14,6 +14,9 @@ title: AI FIRAC
     --accent-dark: #09487f;
     --danger: #b42318;
     --success: #18794e;
+    --warn-bg: #fff3cd;
+    --warn-line: #f0d48a;
+    --warn-ink: #6a4a00;
     display: grid;
     gap: 22px;
   }
@@ -47,27 +50,34 @@ title: AI FIRAC
   }
 
   .brief-warning {
-    background: #fff3cd;
-    border: 1px solid #f0d48a;
-    color: #6a4a00;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    color: var(--warn-ink);
     border-radius: 16px;
     padding: 16px 18px;
     font-weight: 600;
   }
 
-  .brief-hero h1 {
+  .brief-hero h1,
+  .brief-output h2 {
     margin: 14px 0 12px;
   }
 
   .brief-hero p,
   .brief-help,
-  .brief-note {
+  .brief-note,
+  .brief-meta {
     color: var(--muted);
   }
 
-  .brief-form {
+  .brief-form,
+  .brief-source-grid {
     display: grid;
     gap: 18px;
+  }
+
+  .brief-source-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 
   .brief-connect-grid {
@@ -97,6 +107,24 @@ title: AI FIRAC
     border-radius: 14px;
     font: inherit;
     background: #ffffff;
+  }
+
+  .brief-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brief-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(13, 94, 166, 0.08);
+    color: var(--accent-dark);
+    font-size: 0.84rem;
+    font-weight: 700;
   }
 
   .brief-connection {
@@ -236,61 +264,76 @@ title: AI FIRAC
 
 <div class="brief-tool">
   <section class="brief-hero">
-    <span class="brief-kicker">Browser-Powered FIRAC</span>
+    <span class="brief-kicker">Function-First FIRAC</span>
     <h1>AI FIRAC Builder</h1>
     <p>
-      Save your OpenAI key in a browser cookie on this device, drop in a case-opinion PDF, and generate a clipboard-ready FIRAC directly from the page.
+      Drop in a case opinion PDF or type a reporter citation, run your standard FIRAC packet, and copy or download the finished brief as text, Word, or PDF.
     </p>
   </section>
 
   <div class="brief-warning">
-    This page is fully client-side. Your OpenAI key stays under browser control on this device, but it is readable by scripts running on this site. Use it only on a browser profile you trust.
+    This prototype can use a built-in site key if you add one in site config, or a browser-saved key if you prefer. A built-in browser key is inspectable, so keep your guardrails tight and treat this as a function-first prototype.
   </div>
 
   <section class="brief-panel">
     <form class="brief-form" id="brief-form">
       <div class="brief-field">
-        <label for="storage-mode">Storage Mode</label>
-        <input id="storage-mode" name="storage-mode" type="text" value="Browser cookies on this device only" readonly>
-        <p class="brief-help">The page uses your saved key directly from this browser. Nothing is posted back into the repo.</p>
+        <label for="access-mode">Access Mode</label>
+        <input id="access-mode" name="access-mode" type="text" value="Checking key source..." readonly>
+        <div class="brief-pill-row">
+          <span class="brief-pill">PDF model: <span id="openai-model-label"></span></span>
+          <span class="brief-pill">Citation model: <span id="reporter-model-label"></span></span>
+        </div>
       </div>
 
       <div class="brief-field">
-        <label for="api-key">Connect OpenAI</label>
+        <label for="api-key">Optional Browser Key</label>
         <div class="brief-connect-grid">
-          <input id="api-key" name="api-key" type="password" placeholder="Paste your OpenAI API key once" autocomplete="off" spellcheck="false">
+          <input id="api-key" name="api-key" type="password" placeholder="Paste an OpenAI API key once if you want a browser override" autocomplete="off" spellcheck="false">
           <button class="brief-button" id="connect-button" type="button">Save Key</button>
           <button class="brief-button-secondary" id="disconnect-button" type="button">Forget Key</button>
         </div>
         <div class="brief-connection" id="connection-status" aria-live="polite">Checking connection status...</div>
-        <p class="brief-help">When you generate a FIRAC, the browser sends your PDF and prompt directly to OpenAI with <code>store: false</code> using model <code id="openai-model-label"></code>.</p>
+        <p class="brief-help">The PDF path sends your FIRAC packet to OpenAI with <code>store: false</code>. The citation path uses a search-capable OpenAI model so you can enter a reporter like <code>446 U.S. 620</code>.</p>
       </div>
 
-      <div class="brief-field">
-        <label for="opinion-file">Opinion PDF</label>
-        <input id="opinion-file" name="opinion-file" type="file" accept="application/pdf,.pdf" hidden>
-        <div class="brief-dropzone" id="dropzone" role="button" tabindex="0" aria-controls="opinion-file">
-          <strong>Drop a PDF here</strong>
-          <span>or click to choose a case opinion from your computer</span>
-          <span class="brief-file-name" id="file-name">No file selected yet.</span>
+      <div class="brief-source-grid">
+        <div class="brief-field">
+          <label for="reporter-citation">Reporter Citation</label>
+          <input id="reporter-citation" name="reporter-citation" type="text" placeholder="446 U.S. 620" autocomplete="off" spellcheck="false">
+          <p class="brief-help">Use this if you want the page to fetch and brief a case by citation instead of by uploaded PDF.</p>
+        </div>
+
+        <div class="brief-field">
+          <label for="opinion-file">Opinion PDF</label>
+          <input id="opinion-file" name="opinion-file" type="file" accept="application/pdf,.pdf" hidden>
+          <div class="brief-dropzone" id="dropzone" role="button" tabindex="0" aria-controls="opinion-file">
+            <strong>Drop a PDF here</strong>
+            <span>or click to choose a case opinion from your computer</span>
+            <span class="brief-file-name" id="file-name">No file selected yet.</span>
+          </div>
         </div>
       </div>
+
+      <div class="brief-meta" id="source-summary">Use either a PDF or a reporter citation. If you provide both, the uploaded PDF controls and the citation only helps anchor the prompt.</div>
 
       <div class="brief-actions">
         <button class="brief-button" id="generate-button" type="submit" disabled>Generate FIRAC</button>
         <button class="brief-button-secondary" id="copy-button" type="button" disabled>Copy Brief</button>
+        <button class="brief-button-secondary" id="word-button" type="button" disabled>Download Word</button>
+        <button class="brief-button-secondary" id="pdf-button" type="button" disabled>Download PDF</button>
       </div>
 
       <div class="brief-status" id="brief-status" aria-live="polite"></div>
       <p class="brief-note">
-        If browser-side API access fails in your setup, the fallback is still the prompt-copy workflow on the Prompts page.
+        The page uses your saved briefing template and standard FIRAC prompt. The case text comes from either the uploaded PDF or the reporter citation path.
       </p>
     </form>
   </section>
 
   <section class="brief-output">
     <h2>Generated Brief</h2>
-    <pre id="brief-output">Your FIRAC brief will appear here after the upload finishes.</pre>
+    <pre id="brief-output">Your FIRAC brief will appear here after the request finishes.</pre>
   </section>
 </div>
 
@@ -298,42 +341,67 @@ title: AI FIRAC
   document.addEventListener("DOMContentLoaded", function () {
     const cookies = window.kasoCookies;
     const openAiCookieName = "kaso_key_openai";
-    const model = (window.KASO_CONFIG && window.KASO_CONFIG.openaiModel) || "gpt-4.1-mini";
+    const siteOpenAiKey = ((window.KASO_CONFIG && window.KASO_CONFIG.openaiPublicApiKey) || "").trim();
+    const directModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiModel) || "gpt-5.4";
+    const reporterModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiReporterModel) || "gpt-4o-search-preview";
     const templatePath = "/assets/downloads/BriefTemplate.txt";
     const fallbackTemplate =
-      "**Facts**\n" +
-      "- Summarize the legally material facts.\n\n" +
-      "**Issue**\n" +
-      "State the main legal issue.\n\n" +
-      "**Rule**\n" +
-      "State the controlling rule or rules.\n\n" +
-      "**Application**\n" +
-      "Explain how the court applied the rule to the facts.\n\n" +
-      "**Conclusion**\n" +
-      "State the holding and disposition.";
+      "Short/Smart Case Name, State Abbrev. (Year): [Short caption plus jurisdiction and year.]\n" +
+      "Venue & Date: [Court and decision date.]\n" +
+      "Full Citation: [Full reporter citation.]\n" +
+      "Judges: [Majority and dissent lineup.]\n" +
+      "Verdict: [Vote count and result.]\n\n" +
+      "TL;DR\n[1 to 2 sentence overview.]\n\n" +
+      "Procedural History\n- [Bullets]\n\n" +
+      "Facts\n- [Bullets]\n\n" +
+      "Issue\n[State the legal question.]\n\n" +
+      "Rule/Holding\n[State the rule and holding.]\n\n" +
+      "Reasoning of the Majority\n[Explain the court's reasoning.]\n\n" +
+      "Concurring Opinions\n[If any.]\n\n" +
+      "Dissenting Opinions\n[If any.]\n\n" +
+      "Conclusion\n[Outcome and significance.]";
+    const firacPrompt =
+      "Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.\n\n" +
+      "Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources unless the task is citation-based and you need the opinion text itself. Do not embed citations or source callouts in the response. I already know where the material came from.\n\n" +
+      "If the record is unclear on a detail, say so briefly rather than guessing.";
+    const systemPrompt =
+      "You are a precise law-school case briefing assistant. Create a full FIRAC brief using only the case text or reliable opinion text you are given. Do not invent facts, do not embed citations or source callouts, and return only the finished brief, ready to paste into Microsoft Word.";
 
+    const accessMode = document.getElementById("access-mode");
     const modelLabel = document.getElementById("openai-model-label");
+    const reporterModelLabel = document.getElementById("reporter-model-label");
     const apiKeyInput = document.getElementById("api-key");
     const connectButton = document.getElementById("connect-button");
     const disconnectButton = document.getElementById("disconnect-button");
     const connectionStatus = document.getElementById("connection-status");
+    const citationInput = document.getElementById("reporter-citation");
     const fileInput = document.getElementById("opinion-file");
     const dropzone = document.getElementById("dropzone");
     const fileName = document.getElementById("file-name");
+    const sourceSummary = document.getElementById("source-summary");
     const generateButton = document.getElementById("generate-button");
     const copyButton = document.getElementById("copy-button");
+    const wordButton = document.getElementById("word-button");
+    const pdfButton = document.getElementById("pdf-button");
     const status = document.getElementById("brief-status");
     const output = document.getElementById("brief-output");
 
     let selectedFile = null;
-    let isConnected = false;
     let templateCache = "";
+    let lastResultTitle = "firac-brief";
+    let isWorking = false;
 
     if (modelLabel) {
-      modelLabel.textContent = model;
+      modelLabel.textContent = directModel;
+    }
+
+    if (reporterModelLabel) {
+      reporterModelLabel.textContent = reporterModel;
     }
 
     refreshConnectionStatus();
+    updateSourceSummary();
+
     window.addEventListener("focus", refreshConnectionStatus);
     window.addEventListener("pageshow", refreshConnectionStatus);
 
@@ -351,14 +419,25 @@ title: AI FIRAC
 
       cookies.set(openAiCookieName, apiKey);
       apiKeyInput.value = "";
-      setStatus("OpenAI key saved in this browser.");
+      setStatus(siteOpenAiKey ? "Browser override key saved. The site-wide key still exists too." : "OpenAI key saved in this browser.");
       refreshConnectionStatus();
     });
 
     disconnectButton.addEventListener("click", function () {
+      if (!cookies.get(openAiCookieName)) {
+        setStatus(siteOpenAiKey ? "No browser override key was saved. The site-wide key remains active." : "No saved browser key found.", !siteOpenAiKey);
+        refreshConnectionStatus();
+        return;
+      }
+
       cookies.remove(openAiCookieName);
-      setStatus("Stored OpenAI key removed from this browser.");
+      setStatus(siteOpenAiKey ? "Browser override key removed. The site-wide key remains active." : "Stored OpenAI key removed from this browser.");
       refreshConnectionStatus();
+    });
+
+    citationInput.addEventListener("input", function () {
+      updateSourceSummary();
+      syncState();
     });
 
     fileInput.addEventListener("change", function () {
@@ -398,107 +477,42 @@ title: AI FIRAC
     document.getElementById("brief-form").addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      if (!selectedFile) {
-        setStatus("Choose a PDF first.", true);
-        return;
-      }
-
-      const apiKey = cookies.get(openAiCookieName);
+      const apiKey = resolveApiKey();
+      const citation = citationInput.value.trim();
 
       if (!apiKey) {
-        setStatus("Save your OpenAI key first.", true);
+        setStatus("Add a built-in site key in _config.yml or save a browser key first.", true);
         return;
       }
 
-      generateButton.disabled = true;
-      copyButton.disabled = true;
-      setStatus("Uploading the opinion and building your FIRAC brief...");
+      if (!selectedFile && !citation) {
+        setStatus("Drop in a PDF or type a reporter citation first.", true);
+        return;
+      }
+
+      isWorking = true;
+      syncState();
+      setStatus(selectedFile ? "Uploading the opinion and building your FIRAC brief..." : "Looking up that citation and building your FIRAC brief...");
 
       try {
-        const [fileDataBase64, template] = await Promise.all([
-          fileToBase64(selectedFile),
-          getBriefTemplate()
-        ]);
+        const template = await getBriefTemplate();
+        let text = "";
 
-        const response = await fetch("https://api.openai.com/v1/responses", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + apiKey
-          },
-          body: JSON.stringify({
-            model: model,
-            store: false,
-            input: [
-              {
-                role: "system",
-                content: [
-                  {
-                    type: "input_text",
-                    text:
-                      "You are a precise law-school case briefing assistant. " +
-                      "Create a full FIRAC brief using only the uploaded opinion. " +
-                      "Do not use external sources, do not invent facts, and do not include embedded citations or source callouts. " +
-                      "Return only the finished brief, with bold headings and bullets where appropriate, ready to paste into Microsoft Word."
-                  }
-                ]
-              },
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "input_text",
-                    text:
-                      "Use the uploaded opinion to complete the following briefing structure. " +
-                      "If a detail is genuinely unavailable from the opinion, say so briefly instead of guessing.\n\n" +
-                      "Formatting rules:\n" +
-                      "- Use bold section headings.\n" +
-                      "- Use bullets for Procedural History and Facts.\n" +
-                      "- Do not use horizontal rules.\n" +
-                      "- Leave a blank line between sections.\n" +
-                      "- Rely only on the uploaded opinion.\n\n" +
-                      "Briefing template:\n" +
-                      template
-                  },
-                  {
-                    type: "input_file",
-                    filename: selectedFile.name,
-                    file_data: "data:application/pdf;base64," + fileDataBase64
-                  }
-                ]
-              }
-            ]
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data && data.error && data.error.message
-              ? data.error.message
-              : "OpenAI request failed."
-          );
-        }
-
-        const text = extractOutputText(data).trim();
-
-        if (!text) {
-          throw new Error("OpenAI returned an empty response.");
+        if (selectedFile) {
+          text = await generateFromPdf(apiKey, template, citation);
+          lastResultTitle = sanitizeFilename(selectedFile.name.replace(/\.pdf$/i, ""));
+        } else {
+          text = await generateFromCitation(apiKey, template, citation);
+          lastResultTitle = sanitizeFilename(citation);
         }
 
         output.textContent = text;
-        copyButton.disabled = false;
         await copyText(text);
         setStatus("FIRAC generated and copied to your clipboard.");
       } catch (error) {
-        setStatus(
-          error && error.message
-            ? error.message
-            : "The browser-side FIRAC request did not complete.",
-          true
-        );
+        setStatus(error && error.message ? error.message : "The FIRAC request did not complete.", true);
       } finally {
+        isWorking = false;
         syncState();
       }
     });
@@ -512,28 +526,197 @@ title: AI FIRAC
       }
     });
 
+    wordButton.addEventListener("click", function () {
+      if (!hasResultText()) {
+        return;
+      }
+
+      downloadWordDoc(output.textContent, lastResultTitle || deriveSourceTitle());
+      setStatus("Word document downloaded.");
+    });
+
+    pdfButton.addEventListener("click", function () {
+      if (!hasResultText()) {
+        return;
+      }
+
+      downloadPdfDoc(output.textContent, lastResultTitle || deriveSourceTitle());
+      setStatus("PDF download started.");
+    });
+
+    async function generateFromPdf(apiKey, template, citation) {
+      const fileDataBase64 = await fileToBase64(selectedFile);
+      const citationNote = citation ? "\n\nReporter citation supplied by user: " + citation : "";
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + apiKey
+        },
+        body: JSON.stringify({
+          model: directModel,
+          store: false,
+          input: [
+            {
+              role: "system",
+              content: [{ type: "input_text", text: systemPrompt }]
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "input_text",
+                  text:
+                    firacPrompt +
+                    citationNote +
+                    "\n\nUse the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
+                    template
+                },
+                {
+                  type: "input_file",
+                  filename: selectedFile.name,
+                  file_data: "data:application/pdf;base64," + fileDataBase64
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data && data.error && data.error.message ? data.error.message : "OpenAI PDF FIRAC request failed.");
+      }
+
+      const text = extractOutputText(data).trim();
+
+      if (!text) {
+        throw new Error("OpenAI returned an empty FIRAC response for the PDF.");
+      }
+
+      return text;
+    }
+
+    async function generateFromCitation(apiKey, template, citation) {
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + apiKey
+        },
+        body: JSON.stringify({
+          model: reporterModel,
+          store: false,
+          input: [
+            {
+              role: "system",
+              content: [{
+                type: "input_text",
+                text:
+                  "You are a precise law-school case briefing assistant with web-search access. " +
+                  "Find the opinion identified by the reporter citation. If you cannot confidently verify the correct case text, say that you could not verify the citation and stop. " +
+                  "Once verified, produce a full FIRAC brief with no embedded citations or source callouts."
+              }]
+            },
+            {
+              role: "user",
+              content: [{
+                type: "input_text",
+                text:
+                  "Reporter citation: " + citation + "\n\n" +
+                  "Use authoritative case text or reliable reproductions of the opinion to identify the case. Do not guess. " +
+                  "Use my standard FIRAC instructions and template below.\n\n" +
+                  firacPrompt +
+                  "\n\nUse the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
+                  template
+              }]
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data && data.error && data.error.message ? data.error.message : "OpenAI citation FIRAC request failed.");
+      }
+
+      const text = extractOutputText(data).trim();
+
+      if (!text) {
+        throw new Error("OpenAI returned an empty FIRAC response for the citation.");
+      }
+
+      return text;
+    }
+
     function refreshConnectionStatus() {
-      isConnected = Boolean(getSavedOpenAiKey());
-      connectionStatus.textContent = isConnected
-        ? "OpenAI key saved in this browser."
-        : "No saved OpenAI key found yet.";
-      connectionStatus.className = isConnected
-        ? "brief-connection connected"
-        : "brief-connection disconnected";
+      const hasSiteKey = Boolean(siteOpenAiKey);
+      const hasSavedBrowserKey = Boolean(cookies.get(openAiCookieName));
+      const hasAnyKey = Boolean(resolveApiKey());
+
+      if (hasSavedBrowserKey && hasSiteKey) {
+        accessMode.value = "Browser override key saved plus built-in site key";
+        connectionStatus.textContent = "Browser override key saved. Site-wide key also configured.";
+        connectionStatus.className = "brief-connection connected";
+      } else if (hasSavedBrowserKey) {
+        accessMode.value = "Browser cookie key only";
+        connectionStatus.textContent = "OpenAI key saved in this browser.";
+        connectionStatus.className = "brief-connection connected";
+      } else if (hasSiteKey) {
+        accessMode.value = "Built-in site key active";
+        connectionStatus.textContent = "A built-in site key is active for this page.";
+        connectionStatus.className = "brief-connection connected";
+      } else {
+        accessMode.value = "No OpenAI key configured yet";
+        connectionStatus.textContent = "No built-in site key or browser-saved key found yet.";
+        connectionStatus.className = "brief-connection disconnected";
+      }
+
+      disconnectButton.disabled = !hasSavedBrowserKey;
       syncState();
     }
 
     function syncState() {
-      const hasSavedKey = Boolean(getSavedOpenAiKey());
-      generateButton.disabled = !(selectedFile && hasSavedKey);
-      disconnectButton.disabled = !hasSavedKey;
-      connectButton.disabled = false;
+      const hasSource = Boolean(selectedFile || citationInput.value.trim());
+      const hasKey = Boolean(resolveApiKey());
+      const hasResult = hasResultText();
+
+      generateButton.disabled = !(hasSource && hasKey) || isWorking;
+      copyButton.disabled = !hasResult || isWorking;
+      wordButton.disabled = !hasResult || isWorking;
+      pdfButton.disabled = !hasResult || isWorking;
+      connectButton.disabled = isWorking;
+    }
+
+    function updateSourceSummary() {
+      const citation = citationInput.value.trim();
+
+      if (selectedFile && citation) {
+        sourceSummary.textContent = "PDF selected and citation supplied. The uploaded PDF will control, and the citation will be passed along as context.";
+        return;
+      }
+
+      if (selectedFile) {
+        sourceSummary.textContent = "PDF mode active. The uploaded opinion will be the source text for the FIRAC.";
+        return;
+      }
+
+      if (citation) {
+        sourceSummary.textContent = "Citation mode active. The page will try to find and brief the case identified by that reporter citation.";
+        return;
+      }
+
+      sourceSummary.textContent = "Use either a PDF or a reporter citation. If you provide both, the uploaded PDF controls and the citation only helps anchor the prompt.";
     }
 
     function setFile(file) {
       if (!file) {
         selectedFile = null;
+        fileInput.value = "";
         fileName.textContent = "No file selected yet.";
+        updateSourceSummary();
         syncState();
         return;
       }
@@ -545,6 +728,7 @@ title: AI FIRAC
         fileInput.value = "";
         fileName.textContent = "No file selected yet.";
         setStatus("Only PDF uploads are supported right now.", true);
+        updateSourceSummary();
         syncState();
         return;
       }
@@ -552,12 +736,17 @@ title: AI FIRAC
       selectedFile = file;
       fileName.textContent = file.name;
       setStatus("");
+      updateSourceSummary();
       refreshConnectionStatus();
       syncState();
     }
 
-    function getSavedOpenAiKey() {
-      return cookies.get(openAiCookieName) || "";
+    function resolveApiKey() {
+      return cookies.get(openAiCookieName).trim() || siteOpenAiKey;
+    }
+
+    function hasResultText() {
+      return Boolean(output.textContent && output.textContent.trim() && output.textContent.indexOf("Your FIRAC brief will appear here") !== 0);
     }
 
     async function getBriefTemplate() {
@@ -639,6 +828,144 @@ title: AI FIRAC
       helper.select();
       document.execCommand("copy");
       document.body.removeChild(helper);
+    }
+
+    function downloadWordDoc(text, baseName) {
+      const title = baseName || "firac-brief";
+      const html = makeWordHtml(text, title);
+      const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
+      downloadBlob(blob, title + ".doc");
+    }
+
+    function downloadPdfDoc(text, baseName) {
+      const title = baseName || "firac-brief";
+
+      if (window.jspdf && window.jspdf.jsPDF) {
+        const jsPDF = window.jspdf.jsPDF;
+        const pdf = new jsPDF({ unit: "pt", format: "letter" });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 48;
+        const usableWidth = pageWidth - margin * 2;
+        let y = margin;
+
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.text(title, margin, y);
+        y += 24;
+
+        const lines = String(text || "").split(/\r?\n/);
+
+        lines.forEach(function (line) {
+          const trimmed = line.trim();
+          let fontStyle = "normal";
+          let fontSize = 11;
+          let indent = 0;
+          let lineText = line;
+
+          if (!trimmed) {
+            y += 10;
+            return;
+          }
+
+          if (/^\*\*.+\*\*$/.test(trimmed)) {
+            fontStyle = "bold";
+            fontSize = 13;
+            lineText = trimmed.replace(/^\*\*/, "").replace(/\*\*$/, "");
+          } else if (/^-\s+/.test(trimmed)) {
+            indent = 16;
+          }
+
+          pdf.setFont("helvetica", fontStyle);
+          pdf.setFontSize(fontSize);
+          const wrapped = pdf.splitTextToSize(lineText, usableWidth - indent);
+
+          wrapped.forEach(function (wrappedLine) {
+            if (y > pageHeight - margin) {
+              pdf.addPage();
+              y = margin;
+            }
+
+            pdf.text(wrappedLine, margin + indent, y);
+            y += fontSize + 4;
+          });
+        });
+
+        pdf.save(title + ".pdf");
+        return;
+      }
+
+      const printWindow = window.open("", "_blank", "noopener,noreferrer");
+      if (!printWindow) {
+        setStatus("Popup blocked. Allow popups to print a PDF fallback.", true);
+        return;
+      }
+
+      printWindow.document.write(makeWordHtml(text, title));
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    function makeWordHtml(text, title) {
+      const body = String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/^\*\*(.+?)\*\*$/gm, "<h2>$1</h2>")
+        .replace(/\n\n/g, "</p><p>")
+        .replace(/\n/g, "<br>");
+
+      return (
+        "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" +
+        title +
+        "</title><style>body{font-family:Georgia,serif;padding:40px;line-height:1.55;color:#111;}h1{margin:0 0 24px;}h2{margin:22px 0 10px;font-size:1.1rem;}p{margin:0 0 14px;}br{line-height:1.55;}</style></head><body><h1>" +
+        title +
+        "</h1><p>" +
+        body +
+        "</p></body></html>"
+      );
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 1000);
+    }
+
+    function deriveSourceTitle() {
+      const citation = citationInput.value.trim();
+
+      if (selectedFile && selectedFile.name) {
+        return sanitizeFilename(selectedFile.name.replace(/\.pdf$/i, ""));
+      }
+
+      if (citation) {
+        return sanitizeFilename(citation);
+      }
+
+      return "firac-brief";
+    }
+
+    function sanitizeFilename(value) {
+      return String(value || "firac-brief")
+        .replace(/\.[^.]+$/g, "")
+        .replace(/[^a-zA-Z0-9\-_ ]+/g, "")
+        .trim()
+        .replace(/\s+/g, "-")
+        .slice(0, 80) || "firac-brief";
+    }
+
+    function setStatus(message, isError) {
+      status.textContent = message;
+      status.classList.toggle("error", Boolean(isError));
     }
   });
 </script>

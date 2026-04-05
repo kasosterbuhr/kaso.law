@@ -46,9 +46,12 @@
         &copy; {{ site.time | date: "%Y" }} {{ site.title }}
       </footer>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script>
       window.KASO_CONFIG = {
-        openaiModel: {{ site.openai_client_model | default: "gpt-4.1-mini" | jsonify }}
+        openaiPublicApiKey: {{ site.openai_public_api_key | default: "" | jsonify }},
+        openaiModel: {{ site.openai_client_model | default: "gpt-5.4" | jsonify }},
+        openaiReporterModel: {{ site.openai_reporter_model | default: "gpt-4o-search-preview" | jsonify }}
       };
 
       window.kasoCookies = {
