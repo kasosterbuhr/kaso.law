@@ -13,7 +13,7 @@ The current legal system is built on a paradox: justice is a right, yet competen
 
 **AI<em>Pro</em>&#8202;<em>Se</em>** is a practical, scalable, and open-source platform designed to bridge that gap. By combining <span style="color:#28a745">Advanced Large Language Model (LLM) workflows</span> with <span style="color:#0056b3">Academic Legal Rigor</span>, we are building the first "Law-School-in-a-Box" for the general public.
 
------
+![AIProSe core concept](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
 
 ## <span style="color:#0056b3">The Problem: A Broken Market</span> {#about}
 

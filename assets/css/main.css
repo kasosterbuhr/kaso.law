@@ -127,7 +127,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15,23,42,0.16), rgba(15,23,42,0.72));
+  background: linear-gradient(180deg, rgba(15,23,42,0.1), rgba(15,23,42,0.3));
   pointer-events: none;
 }
 
