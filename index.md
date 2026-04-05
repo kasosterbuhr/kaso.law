@@ -1,8 +1,8 @@
 ---
 layout: default
 title: AIProSe
-banner_image: /assets/images/GC_sunrise.jpg
-banner_height: 181px
+banner_image: /assets/images/KasoLaw.png
+banner_height: 300px
 ---
 
 # <span style="color:#0056b3">AI<em>Pro</em>&#8202;<em>Se</em></span>: The Future of Distributed Legal Intelligence
