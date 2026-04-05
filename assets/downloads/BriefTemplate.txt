@@ -1,0 +1,36 @@
+Short/Smart Case Name, State Abbrev. (Year): [Use a shortened non-official citation name. Example: "Heart of Atlanta Motel, Inc. v. United States (1964)" becomes "Heart of Atlanta v. US (1964)." Always include either the state abbreviation or "US" if it is a Supreme Court case, plus the year in parentheses.]
+Venue & Date: [Where was this opinion decided, and on what date? Example: "U.S. Supreme Court, May 15, 2023."]
+Full Citation: [Give the full legal citation as it would appear in a reporter. Example: "Roe v. Wade, 410 U.S. 113 (1973)."]
+Judges: [List all majority judges or justices by last name, with the opinion author first in ALL CAPS and the rest in normal case. Then add " | " and list dissenting judges with the dissent author first in ALL CAPS.]
+Verdict: [State the vote count, such as "5-4 Majority" or "4-3-2 Plurality."]
+
+TL;DR
+[Give a 1 to 2 sentence overview of the core legal issue, the holding, and any memorable test or factor.]
+
+Procedural History
+[Usually 2 to 5 bullets.]
+- [Trial court]: [Who sued whom? Mark parties as (P) and (D). Summarize the claim in fewer than 10 words, include the filing or claim date if known, and state the outcome and decision date.]
+- [Appellate court]: [Summarize the grounds for appeal in fewer than 10 words, then state the outcome and decision date.]
+- [Final disposition]: [Explain the final holding and procedural posture clearly, including any role reversals on appeal. If this is a Supreme Court case, note whether certiorari was granted or whether the case arrived on direct appeal.]
+- [Action on remand]: [Include only if the case was remanded in whole or in part.]
+
+Facts
+[Usually 2 to 8 bullets. Present a neutral, concise summary of the legally material facts.]
+
+Issue
+[State the precise legal question or questions before the court. Keep the issue legally framed and fact-neutral.]
+
+Rule/Holding
+[Answer the primary issue with a simple "Yes" or "No" when possible, then explain the controlling legal rule, doctrine, statute, constitutional provision, or precedent applied by the court.]
+
+Reasoning of the Majority
+[Analyze the court's reasoning. If relevant, note the standard of review, interpretive method, tests used, and how the court handled precedent, statutory text, or constitutional doctrine.]
+
+Concurring Opinions
+[Include only if there are concurrences. Summarize where those judges agreed with the result but differed in reasoning.]
+
+Dissenting Opinions
+[Include only if there are dissents. Summarize the major counterarguments and principles invoked by the dissent.]
+
+Conclusion
+[Summarize the final outcome and broader significance. Note whether the decision created new precedent, clarified existing law, or is likely to matter in future cases.]
