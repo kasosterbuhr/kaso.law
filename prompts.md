@@ -309,7 +309,7 @@ title: Prompt Library
       <span class="prompt-tag">Live Tool</span>
       <h2>AI FIRAC Builder</h2>
       <p>
-        Want the site to do the FIRAC itself instead of just copying a prompt? Open the upload tool, point it at your private backend, and let it return a full clipboard-ready brief.
+        Want the site to do the FIRAC itself instead of just copying a prompt? Open the upload tool, save your OpenAI key in a browser cookie on your device, and let it return a full clipboard-ready brief.
       </p>
       <div class="prompt-card-footer">
         <a class="prompt-secondary" href="/brief">Open Tool</a>

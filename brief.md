@@ -46,6 +46,15 @@ title: AI FIRAC
     text-transform: uppercase;
   }
 
+  .brief-warning {
+    background: #fff3cd;
+    border: 1px solid #f0d48a;
+    color: #6a4a00;
+    border-radius: 16px;
+    padding: 16px 18px;
+    font-weight: 600;
+  }
+
   .brief-hero h1 {
     margin: 14px 0 12px;
   }
@@ -227,35 +236,39 @@ title: AI FIRAC
 
 <div class="brief-tool">
   <section class="brief-hero">
-    <span class="brief-kicker">Server-Powered FIRAC</span>
+    <span class="brief-kicker">Browser-Powered FIRAC</span>
     <h1>AI FIRAC Builder</h1>
     <p>
-      Connect your OpenAI key once, let the trusted backend store it in an encrypted persistent cookie, and then drag in case-opinion PDFs whenever you want a clipboard-ready FIRAC brief.
+      Save your OpenAI key in a browser cookie on this device, drop in a case-opinion PDF, and generate a clipboard-ready FIRAC directly from the page.
     </p>
   </section>
+
+  <div class="brief-warning">
+    This page is fully client-side. Your OpenAI key stays under browser control on this device, but it is readable by scripts running on this site. Use it only on a browser profile you trust.
+  </div>
 
   <section class="brief-panel">
     <form class="brief-form" id="brief-form">
       <div class="brief-field">
-        <label for="trusted-api-base">Trusted API Backend</label>
-        <input id="trusted-api-base" name="trusted-api-base" type="text" value="" readonly>
-        <p class="brief-help">For safety, this public site only sends OpenAI keys to the trusted backend shown here. The key is never written into the GitHub repo.</p>
+        <label for="storage-mode">Storage Mode</label>
+        <input id="storage-mode" name="storage-mode" type="text" value="Browser cookies on this device only" readonly>
+        <p class="brief-help">The page uses your saved key directly from this browser. Nothing is posted back into the repo.</p>
       </div>
 
       <div class="brief-field">
         <label for="api-key">Connect OpenAI</label>
         <div class="brief-connect-grid">
           <input id="api-key" name="api-key" type="password" placeholder="Paste your OpenAI API key once" autocomplete="off" spellcheck="false">
-          <button class="brief-button" id="connect-button" type="button">Connect OpenAI</button>
+          <button class="brief-button" id="connect-button" type="button">Save Key</button>
           <button class="brief-button-secondary" id="disconnect-button" type="button">Forget Key</button>
         </div>
         <div class="brief-connection" id="connection-status" aria-live="polite">Checking connection status...</div>
-        <p class="brief-help">The raw key is sent only to the trusted backend. The backend encrypts it into an <code>HttpOnly</code> cookie so future FIRAC requests can use it without keeping the key in page JavaScript.</p>
+        <p class="brief-help">When you generate a FIRAC, the browser sends your PDF and prompt directly to OpenAI with <code>store: false</code> using model <code id="openai-model-label"></code>.</p>
       </div>
 
       <div class="brief-field">
         <label for="opinion-file">Opinion PDF</label>
-        <input id="opinion-file" name="opinion-file" type="file" accept="application/pdf" hidden>
+        <input id="opinion-file" name="opinion-file" type="file" accept="application/pdf,.pdf" hidden>
         <div class="brief-dropzone" id="dropzone" role="button" tabindex="0" aria-controls="opinion-file">
           <strong>Drop a PDF here</strong>
           <span>or click to choose a case opinion from your computer</span>
@@ -270,7 +283,7 @@ title: AI FIRAC
 
       <div class="brief-status" id="brief-status" aria-live="polite"></div>
       <p class="brief-note">
-        This still requires your backend to be running. GitHub Pages serves the page, but the encrypted cookie and OpenAI request handling happen on the backend domain.
+        If browser-side API access fails in your setup, the fallback is still the prompt-copy workflow on the Prompts page.
       </p>
     </form>
   </section>
@@ -283,7 +296,23 @@ title: AI FIRAC
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const trustedApiBaseInput = document.getElementById("trusted-api-base");
+    const cookies = window.kasoCookies;
+    const openAiCookieName = "kaso_key_openai";
+    const model = (window.KASO_CONFIG && window.KASO_CONFIG.openaiModel) || "gpt-4.1-mini";
+    const templatePath = "/assets/downloads/BriefTemplate.txt";
+    const fallbackTemplate =
+      "**Facts**\n" +
+      "- Summarize the legally material facts.\n\n" +
+      "**Issue**\n" +
+      "State the main legal issue.\n\n" +
+      "**Rule**\n" +
+      "State the controlling rule or rules.\n\n" +
+      "**Application**\n" +
+      "Explain how the court applied the rule to the facts.\n\n" +
+      "**Conclusion**\n" +
+      "State the holding and disposition.";
+
+    const modelLabel = document.getElementById("openai-model-label");
     const apiKeyInput = document.getElementById("api-key");
     const connectButton = document.getElementById("connect-button");
     const disconnectButton = document.getElementById("disconnect-button");
@@ -295,94 +324,39 @@ title: AI FIRAC
     const copyButton = document.getElementById("copy-button");
     const status = document.getElementById("brief-status");
     const output = document.getElementById("brief-output");
+
     let selectedFile = null;
     let isConnected = false;
+    let templateCache = "";
 
-    trustedApiBaseInput.value = getApiBase() || "No trusted backend configured yet.";
-    syncState();
+    if (modelLabel) {
+      modelLabel.textContent = model;
+    }
+
     refreshConnectionStatus();
 
-    connectButton.addEventListener("click", async function () {
+    connectButton.addEventListener("click", function () {
       const apiKey = apiKeyInput.value.trim();
-      const endpoint = buildEndpoint("/api/connect-key");
-
-      if (!endpoint) {
-        setStatus("This deployment does not have a trusted backend configured yet.", true);
-        return;
-      }
 
       if (!apiKey) {
         setStatus("Paste an OpenAI API key first.", true);
         return;
       }
 
-      if (
-        typeof window.kasoConfirmProviderStorage === "function" &&
-        !window.kasoConfirmProviderStorage("OpenAI")
-      ) {
+      if (!window.kasoConfirmProviderStorage("OpenAI")) {
         return;
       }
 
-      connectButton.disabled = true;
-      setStatus("Connecting your OpenAI key...");
-
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ apiKey: apiKey }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data && data.error ? data.error : "Could not connect the API key.");
-        }
-
-        apiKeyInput.value = "";
-        setStatus("OpenAI connected. Future FIRAC requests will use your encrypted cookie.");
-        await refreshConnectionStatus();
-      } catch (error) {
-        setStatus(error && error.message ? error.message : "Could not connect the API key.", true);
-      } finally {
-        connectButton.disabled = false;
-        syncState();
-      }
+      cookies.set(openAiCookieName, apiKey);
+      apiKeyInput.value = "";
+      setStatus("OpenAI key saved in this browser.");
+      refreshConnectionStatus();
     });
 
-    disconnectButton.addEventListener("click", async function () {
-      const endpoint = buildEndpoint("/api/disconnect-key");
-
-      if (!endpoint) {
-        setStatus("This deployment does not have a trusted backend configured yet.", true);
-        return;
-      }
-
-      disconnectButton.disabled = true;
-      setStatus("Removing the stored key...");
-
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          credentials: "include",
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data && data.error ? data.error : "Could not remove the stored key.");
-        }
-
-        setStatus("Stored OpenAI key removed.");
-        await refreshConnectionStatus();
-      } catch (error) {
-        setStatus(error && error.message ? error.message : "Could not remove the stored key.", true);
-      } finally {
-        disconnectButton.disabled = false;
-        syncState();
-      }
+    disconnectButton.addEventListener("click", function () {
+      cookies.remove(openAiCookieName);
+      setStatus("Stored OpenAI key removed from this browser.");
+      refreshConnectionStatus();
     });
 
     fileInput.addEventListener("change", function () {
@@ -427,15 +401,10 @@ title: AI FIRAC
         return;
       }
 
-      const endpoint = buildEndpoint("/api/firac");
+      const apiKey = cookies.get(openAiCookieName);
 
-      if (!endpoint) {
-        setStatus("This deployment does not have a trusted backend configured yet.", true);
-        return;
-      }
-
-      if (!isConnected) {
-        setStatus("Connect your OpenAI key first.", true);
+      if (!apiKey) {
+        setStatus("Save your OpenAI key first.", true);
         return;
       }
 
@@ -444,32 +413,89 @@ title: AI FIRAC
       setStatus("Uploading the opinion and building your FIRAC brief...");
 
       try {
-        const fileDataBase64 = await fileToBase64(selectedFile);
-        const response = await fetch(endpoint, {
+        const [fileDataBase64, template] = await Promise.all([
+          fileToBase64(selectedFile),
+          getBriefTemplate()
+        ]);
+
+        const response = await fetch("https://api.openai.com/v1/responses", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": "Bearer " + apiKey
           },
-          credentials: "include",
           body: JSON.stringify({
-            filename: selectedFile.name,
-            mimeType: selectedFile.type || "application/pdf",
-            fileDataBase64: fileDataBase64,
-          }),
+            model: model,
+            store: false,
+            input: [
+              {
+                role: "system",
+                content: [
+                  {
+                    type: "input_text",
+                    text:
+                      "You are a precise law-school case briefing assistant. " +
+                      "Create a full FIRAC brief using only the uploaded opinion. " +
+                      "Do not use external sources, do not invent facts, and do not include embedded citations or source callouts. " +
+                      "Return only the finished brief, with bold headings and bullets where appropriate, ready to paste into Microsoft Word."
+                  }
+                ]
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "input_text",
+                    text:
+                      "Use the uploaded opinion to complete the following briefing structure. " +
+                      "If a detail is genuinely unavailable from the opinion, say so briefly instead of guessing.\n\n" +
+                      "Formatting rules:\n" +
+                      "- Use bold section headings.\n" +
+                      "- Use bullets for Procedural History and Facts.\n" +
+                      "- Do not use horizontal rules.\n" +
+                      "- Leave a blank line between sections.\n" +
+                      "- Rely only on the uploaded opinion.\n\n" +
+                      "Briefing template:\n" +
+                      template
+                  },
+                  {
+                    type: "input_file",
+                    filename: selectedFile.name,
+                    file_data: "data:application/pdf;base64," + fileDataBase64
+                  }
+                ]
+              }
+            ]
+          })
         });
 
         const data = await response.json();
 
-        if (!response.ok || !data || typeof data.text !== "string") {
-          throw new Error(data && data.error ? data.error : "The FIRAC request failed.");
+        if (!response.ok) {
+          throw new Error(
+            data && data.error && data.error.message
+              ? data.error.message
+              : "OpenAI request failed."
+          );
         }
 
-        output.textContent = data.text;
+        const text = extractOutputText(data).trim();
+
+        if (!text) {
+          throw new Error("OpenAI returned an empty response.");
+        }
+
+        output.textContent = text;
         copyButton.disabled = false;
-        await copyText(data.text);
+        await copyText(text);
         setStatus("FIRAC generated and copied to your clipboard.");
       } catch (error) {
-        setStatus(error && error.message ? error.message : "Something went wrong.", true);
+        setStatus(
+          error && error.message
+            ? error.message
+            : "The browser-side FIRAC request did not complete.",
+          true
+        );
       } finally {
         syncState();
       }
@@ -484,6 +510,23 @@ title: AI FIRAC
       }
     });
 
+    function refreshConnectionStatus() {
+      isConnected = Boolean(cookies.get(openAiCookieName));
+      connectionStatus.textContent = isConnected
+        ? "OpenAI key saved in this browser."
+        : "No saved OpenAI key found yet.";
+      connectionStatus.className = isConnected
+        ? "brief-connection connected"
+        : "brief-connection disconnected";
+      syncState();
+    }
+
+    function syncState() {
+      generateButton.disabled = !(selectedFile && isConnected);
+      disconnectButton.disabled = !isConnected;
+      connectButton.disabled = false;
+    }
+
     function setFile(file) {
       if (!file) {
         selectedFile = null;
@@ -492,7 +535,9 @@ title: AI FIRAC
         return;
       }
 
-      if (file.type !== "application/pdf") {
+      const nameLooksLikePdf = /\.pdf$/i.test(file.name || "");
+
+      if (file.type !== "application/pdf" && !nameLooksLikePdf) {
         selectedFile = null;
         fileInput.value = "";
         fileName.textContent = "No file selected yet.";
@@ -507,72 +552,50 @@ title: AI FIRAC
       syncState();
     }
 
-    async function refreshConnectionStatus() {
-      const endpoint = buildEndpoint("/api/key-status");
-
-      if (!endpoint) {
-        isConnected = false;
-        connectionStatus.textContent = "This deployment does not have a trusted backend configured yet.";
-        connectionStatus.className = "brief-connection disconnected";
-        syncState();
-        return;
+    async function getBriefTemplate() {
+      if (templateCache) {
+        return templateCache;
       }
 
       try {
-        const response = await fetch(endpoint, {
-          method: "GET",
-          credentials: "include",
-        });
-        const data = await response.json();
+        const response = await fetch(templatePath, { method: "GET" });
 
         if (!response.ok) {
-          throw new Error(data && data.error ? data.error : "Could not read connection status.");
+          throw new Error("Template not found.");
         }
 
-        isConnected = Boolean(data.connected);
-        connectionStatus.textContent = data.connected
-          ? "OpenAI key connected for this browser."
-          : "No connected OpenAI key found yet.";
-        connectionStatus.className = isConnected
-          ? "brief-connection connected"
-          : "brief-connection disconnected";
+        templateCache = await response.text();
       } catch (error) {
-        isConnected = false;
-        connectionStatus.textContent = "Could not reach the backend to check connection status.";
-        connectionStatus.className = "brief-connection disconnected";
+        templateCache = fallbackTemplate;
       }
 
-      syncState();
+      return templateCache;
     }
 
-    function syncState() {
-      const hasApiBase = Boolean(getApiBase());
-      generateButton.disabled = !(selectedFile && hasApiBase && isConnected);
-      disconnectButton.disabled = !hasApiBase;
-      connectButton.disabled = !hasApiBase;
-    }
+    function extractOutputText(data) {
+      if (typeof data.output_text === "string" && data.output_text) {
+        return data.output_text;
+      }
 
-    function setStatus(message, isError) {
-      status.textContent = message;
-      status.classList.toggle("error", Boolean(isError));
-    }
-
-    function buildEndpoint(path) {
-      const base = getApiBase();
-
-      if (!base) {
+      if (!Array.isArray(data.output)) {
         return "";
       }
 
-      return base + path;
-    }
+      const chunks = [];
 
-    function getApiBase() {
-      if (typeof window.kasoGetApiBase !== "function") {
-        return "";
-      }
+      data.output.forEach(function (item) {
+        if (!Array.isArray(item.content)) {
+          return;
+        }
 
-      return window.kasoGetApiBase();
+        item.content.forEach(function (contentItem) {
+          if (typeof contentItem.text === "string") {
+            chunks.push(contentItem.text);
+          }
+        });
+      });
+
+      return chunks.join("\n");
     }
 
     function fileToBase64(file) {
