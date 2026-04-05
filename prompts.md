@@ -256,7 +256,7 @@ title: Prompt Library
     <span class="prompt-kicker">Quick Copy Workflow</span>
     <h1>Prompt Library</h1>
     <p class="prompt-lead">
-      This page is built for your drag-drop-and-paste routine: upload the case opinion, textbook chapter, or reading packet into the AI tool you want, then click one of the buttons below to copy the matching prompt into your clipboard.
+      Go to your favorite AI tool webpage. Drop in your case opinions, and use these prompts to either get a comprehensive time-tested FIRAC, to generate audio/video on NotebookLM, or do specific tasks like generate model answers to directed questions.
     </p>
   </section>
 
