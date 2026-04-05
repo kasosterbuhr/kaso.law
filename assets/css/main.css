@@ -215,6 +215,35 @@ body {
   color: #1e293b;
 }
 
+.site-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 24px 0;
+}
+
+.site-content img.inline-left {
+  float: left;
+  margin: 0 24px 24px 0;
+  max-width: 320px;
+}
+
+.site-content img.inline-right {
+  float: right;
+  margin: 0 0 24px 24px;
+  max-width: 320px;
+}
+
+@media (max-width: 640px) {
+  .site-content img.inline-left,
+  .site-content img.inline-right {
+    float: none;
+    margin: 24px 0;
+    max-width: 100%;
+  }
+}
+
 .site-content hr {
   border: none;
   border-top: 1px solid #d8e2ea;

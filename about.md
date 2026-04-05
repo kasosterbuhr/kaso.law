@@ -30,6 +30,8 @@ What I experienced was the "cognitive gap" that plagues *pro se* litigants every
 
 The legal system assumes you have representation. When you don't, you're expected to think like a lawyer while being treated like an amateur. This creates a paradox: the system demands professional-level competence but provides amateur-level support.
 
+![AIProSe workflow](/assets/images/AIProSe%20detail%2001.png){: .inline-right }
+
 ### Why AI<em>Pro</em>&#8202;<em>Se</em> Matters
 
 I've seen too many capable, educated people get ground down by this system. I've watched family disputes escalate because people couldn't access basic procedural justice. I've witnessed the frustration of individuals who are right on the merits but lose on technicalities.

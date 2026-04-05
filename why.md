@@ -42,6 +42,8 @@ The person who cannot afford a lawyer, but also cannot afford to get lost.
 
 These people do not just need information. They need help structuring thought.
 
+![Legal access solutions](/assets/images/AIProSe%20second%20image.png){: .inline-left }
+
 They need to know what kind of problem they have, what sequence matters, what facts are legally significant, what arguments they are likely to face, and where procedure can quietly destroy them. That kind of help is rarely available in a form that is both affordable and usable.
 
 ## Why Existing Legal AI Is Not Enough
