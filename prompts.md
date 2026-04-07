@@ -472,7 +472,7 @@ title: Prompt Library
 
     const firacBasePrompt = `Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.
 
-This brief is for my {{COURSE_NAME}} class, so emphasize {{COURSE_FOCUS}}.
+This brief is for my __COURSE_NAME__ class, so emphasize __COURSE_FOCUS__.
 
 Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources. Do not embed citations or source callouts in the response. I already know where the material came from.
 
@@ -504,8 +504,8 @@ Put the full text of each question in bold before its answer. Do not embed citat
 
     function buildFiracPrompt(subject) {
       return firacBasePrompt
-        .replace("{{COURSE_NAME}}", subject.label)
-        .replace("{{COURSE_FOCUS}}", subject.focus);
+        .replace("__COURSE_NAME__", subject.label)
+        .replace("__COURSE_FOCUS__", subject.focus);
     }
 
     function setFiracPreview(subject) {
