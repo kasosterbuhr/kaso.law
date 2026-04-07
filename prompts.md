@@ -352,6 +352,22 @@ title: Prompt Library
     </div>
   </div>
 
+  <div class="prompt-modal" id="nlm-focus-modal" hidden>
+    <div class="prompt-modal-backdrop" data-dismiss-modal="true"></div>
+    <div class="prompt-modal-panel" role="dialog" aria-modal="true" aria-labelledby="nlm-focus-title">
+      <div>
+        <h2 id="nlm-focus-title">Choose a doctrinal focus</h2>
+        <p>
+          Pick the doctrinal lens you want before copying, so the NotebookLM prompt is ready to paste without editing.
+        </p>
+      </div>
+      <div class="prompt-choice-grid" id="nlm-focus-options"></div>
+      <div class="prompt-modal-actions">
+        <button class="prompt-secondary" type="button" data-dismiss-modal="true">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <section class="prompt-grid">
     <article class="prompt-card">
       <span class="prompt-tag">FIRAC</span>
@@ -470,6 +486,45 @@ title: Prompt Library
       },
     ];
 
+    const nlmFocuses = [
+      {
+        id: "general",
+        label: "General",
+        summary: "Default walkthrough in reading order, centered on the major cases.",
+        focus: "the major doctrinal developments that shape the reading as a whole",
+      },
+      {
+        id: "evidence",
+        label: "Evidence",
+        summary: "Admissibility, objections, and rule-driven doctrine.",
+        focus: "the main evidence doctrines, admissibility fights, and the rule-based reasoning behind the results",
+      },
+      {
+        id: "criminal-procedure-ii",
+        label: "Criminal Procedure II",
+        summary: "Searches, seizures, suppression, and police procedure.",
+        focus: "the core criminal procedure doctrines, suppression questions, and the constitutional tests shaping police conduct",
+      },
+      {
+        id: "conlaw-ii",
+        label: "ConLaw II",
+        summary: "Constitutional rights, tests, and state-action limits.",
+        focus: "the controlling constitutional doctrines, rights-based tests, and the governmental-power limits driving the cases",
+      },
+      {
+        id: "trial-advocacy",
+        label: "Trial Advocacy",
+        summary: "Courtroom strategy, proof problems, and practical use at trial.",
+        focus: "the practical courtroom implications, strategic proof choices, and how the doctrine affects trial work",
+      },
+      {
+        id: "animal-law",
+        label: "Animal Law",
+        summary: "Animal-status doctrine, regulation, and policy tension.",
+        focus: "the central animal-law doctrines, regulatory structure, and the policy tensions shaping the reading",
+      },
+    ];
+
     const firacBasePrompt = `Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.
 
 This brief is for my __COURSE_NAME__ class, so emphasize __COURSE_FOCUS__.
@@ -478,13 +533,17 @@ Stick to the template and rely only on the uploaded opinion or assigned reading.
 
 If the record is unclear on a detail, say so briefly rather than guessing.`;
 
+    const nlmBasePrompt = `You have the case opinions and the full reading assignment for this class. Prepare me for the big-picture doctrinal concepts as well as the nuances surfaced in footnotes, notes, and points of discussion.
+
+Follow the reading in the exact textbook or casebook order, using the order the cases appear in the reading. Focus on only the major cases unless a note, footnote, or shorter excerpt is necessary to explain the doctrine clearly.
+
+Emphasize __DOCTRINAL_FOCUS__ and recite the facts heavily when they matter to the doctrine. Assume I am a rising 3L using this for pre-class preparation, class discussion, and outline building, so keep it information-dense and do not spend time on basics a 3L already knows.
+
+Avoid shallow list-brain. I want a start-to-finish synthesis that weaves together doctrine, facts, tensions between the cases, and the framing choices made by the reading.`;
+
     const prompts = {
       firac: "",
-      nlm: `You have the case opinions and the full reading assignment for this class. Prepare me for the big-picture doctrinal concepts as well as the nuances surfaced in footnotes, notes, and points of discussion. Follow the reading in the exact textbook or casebook order.
-
-Emphasize [LEGAL AREA] and recite the facts heavily when they matter to the doctrine. Assume I am a rising 3L using this for pre-class preparation, class discussion, and outline building, so keep it information-dense and do not spend time on basics a 3L already knows.
-
-Avoid shallow list-brain. I want a start-to-finish synthesis that weaves together doctrine, facts, tensions between the cases, and the framing choices made by the reading.`,
+      nlm: "",
       voice: `Attached is the full reading for class today. I need short answers to the directed reading questions below. Answer every question posed. When appropriate, reference the Federal Rules of Evidence and any other rules, cases, or class materials that matter.
 
 Match my voice: casual, direct, and smart, like a capable law student talking through the material without sounding robotic or overly formal. Aim for about 1 to 4 sentences per answer unless a question clearly needs more.
@@ -495,17 +554,24 @@ Put the full text of each question in bold before its answer. Do not embed citat
     const status = document.getElementById("prompt-status");
     const firacModal = document.getElementById("firac-subject-modal");
     const firacSubjectOptions = document.getElementById("firac-subject-options");
+    const nlmModal = document.getElementById("nlm-focus-modal");
+    const nlmFocusOptions = document.getElementById("nlm-focus-options");
     const previewIds = {
       firac: "preview-firac",
       nlm: "preview-nlm",
       voice: "preview-voice",
     };
     let activeFiracButton = null;
+    let activeNlmButton = null;
 
     function buildFiracPrompt(subject) {
       return firacBasePrompt
         .replace("__COURSE_NAME__", subject.label)
         .replace("__COURSE_FOCUS__", subject.focus);
+    }
+
+    function buildNlmPrompt(focus) {
+      return nlmBasePrompt.replace("__DOCTRINAL_FOCUS__", focus.focus);
     }
 
     function setFiracPreview(subject) {
@@ -516,10 +582,19 @@ Put the full text of each question in bold before its answer. Do not embed citat
       }
     }
 
+    function setNlmPreview(focus) {
+      prompts.nlm = buildNlmPrompt(focus);
+      const target = document.getElementById(previewIds.nlm);
+      if (target) {
+        target.textContent = prompts.nlm;
+      }
+    }
+
     setFiracPreview(firacSubjects[0]);
+    setNlmPreview(nlmFocuses[0]);
 
     Object.entries(previewIds).forEach(([key, id]) => {
-      if (key === "firac") {
+      if (key === "firac" || key === "nlm") {
         return;
       }
 
@@ -547,6 +622,26 @@ Put the full text of each question in bold before its answer. Do not embed citat
       }
 
       activeFiracButton = null;
+    }
+
+    function openNlmModal(button) {
+      activeNlmButton = button;
+
+      if (nlmModal) {
+        nlmModal.hidden = false;
+      }
+
+      if (status) {
+        status.textContent = "Choose a doctrinal focus for the NotebookLM prompt.";
+      }
+    }
+
+    function closeNlmModal() {
+      if (nlmModal) {
+        nlmModal.hidden = true;
+      }
+
+      activeNlmButton = null;
     }
 
     async function copyPromptText(prompt, button, statusLabel) {
@@ -591,6 +686,11 @@ Put the full text of each question in bold before its answer. Do not embed citat
         return;
       }
 
+      if (key === "nlm") {
+        openNlmModal(button);
+        return;
+      }
+
       await copyPromptText(prompts[key], button, button.textContent.replace("Copy ", ""));
     }
 
@@ -610,15 +710,36 @@ Put the full text of each question in bold before its answer. Do not embed citat
       });
     }
 
+    if (nlmFocusOptions) {
+      nlmFocuses.forEach((focus) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "prompt-secondary prompt-choice";
+        option.innerHTML = "<span>" + focus.label + "</span><small>" + focus.summary + "</small>";
+        option.addEventListener("click", async function () {
+          const sourceButton = activeNlmButton || option;
+          setNlmPreview(focus);
+          closeNlmModal();
+          await copyPromptText(buildNlmPrompt(focus), sourceButton, focus.label + " NLM");
+        });
+        nlmFocusOptions.appendChild(option);
+      });
+    }
+
     document.querySelectorAll("[data-dismiss-modal]").forEach((button) => {
       button.addEventListener("click", function () {
         closeFiracModal();
+        closeNlmModal();
       });
     });
 
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && firacModal && !firacModal.hidden) {
         closeFiracModal();
+      }
+
+      if (event.key === "Escape" && nlmModal && !nlmModal.hidden) {
+        closeNlmModal();
       }
     });
 
