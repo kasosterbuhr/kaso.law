@@ -114,6 +114,71 @@ title: Prompt Library
     font-weight: 600;
   }
 
+  .prompt-modal[hidden] {
+    display: none;
+  }
+
+  .prompt-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+
+  .prompt-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(16, 36, 58, 0.42);
+    backdrop-filter: blur(6px);
+  }
+
+  .prompt-modal-panel {
+    position: relative;
+    width: min(560px, 100%);
+    display: grid;
+    gap: 18px;
+    background: #ffffff;
+    border: 1px solid rgba(207, 217, 227, 0.95);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 22px 60px rgba(16, 36, 58, 0.18);
+  }
+
+  .prompt-modal-panel h2 {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .prompt-modal-panel p {
+    color: var(--muted);
+  }
+
+  .prompt-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .prompt-choice {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .prompt-choice small {
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
+  .prompt-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .prompt-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -271,6 +336,22 @@ title: Prompt Library
 
   <div class="prompt-status" id="prompt-status" aria-live="polite"></div>
 
+  <div class="prompt-modal" id="firac-subject-modal" hidden>
+    <div class="prompt-modal-backdrop" data-dismiss-modal="true"></div>
+    <div class="prompt-modal-panel" role="dialog" aria-modal="true" aria-labelledby="firac-subject-title">
+      <div>
+        <h2 id="firac-subject-title">Choose a FIRAC class</h2>
+        <p>
+          Pick the course once, and the copied FIRAC prompt will drop in the right class language automatically.
+        </p>
+      </div>
+      <div class="prompt-choice-grid" id="firac-subject-options"></div>
+      <div class="prompt-modal-actions">
+        <button class="prompt-secondary" type="button" data-dismiss-modal="true">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <section class="prompt-grid">
     <article class="prompt-card">
       <span class="prompt-tag">FIRAC</span>
@@ -356,12 +437,49 @@ title: Prompt Library
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const prompts = {
-      firac: `Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.
+    const firacSubjects = [
+      {
+        id: "evidence",
+        label: "Evidence",
+        summary: "Admissibility, objections, and rule-driven analysis.",
+        focus: "the key evidentiary doctrines, admissibility questions, objections, and the rules driving the court's reasoning",
+      },
+      {
+        id: "criminal-procedure-ii",
+        label: "Criminal Procedure II",
+        summary: "Searches, seizures, suppression, and police procedure.",
+        focus: "the controlling criminal procedure doctrines, constitutional tests, suppression issues, and police-investigation context",
+      },
+      {
+        id: "conlaw-ii",
+        label: "ConLaw II",
+        summary: "Constitutional rights, doctrinal tests, and state-action limits.",
+        focus: "the controlling constitutional doctrines, levels of scrutiny, individual-rights analysis, and the state-action or governmental-power issues driving the case",
+      },
+      {
+        id: "trial-advocacy",
+        label: "Trial Advocacy",
+        summary: "Courtroom strategy, proof problems, and practical use at trial.",
+        focus: "the practical trial implications, litigation strategy, proof problems, witness use, and how the ruling matters in the courtroom",
+      },
+      {
+        id: "animal-law",
+        label: "Animal Law",
+        summary: "Animal-status doctrine, regulation, and policy tension.",
+        focus: "the animal-law doctrines, regulatory framework, property-versus-welfare tensions, and the policy stakes shaping the dispute",
+      },
+    ];
+
+    const firacBasePrompt = `Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.
+
+This brief is for my {{COURSE_NAME}} class, so emphasize {{COURSE_FOCUS}}.
 
 Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources. Do not embed citations or source callouts in the response. I already know where the material came from.
 
-If the record is unclear on a detail, say so briefly rather than guessing.`,
+If the record is unclear on a detail, say so briefly rather than guessing.`;
+
+    const prompts = {
+      firac: "",
       nlm: `You have the case opinions and the full reading assignment for this class. Prepare me for the big-picture doctrinal concepts as well as the nuances surfaced in footnotes, notes, and points of discussion. Follow the reading in the exact textbook or casebook order.
 
 Emphasize [LEGAL AREA] and recite the facts heavily when they matter to the doctrine. Assume I am a rising 3L using this for pre-class preparation, class discussion, and outline building, so keep it information-dense and do not spend time on basics a 3L already knows.
@@ -375,21 +493,63 @@ Put the full text of each question in bold before its answer. Do not embed citat
     };
 
     const status = document.getElementById("prompt-status");
+    const firacModal = document.getElementById("firac-subject-modal");
+    const firacSubjectOptions = document.getElementById("firac-subject-options");
     const previewIds = {
       firac: "preview-firac",
       nlm: "preview-nlm",
       voice: "preview-voice",
     };
+    let activeFiracButton = null;
+
+    function buildFiracPrompt(subject) {
+      return firacBasePrompt
+        .replace("{{COURSE_NAME}}", subject.label)
+        .replace("{{COURSE_FOCUS}}", subject.focus);
+    }
+
+    function setFiracPreview(subject) {
+      prompts.firac = buildFiracPrompt(subject);
+      const target = document.getElementById(previewIds.firac);
+      if (target) {
+        target.textContent = prompts.firac;
+      }
+    }
+
+    setFiracPreview(firacSubjects[0]);
 
     Object.entries(previewIds).forEach(([key, id]) => {
+      if (key === "firac") {
+        return;
+      }
+
       const target = document.getElementById(id);
       if (target) {
         target.textContent = prompts[key];
       }
     });
 
-    async function copyPrompt(key, button) {
-      const prompt = prompts[key];
+    function openFiracModal(button) {
+      activeFiracButton = button;
+
+      if (firacModal) {
+        firacModal.hidden = false;
+      }
+
+      if (status) {
+        status.textContent = "Choose a class for the FIRAC prompt.";
+      }
+    }
+
+    function closeFiracModal() {
+      if (firacModal) {
+        firacModal.hidden = true;
+      }
+
+      activeFiracButton = null;
+    }
+
+    async function copyPromptText(prompt, button, statusLabel) {
       if (!prompt) {
         return;
       }
@@ -410,7 +570,7 @@ Put the full text of each question in bold before its answer. Do not embed citat
         }
 
         if (status) {
-          status.textContent = button.textContent.replace("Copy ", "") + " copied to clipboard.";
+          status.textContent = statusLabel + " copied to clipboard.";
         }
 
         const originalText = button.textContent;
@@ -424,6 +584,43 @@ Put the full text of each question in bold before its answer. Do not embed citat
         }
       }
     }
+
+    async function copyPrompt(key, button) {
+      if (key === "firac") {
+        openFiracModal(button);
+        return;
+      }
+
+      await copyPromptText(prompts[key], button, button.textContent.replace("Copy ", ""));
+    }
+
+    if (firacSubjectOptions) {
+      firacSubjects.forEach((subject) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "prompt-secondary prompt-choice";
+        option.innerHTML = "<span>" + subject.label + "</span><small>" + subject.summary + "</small>";
+        option.addEventListener("click", async function () {
+          const sourceButton = activeFiracButton || option;
+          setFiracPreview(subject);
+          closeFiracModal();
+          await copyPromptText(buildFiracPrompt(subject), sourceButton, subject.label + " FIRAC");
+        });
+        firacSubjectOptions.appendChild(option);
+      });
+    }
+
+    document.querySelectorAll("[data-dismiss-modal]").forEach((button) => {
+      button.addEventListener("click", function () {
+        closeFiracModal();
+      });
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && firacModal && !firacModal.hidden) {
+        closeFiracModal();
+      }
+    });
 
     document.querySelectorAll("[data-copy-key]").forEach((button) => {
       button.addEventListener("click", function () {
