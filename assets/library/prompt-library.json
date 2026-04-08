@@ -67,5 +67,8 @@
   },
   "voice": {
     "prompt": "Attached is the full reading for class today. I need short answers to the directed reading questions below. Answer every question posed. When appropriate, reference the Federal Rules of Evidence and any other rules, cases, or class materials that matter.\n\nMatch my voice: casual, direct, and smart, like a capable law student talking through the material without sounding robotic or overly formal. Aim for about 1 to 4 sentences per answer unless a question clearly needs more.\n\nPut the full text of each question in bold before its answer. Do not embed citations. If you mention a rule, work it naturally into the sentence instead of sounding like a treatise."
+  },
+  "justiceDetail": {
+    "prompt": "I want you to prepare about 1 to 3 paragraphs for each justice in our reading for ONLY the 44 Liquormart case. In total, aim for about 1 page of text, and go to 2 pages only if absolutely necessary.\n\nUse heavy highlighting through bolding and italics on the key colloquy, framing language, and doctrinal moves for each justice. Keep the writing tight, readable, and class-useful rather than bloated.\n\nStay strictly confined to 44 Liquormart. Do not bring in other cases from the reading except where a justice directly invokes them in a way that is necessary to explain that justice's reasoning. Focus on what each justice is doing, emphasizing the distinctive tone, constitutional framing, agreement or disagreement, and the most important lines of analysis."
   }
 }

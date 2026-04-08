@@ -380,6 +380,7 @@ title: Prompt Library
     <button class="prompt-action" type="button" data-copy-key="firac">Copy FIRAC</button>
     <button class="prompt-action" type="button" data-copy-key="nlm">Copy NLM</button>
     <button class="prompt-action" type="button" data-copy-key="voice">DRQ MyVoice</button>
+    <button class="prompt-action" type="button" data-copy-key="justiceDetail">Justice-detail</button>
     <a class="prompt-action" href="/brief">AI FIRAC</a>
     <a class="prompt-download" href="/assets/downloads/BriefTemplate.txt" download>Download Brief Template</a>
   </section>
@@ -453,6 +454,17 @@ title: Prompt Library
     </article>
 
     <article class="prompt-card">
+      <span class="prompt-tag">Justice Detail</span>
+      <h2>Justice-by-Justice Colloquy</h2>
+      <p>
+        Use this when you want a compact justice-by-justice read on one assigned case, with the key colloquy heavily emphasized and the output trimmed for fast class-prep review.
+      </p>
+      <div class="prompt-card-footer">
+        <button class="prompt-secondary" type="button" data-copy-key="justiceDetail">Copy Prompt</button>
+      </div>
+    </article>
+
+    <article class="prompt-card">
       <span class="prompt-tag">Live Tool</span>
       <h2>AI FIRAC Builder</h2>
       <p>
@@ -488,6 +500,14 @@ title: Prompt Library
       </div>
       <pre id="preview-voice"></pre>
     </article>
+
+    <article class="prompt-preview">
+      <div class="prompt-preview-header">
+        <h3>Justice-detail for 44 Liquormart</h3>
+        <button class="prompt-secondary" type="button" data-copy-key="justiceDetail">Copy Prompt</button>
+      </div>
+      <pre id="preview-justiceDetail"></pre>
+    </article>
   </section>
 
   <section class="prompt-steps">
@@ -514,11 +534,13 @@ title: Prompt Library
       firac: "preview-firac",
       nlm: "preview-nlm",
       voice: "preview-voice",
+      justiceDetail: "preview-justiceDetail",
     };
     const prompts = {
       firac: "",
       nlm: "",
       voice: "",
+      justiceDetail: "",
     };
     let activeFiracButton = null;
     let activeNlmButton = null;
@@ -695,6 +717,7 @@ title: Prompt Library
       firacBasePrompt = assertString(library.firac && library.firac.basePrompt);
       nlmBasePrompt = assertString(library.notebooklm && library.notebooklm.basePrompt);
       prompts.voice = assertString(library.voice && library.voice.prompt);
+      prompts.justiceDetail = assertString(library.justiceDetail && library.justiceDetail.prompt);
 
       firacSubjects = courses.map((course) => ({
         id: course.id,
@@ -721,7 +744,7 @@ title: Prompt Library
         });
       });
 
-      if (!firacBasePrompt || !nlmBasePrompt || !prompts.voice || !firacSubjects.length || !nlmFocuses.length) {
+      if (!firacBasePrompt || !nlmBasePrompt || !prompts.voice || !prompts.justiceDetail || !firacSubjects.length || !nlmFocuses.length) {
         throw new Error("Prompt library is missing required content.");
       }
 
