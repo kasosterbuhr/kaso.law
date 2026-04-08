@@ -25,6 +25,18 @@ const ALLOWED_ORIGINS = new Set(
     .filter(Boolean)
 );
 const audioManager = createGoogleAudioManager({ outputDir: __dirname });
+const PROMPT_LIBRARY_PATH = path.join(__dirname, "..", "assets", "library", "prompt-library.json");
+const DEFAULT_PROMPT_LIBRARY = {
+  firac: {
+    toolPrompt:
+      "Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.\n\n" +
+      "Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources unless the task is citation-based and you need the opinion text itself. Do not embed citations or source callouts in the response. I already know where the material came from.\n\n" +
+      "If the record is unclear on a detail, say so briefly rather than guessing.",
+    systemPrompt:
+      "You are a precise law-school case briefing assistant. Create a full FIRAC brief using only the case text or reliable opinion text you are given. Do not invent facts, do not embed citations or source callouts, and return only the finished brief, ready to paste into Microsoft Word.",
+  },
+};
+const promptLibrary = loadPromptLibrary();
 
 const server = http.createServer(async (req, res) => {
   const origin = req.headers.origin || "";
@@ -274,23 +286,12 @@ function getBriefCapabilities() {
 }
 
 async function generatePdfFirac({ apiKey, filename, mimeType, fileDataBase64, template, citation }) {
-  const systemPrompt =
-    "You are a precise law-school case briefing assistant. " +
-    "Create a full FIRAC brief using only the uploaded opinion. " +
-    "Do not use external sources, do not invent facts, and do not include embedded citations or source callouts. " +
-    "Return only the finished brief, with bold headings and bullets where appropriate, ready to paste into Microsoft Word.";
+  const systemPrompt = getFiracSystemPrompt();
   const citationNote = citation ? "\n\nReporter citation supplied by user: " + citation : "";
   const userPrompt =
-    "Use the uploaded opinion to complete the following briefing structure. " +
-    "If a detail is genuinely unavailable from the opinion, say so briefly instead of guessing.\n\n" +
-    "Formatting rules:\n" +
-    "- Use bold section headings.\n" +
-    "- Use bullets for Procedural History and Facts.\n" +
-    "- Do not use horizontal rules.\n" +
-    "- Leave a blank line between sections.\n" +
-    "- Rely only on the uploaded opinion.\n\n" +
+    getFiracToolPrompt() +
     citationNote +
-    "\n\nBriefing template:\n" +
+    "\n\nUse the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
     template;
 
   const data = await openAiResponsesRequest(apiKey, {
@@ -414,9 +415,8 @@ async function generateResolvedCaseBrief({ apiKey, template, originalQuery, sele
             "Selected court/year: " + String(selectedCase.court_year || "") + "\n\n" +
             "Before briefing, verify the selected case exactly. Nearby citations or similar case names are not good enough.\n\n" +
             "Use my standard FIRAC instructions and template below.\n\n" +
-            "Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.\n\n" +
-            "Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources unless the task is citation-based and you need the opinion text itself. Do not embed citations or source callouts in the response. I already know where the material came from.\n\n" +
-            "If the record is unclear on a detail, say so briefly rather than guessing.\n\n" +
+            getFiracToolPrompt() +
+            "\n\n" +
             "Use the following briefing template exactly unless a section is genuinely not applicable.\n\n" +
             template
         }],
@@ -455,6 +455,35 @@ async function generateResolvedCaseBrief({ apiKey, template, originalQuery, sele
     sources: extractCitationSources(data),
     caseName: parsed.case_name || selectedCase.case_name || originalQuery,
   };
+}
+
+function loadPromptLibrary() {
+  try {
+    return JSON.parse(fs.readFileSync(PROMPT_LIBRARY_PATH, "utf8"));
+  } catch (error) {
+    console.warn("Prompt library could not be loaded; using server fallback prompts.");
+    return DEFAULT_PROMPT_LIBRARY;
+  }
+}
+
+function getFiracToolPrompt() {
+  return String(
+    promptLibrary &&
+    promptLibrary.firac &&
+    promptLibrary.firac.toolPrompt
+      ? promptLibrary.firac.toolPrompt
+      : DEFAULT_PROMPT_LIBRARY.firac.toolPrompt
+  ).trim();
+}
+
+function getFiracSystemPrompt() {
+  return String(
+    promptLibrary &&
+    promptLibrary.firac &&
+    promptLibrary.firac.systemPrompt
+      ? promptLibrary.firac.systemPrompt
+      : DEFAULT_PROMPT_LIBRARY.firac.systemPrompt
+  ).trim();
 }
 
 async function openAiResponsesRequest(apiKey, body) {
@@ -762,3 +791,4 @@ function normalizeError(error) {
 
   return "Unexpected server error.";
 }
+
