@@ -460,6 +460,7 @@ title: AI FIRAC
     const directModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiModel) || "gpt-5.4";
     const reporterModel = (window.KASO_CONFIG && window.KASO_CONFIG.openaiReporterModel) || "gpt-5.2";
     const templatePath = "/assets/downloads/BriefTemplate.txt";
+    const promptLibraryUrl = "/assets/library/prompt-library.json";
     const fallbackTemplate =
       "Short/Smart Case Name, State Abbrev. (Year): [Short caption plus jurisdiction and year.]\n" +
       "Venue & Date: [Court and decision date.]\n" +
@@ -475,12 +476,8 @@ title: AI FIRAC
       "Concurring Opinions\n[If any.]\n\n" +
       "Dissenting Opinions\n[If any.]\n\n" +
       "Conclusion\n[Outcome and significance.]";
-    const firacPrompt =
-      "Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.\n\n" +
-      "Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources unless the task is citation-based and you need the opinion text itself. Do not embed citations or source callouts in the response. I already know where the material came from.\n\n" +
-      "If the record is unclear on a detail, say so briefly rather than guessing.";
-    const systemPrompt =
-      "You are a precise law-school case briefing assistant. Create a full FIRAC brief using only the case text or reliable opinion text you are given. Do not invent facts, do not embed citations or source callouts, and return only the finished brief, ready to paste into Microsoft Word.";
+    let firacPrompt = "";
+    let systemPrompt = "";
 
     const accessMode = document.getElementById("access-mode");
     const modelLabel = document.getElementById("openai-model-label");
@@ -513,6 +510,35 @@ title: AI FIRAC
     let lastCitationSources = [];
     let pendingCaseSelection = null;
     let isWorking = false;
+
+    function assertString(value) {
+      return typeof value === "string" ? value : "";
+    }
+
+    async function loadPromptLibrary() {
+      const response = await fetch(promptLibraryUrl, {
+        headers: {
+          Accept: "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Prompt library request failed.");
+      }
+
+      const library = await response.json();
+      firacPrompt = assertString(library.firac && library.firac.toolPrompt);
+      systemPrompt = assertString(library.firac && library.firac.systemPrompt);
+
+      if (!firacPrompt || !systemPrompt) {
+        throw new Error("Prompt library is missing FIRAC prompts.");
+      }
+    }
+
+    let promptLibraryError = null;
+    const promptLibraryReady = loadPromptLibrary().catch(function (error) {
+      promptLibraryError = error;
+    });
 
     if (modelLabel) {
       modelLabel.textContent = directModel;
@@ -627,6 +653,10 @@ title: AI FIRAC
       setStatus(selectedFile ? "Uploading the opinion and building your FIRAC brief..." : "Looking up that citation and building your FIRAC brief...");
 
       try {
+        await promptLibraryReady;
+        if (promptLibraryError) {
+          throw promptLibraryError;
+        }
         const template = await getBriefTemplate();
         let text = "";
 

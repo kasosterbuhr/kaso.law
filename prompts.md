@@ -55,6 +55,21 @@ title: Prompt Library
     max-width: 60ch;
   }
 
+  .prompt-asset-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 14px;
+    color: var(--accent-dark);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .prompt-asset-link:hover,
+  .prompt-asset-link:focus-visible {
+    text-decoration: underline;
+  }
+
   .prompt-actions {
     position: sticky;
     top: 46px;
@@ -136,7 +151,7 @@ title: Prompt Library
 
   .prompt-modal-panel {
     position: relative;
-    width: min(560px, 100%);
+    width: min(760px, 100%);
     display: grid;
     gap: 18px;
     background: #ffffff;
@@ -157,21 +172,43 @@ title: Prompt Library
 
   .prompt-choice-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
   }
 
-  .prompt-choice {
+  .prompt-secondary.prompt-choice {
     display: grid;
-    gap: 6px;
+    gap: 10px;
+    width: 100%;
+    min-height: 136px;
+    padding: 16px 18px;
     justify-items: start;
+    align-content: start;
     text-align: left;
+    border-radius: 18px;
   }
 
-  .prompt-choice small {
+  .prompt-choice-title {
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.25;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .prompt-choice-summary {
     color: var(--muted);
-    font-size: 0.82rem;
-    line-height: 1.35;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .prompt-choice:hover,
+  .prompt-choice:focus-visible {
+    background: #eef5fb;
+    border-color: rgba(13, 94, 166, 0.32);
+    box-shadow: 0 10px 20px rgba(13, 94, 166, 0.08);
   }
 
   .prompt-modal-actions {
@@ -311,6 +348,16 @@ title: Prompt Library
       text-align: center;
     }
 
+    .prompt-choice-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .prompt-secondary.prompt-choice {
+      justify-content: stretch;
+      justify-items: start;
+      text-align: left;
+    }
+
     .prompt-preview-header {
       padding-top: 20px;
     }
@@ -324,6 +371,9 @@ title: Prompt Library
     <p class="prompt-lead">
       Go to your favorite AI tool webpage. Drop in your case opinions, and use these prompts to either get a comprehensive time-tested FIRAC, to generate audio/video on NotebookLM, or do specific tasks like generate model answers to directed questions.
     </p>
+    <a class="prompt-asset-link" href="/assets/library/prompt-library.json" target="_blank" rel="noreferrer">
+      Browse the shared prompt asset
+    </a>
   </section>
 
   <section class="prompt-actions" aria-label="Quick prompt actions">
@@ -452,104 +502,8 @@ title: Prompt Library
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const firacSubjects = [
-      {
-        id: "evidence",
-        label: "Evidence",
-        summary: "Admissibility, objections, and rule-driven analysis.",
-        focus: "the key evidentiary doctrines, admissibility questions, objections, and the rules driving the court's reasoning",
-      },
-      {
-        id: "criminal-procedure-ii",
-        label: "Criminal Procedure II",
-        summary: "Searches, seizures, suppression, and police procedure.",
-        focus: "the controlling criminal procedure doctrines, constitutional tests, suppression issues, and police-investigation context",
-      },
-      {
-        id: "conlaw-ii",
-        label: "ConLaw II",
-        summary: "Constitutional rights, doctrinal tests, and state-action limits.",
-        focus: "the controlling constitutional doctrines, levels of scrutiny, individual-rights analysis, and the state-action or governmental-power issues driving the case",
-      },
-      {
-        id: "trial-advocacy",
-        label: "Trial Advocacy",
-        summary: "Courtroom strategy, proof problems, and practical use at trial.",
-        focus: "the practical trial implications, litigation strategy, proof problems, witness use, and how the ruling matters in the courtroom",
-      },
-      {
-        id: "animal-law",
-        label: "Animal Law",
-        summary: "Animal-status doctrine, regulation, and policy tension.",
-        focus: "the animal-law doctrines, regulatory framework, property-versus-welfare tensions, and the policy stakes shaping the dispute",
-      },
-    ];
-
-    const nlmFocuses = [
-      {
-        id: "general",
-        label: "General",
-        summary: "Default walkthrough in reading order, centered on the major cases.",
-        focus: "the major doctrinal developments that shape the reading as a whole",
-      },
-      {
-        id: "evidence",
-        label: "Evidence",
-        summary: "Admissibility, objections, and rule-driven doctrine.",
-        focus: "the main evidence doctrines, admissibility fights, and the rule-based reasoning behind the results",
-      },
-      {
-        id: "criminal-procedure-ii",
-        label: "Criminal Procedure II",
-        summary: "Searches, seizures, suppression, and police procedure.",
-        focus: "the core criminal procedure doctrines, suppression questions, and the constitutional tests shaping police conduct",
-      },
-      {
-        id: "conlaw-ii",
-        label: "ConLaw II",
-        summary: "Constitutional rights, tests, and state-action limits.",
-        focus: "the controlling constitutional doctrines, rights-based tests, and the governmental-power limits driving the cases",
-      },
-      {
-        id: "trial-advocacy",
-        label: "Trial Advocacy",
-        summary: "Courtroom strategy, proof problems, and practical use at trial.",
-        focus: "the practical courtroom implications, strategic proof choices, and how the doctrine affects trial work",
-      },
-      {
-        id: "animal-law",
-        label: "Animal Law",
-        summary: "Animal-status doctrine, regulation, and policy tension.",
-        focus: "the central animal-law doctrines, regulatory structure, and the policy tensions shaping the reading",
-      },
-    ];
-
-    const firacBasePrompt = `Please use the FIRAC briefing template for this case. Use bold headings, bullets for the procedural history and facts, and plain paragraphs everywhere else. Do not use horizontal rules. Leave one blank line between sections so the result pastes cleanly into Microsoft Word.
-
-This brief is for my __COURSE_NAME__ class, so emphasize __COURSE_FOCUS__.
-
-Stick to the template and rely only on the uploaded opinion or assigned reading. Do not use external sources. Do not embed citations or source callouts in the response. I already know where the material came from.
-
-If the record is unclear on a detail, say so briefly rather than guessing.`;
-
-    const nlmBasePrompt = `You have the case opinions and the full reading assignment for this class. Prepare me for the big-picture doctrinal concepts as well as the nuances surfaced in footnotes, notes, and points of discussion.
-
-Follow the reading in the exact textbook or casebook order, using the order the cases appear in the reading. Focus on only the major cases unless a note, footnote, or shorter excerpt is necessary to explain the doctrine clearly.
-
-Emphasize __DOCTRINAL_FOCUS__ and recite the facts heavily when they matter to the doctrine. Assume I am a rising 3L using this for pre-class preparation, class discussion, and outline building, so keep it information-dense and do not spend time on basics a 3L already knows.
-
-Avoid shallow list-brain. I want a start-to-finish synthesis that weaves together doctrine, facts, tensions between the cases, and the framing choices made by the reading.`;
-
-    const prompts = {
-      firac: "",
-      nlm: "",
-      voice: `Attached is the full reading for class today. I need short answers to the directed reading questions below. Answer every question posed. When appropriate, reference the Federal Rules of Evidence and any other rules, cases, or class materials that matter.
-
-Match my voice: casual, direct, and smart, like a capable law student talking through the material without sounding robotic or overly formal. Aim for about 1 to 4 sentences per answer unless a question clearly needs more.
-
-Put the full text of each question in bold before its answer. Do not embed citations. If you mention a rule, work it naturally into the sentence instead of sounding like a treatise.`,
-    };
+  document.addEventListener("DOMContentLoaded", async function () {
+    const promptLibraryUrl = "/assets/library/prompt-library.json";
 
     const status = document.getElementById("prompt-status");
     const firacModal = document.getElementById("firac-subject-modal");
@@ -561,8 +515,35 @@ Put the full text of each question in bold before its answer. Do not embed citat
       nlm: "preview-nlm",
       voice: "preview-voice",
     };
+    const prompts = {
+      firac: "",
+      nlm: "",
+      voice: "",
+    };
     let activeFiracButton = null;
     let activeNlmButton = null;
+    let firacSubjects = [];
+    let nlmFocuses = [];
+    let firacBasePrompt = "";
+    let nlmBasePrompt = "";
+
+    function assertString(value) {
+      return typeof value === "string" ? value : "";
+    }
+
+    async function loadPromptLibrary() {
+      const response = await fetch(promptLibraryUrl, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Prompt library request failed.");
+      }
+
+      return response.json();
+    }
 
     function buildFiracPrompt(subject) {
       return firacBasePrompt
@@ -589,20 +570,6 @@ Put the full text of each question in bold before its answer. Do not embed citat
         target.textContent = prompts.nlm;
       }
     }
-
-    setFiracPreview(firacSubjects[0]);
-    setNlmPreview(nlmFocuses[0]);
-
-    Object.entries(previewIds).forEach(([key, id]) => {
-      if (key === "firac" || key === "nlm") {
-        return;
-      }
-
-      const target = document.getElementById(id);
-      if (target) {
-        target.textContent = prompts[key];
-      }
-    });
 
     function openFiracModal(button) {
       activeFiracButton = button;
@@ -682,11 +649,23 @@ Put the full text of each question in bold before its answer. Do not embed citat
 
     async function copyPrompt(key, button) {
       if (key === "firac") {
+        if (!firacSubjects.length) {
+          if (status) {
+            status.textContent = "The shared prompt library is not available right now.";
+          }
+          return;
+        }
         openFiracModal(button);
         return;
       }
 
       if (key === "nlm") {
+        if (!nlmFocuses.length) {
+          if (status) {
+            status.textContent = "The shared prompt library is not available right now.";
+          }
+          return;
+        }
         openNlmModal(button);
         return;
       }
@@ -694,36 +673,111 @@ Put the full text of each question in bold before its answer. Do not embed citat
       await copyPromptText(prompts[key], button, button.textContent.replace("Copy ", ""));
     }
 
-    if (firacSubjectOptions) {
-      firacSubjects.forEach((subject) => {
-        const option = document.createElement("button");
-        option.type = "button";
-        option.className = "prompt-secondary prompt-choice";
-        option.innerHTML = "<span>" + subject.label + "</span><small>" + subject.summary + "</small>";
-        option.addEventListener("click", async function () {
-          const sourceButton = activeFiracButton || option;
-          setFiracPreview(subject);
-          closeFiracModal();
-          await copyPromptText(buildFiracPrompt(subject), sourceButton, subject.label + " FIRAC");
-        });
-        firacSubjectOptions.appendChild(option);
-      });
+    function buildChoiceOption(title, summary) {
+      return (
+        '<span class="prompt-choice-title">' +
+        title +
+        '</span><span class="prompt-choice-summary">' +
+        summary +
+        "</span>"
+      );
     }
 
-    if (nlmFocusOptions) {
-      nlmFocuses.forEach((focus) => {
-        const option = document.createElement("button");
-        option.type = "button";
-        option.className = "prompt-secondary prompt-choice";
-        option.innerHTML = "<span>" + focus.label + "</span><small>" + focus.summary + "</small>";
-        option.addEventListener("click", async function () {
-          const sourceButton = activeNlmButton || option;
-          setNlmPreview(focus);
-          closeNlmModal();
-          await copyPromptText(buildNlmPrompt(focus), sourceButton, focus.label + " NLM");
+    try {
+      if (status) {
+        status.textContent = "Loading shared prompt library...";
+      }
+
+      const library = await loadPromptLibrary();
+      const courses = Array.isArray(library.courses) ? library.courses : [];
+      const generalFocus = library.notebooklm && library.notebooklm.generalFocus ? library.notebooklm.generalFocus : null;
+
+      firacBasePrompt = assertString(library.firac && library.firac.basePrompt);
+      nlmBasePrompt = assertString(library.notebooklm && library.notebooklm.basePrompt);
+      prompts.voice = assertString(library.voice && library.voice.prompt);
+
+      firacSubjects = courses.map((course) => ({
+        id: course.id,
+        label: course.label,
+        summary: course.firacSummary,
+        focus: course.firacFocus,
+      }));
+
+      nlmFocuses = [];
+      if (generalFocus) {
+        nlmFocuses.push({
+          id: generalFocus.id,
+          label: generalFocus.label,
+          summary: generalFocus.summary,
+          focus: generalFocus.focus,
         });
-        nlmFocusOptions.appendChild(option);
+      }
+      courses.forEach((course) => {
+        nlmFocuses.push({
+          id: course.id,
+          label: course.label,
+          summary: course.nlmSummary,
+          focus: course.nlmFocus,
+        });
       });
+
+      if (!firacBasePrompt || !nlmBasePrompt || !prompts.voice || !firacSubjects.length || !nlmFocuses.length) {
+        throw new Error("Prompt library is missing required content.");
+      }
+
+      setFiracPreview(firacSubjects[0]);
+      setNlmPreview(nlmFocuses[0]);
+
+      Object.entries(previewIds).forEach(([key, id]) => {
+        if (key === "firac" || key === "nlm") {
+          return;
+        }
+
+        const target = document.getElementById(id);
+        if (target) {
+          target.textContent = prompts[key];
+        }
+      });
+
+      if (firacSubjectOptions) {
+        firacSubjects.forEach((subject) => {
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className = "prompt-secondary prompt-choice";
+          option.innerHTML = buildChoiceOption(subject.label, subject.summary);
+          option.addEventListener("click", async function () {
+            const sourceButton = activeFiracButton || option;
+            setFiracPreview(subject);
+            closeFiracModal();
+            await copyPromptText(buildFiracPrompt(subject), sourceButton, subject.label + " FIRAC");
+          });
+          firacSubjectOptions.appendChild(option);
+        });
+      }
+
+      if (nlmFocusOptions) {
+        nlmFocuses.forEach((focus) => {
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className = "prompt-secondary prompt-choice";
+          option.innerHTML = buildChoiceOption(focus.label, focus.summary);
+          option.addEventListener("click", async function () {
+            const sourceButton = activeNlmButton || option;
+            setNlmPreview(focus);
+            closeNlmModal();
+            await copyPromptText(buildNlmPrompt(focus), sourceButton, focus.label + " NLM");
+          });
+          nlmFocusOptions.appendChild(option);
+        });
+      }
+
+      if (status) {
+        status.textContent = "Choose a prompt to copy.";
+      }
+    } catch (error) {
+      if (status) {
+        status.textContent = "The shared prompt library could not be loaded.";
+      }
     }
 
     document.querySelectorAll("[data-dismiss-modal]").forEach((button) => {
