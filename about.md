@@ -225,16 +225,16 @@ description: The mission, values, and design philosophy behind AI pro se.
   <section class="about-hero">
     <div>
       <span class="about-kicker">About AI pro se</span>
-      <h1>Legal understanding should not be locked behind money, fluency, or insider access.</h1>
+      <h1>Legal information should not be locked behind money, fluency, or insider access.</h1>
       <p class="about-mission">
-        <strong>AI</strong> <em>pro se</em> is being built around one idea: if AI can help people learn legal vocabulary, organize records, and understand process more clearly, that help should reach the people who are most likely to need it, not only the people who already have institutional advantages.
+        <strong>AI</strong> <em>pro se</em> is being built around one idea: giving people the ability to navigate AI tools in a modern era where simple "Google" searches are mere dead-ends when navigating their own personal legal matters.
       </p>
       <div class="about-hero-copy">
         <p>
-          This is not a project about pretending law is easy. It is a project about refusing to accept that confusion is the natural price of needing help. The law is dense, procedural, expensive, and often hostile to people encountering it without a map. Too many people are left improvising in high-stakes situations where a missed deadline, a misunderstood rule, or a disorganized record can do real damage.
+          This is not a project about pretending law is easy. It is a project about refusing to accept that confusion is the natural price of needing help. The law is dense, procedural, expensive, and often hostile to people encountering it without a map. Too many people are left improvising in high-stakes situations where disorganized records, unfamiliar terminology, and fragmented information can do real damage.
         </p>
         <p>
-          <strong>AI</strong> <em>pro se</em> exists to shrink that gap between panic and orientation. The aim is not to offer theatrics, fake certainty, or synthetic bravado. The aim is to give people a better way to organize what is happening, understand the process at a general level, and prepare for more effective conversations with legal aid, clinics, or licensed counsel when legal judgment is needed.
+          <strong>AI</strong> <em>pro se</em> exists to shrink that gap between panic and orientation. The aim is to give people a better way to organize what is happening, understand legal information at a general level, and prepare for more effective conversations with legal aid, clinics, or licensed counsel when legal advice is needed.
         </p>
       </div>
     </div>
@@ -250,26 +250,15 @@ description: The mission, values, and design philosophy behind AI pro se.
       The mission is simple to say and hard to execute: <strong>democratize legal understanding without trivializing law</strong>. That means building tools that help people learn, organize, and communicate legal information more coherently while staying honest about what technology can and cannot do.
     </p>
     <p>
-      A lot of legal technology is optimized for repeat players, institutional buyers, and professionals with training already in place. That is understandable, but it leaves a great many people stranded in the middle. They can find fragments of information. They can find forms. They can find commentary. What they often cannot find is a system that helps them understand sequence, significance, and vocabulary in a way that feels both rigorous and usable.
+      Current legal technology is optimized for repeat players, institutional buyers, and professionals with training already in place. That is understandable, but it leaves a great many people stranded in the middle. They can find fragments of information at best, sometimes they can find forms on certain court websites. What they often cannot find is a system that helps them understand some of the basic procedural and formal nuances of simple things like what it means when someone files a protective order agains you and you simply can't afford an attorney to defend yourself.
     </p>
-    <ol class="about-manifesto">
-      <li><strong>Open beats opaque.</strong> If a workflow matters, people should be able to inspect it, improve it, and understand what it is doing.</li>
-      <li><strong>Structure beats noise.</strong> Most users do not need more words; they need clearer thinking, cleaner organization, and better framing.</li>
-      <li><strong>Honesty beats hype.</strong> A useful legal AI system should surface uncertainty, not hide it behind polished language.</li>
-    </ol>
   </section>
 
   <section class="about-section about-split">
     <div>
       <h2>Why This Matters</h2>
       <p>
-        There is already an enormous amount of legal information in the world. The real problem is not raw supply. The real problem is access to comprehension. People facing a housing problem, a court notice, a contract conflict, a benefits question, or a looming deadline are rarely suffering from a lack of text. They are suffering from a lack of organized understanding.
-      </p>
-      <p>
-        Professional users can often absorb that burden because they have training, tools, repetition, and money behind them. Everyone else is more likely to be piecing together advice from court websites, forum posts, statutory language, case summaries, and now AI systems that may or may not understand the stakes. That is where things break down. Information without structure can still leave someone lost.
-      </p>
-      <p>
-        <strong>AI</strong> <em>pro se</em> is an argument against that drift. It is an attempt to build something more practical, more transparent, and more attentive to the person who is outside the walls looking in.
+        There is already an enormous amount of legal information available, but the problem is access to comprehension. People facing a housing problem, a court notice, a contract conflict, a benefits question, or a looming deadline are often facing expensive attorney fees, when the reality is that a few "crash course" videos on YouTube might really help them understand the situation - but what keywords help them find the videos that really narrow on their issue. What even IS their issue? 
       </p>
     </div>
     <figure>
@@ -281,14 +270,11 @@ description: The mission, values, and design philosophy behind AI pro se.
   <section class="about-section">
     <h3>Who We Are Building For</h3>
     <p>
-      This project is for people dealing with real legal pressure, not abstract thought experiments. It is for the tenant trying to understand housing process and paperwork before speaking with legal aid or counsel. It is for the executor or family member trying to sort records and obligations without learning by disaster. It is for the co-owner in a property conflict, the small business owner staring at a contract problem, the person trying to understand whether a lawyer is necessary now or soon, and the law student who wants to see how doctrine translates into lived process.
-    </p>
-    <p>
-      Those users do not merely need a prettier search box. They need tools that respect how disorienting legal problems can be. They need a system that can help them spot issues for learning and preparation, separate central facts from distracting ones, build chronologies, organize documents, and assemble clearer summaries for self-help use or attorney review.
+      This project is for people dealing with real legal confusion. It is for the tenant trying to organize housing paperwork before speaking with legal aid or counsel. It is for the executor or family member trying to sort records and obligations without learning by disaster. It is for the co-owner in a property conflict, the small business owner facing a contract problem, and even the law student who wants to see how doctrine translates into real-world legal structure.  Those people do not merely need a prettier search box. They need tools that respect how disorienting legal problems can be for non-lawyers.
     </p>
     <div class="about-promise">
       <p>
-        <strong>The promise here is modest on purpose:</strong> help people learn better, organize better, and prepare better for conversations with licensed counsel. Not replace lawyers. Not guarantee outcomes. Not make legal judgments on a user's behalf. Just make legal materials more reachable and less chaotic than they are now.
+        <strong>The promise here is modest on purpose:</strong> help people learn better, organize better, and prepare better for conversations with licensed counsel when the next steps really are high-stakes or complicated.
       </p>
     </div>
   </section>
@@ -296,13 +282,10 @@ description: The mission, values, and design philosophy behind AI pro se.
   <section class="about-section">
     <h2>How The Project Thinks About AI</h2>
     <p>
-      AI is not magic, and it is not neutral. It can be insightful, brittle, clarifying, misleading, efficient, or dangerously overconfident depending on how it is shaped. That is exactly why the surrounding design matters so much. A strong model inside a bad workflow is still a bad tool.
+      AI is not magic, and it is not neutral. It can be insightful, brittle, clarifying, misleading, efficient, or dangerously overconfident depending on how it is shaped. That is exactly why the surrounding context matters so much.
     </p>
     <p>
-      The design philosophy behind <strong>AI</strong> <em>pro se</em> is to pair model capability with visible structure: prompt libraries people can inspect, workflows that can be refined in public, outputs that emphasize clarity over theatrics, and interfaces that try to lower panic instead of amplifying it.
-    </p>
-    <p>
-      We want systems that are useful because they are disciplined, not because they sound impressive. We want people to see the logic layer, not just the polish layer. And we want to keep building in a way that makes future collaboration possible, whether that means shared prompt libraries, browsable assets, classroom resources, or guided interfaces that help people explore how legal information is actually being organized and explained.
+      We want systems that are useful because they are disciplined, not because they sound impressive. We want people to see the logic layer, not just the polish layer. And we want to keep building in a way that makes future collaboration possible, whether that means shared prompt libraries, browsable assets, classroom resources, or guided interfaces that help people explore how legal information is being organized and explained.
     </p>
   </section>
 
@@ -321,18 +304,12 @@ description: The mission, values, and design philosophy behind AI pro se.
     <p>
       Over time, this can become more than a set of isolated tools. It can become a public learning library: prompts, workflows, explainers, discussions, classroom materials, and guided systems that let people not only use legal AI but understand the architecture behind it.
     </p>
-    <p>
-      That matters because durable trust will not come from branding alone. It will come from making the work inspectable. When wording changes, people should be able to see it. When a workflow improves, people should understand why. When a user relies on a system in a serious context, the system should feel like it was built by people who respect the consequences of getting things wrong.
-    </p>
   </section>
 
   <section class="about-close">
     <h2>The Long View</h2>
     <p>
-      AI is going to change legal work and legal information. The open question is whether that change will make the strong stronger while everyone else gets a shinier version of confusion, or whether it can be directed toward wider understanding and more practical access. <strong>AI</strong> <em>pro se</em> is built in favor of the second path.
-    </p>
-    <p>
-      If legal information becomes cheaper to generate but remains hard to navigate, verify, and organize, then the access problem has not really moved. If it becomes more available, more legible, and more grounded in the needs of people handling real problems, then something genuinely useful becomes possible. That is the work this project is trying to do.
+      AI will change the legal landscape. The open question is whether that change will make the strong stronger, or if access to AI will narrow the gap and improve the public's ability to co-exist with legal professionals. <strong>AI</strong> <em>pro se</em> is built in favor of the second path. If legal information becomes cheaper to generate but remains hard to navigate, verify, and organize, then the access problem has not really moved. If it becomes more available, more legible, and more grounded in the needs of people handling real problems, then something genuinely useful becomes possible. That is the work this project is trying to do.
     </p>
   </section>
 </div>
