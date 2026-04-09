@@ -5,23 +5,23 @@ title: Tech Stack
 
 # Tech Stack
 
-## Built for Practical Legal Work
+## Built for Structured Legal Information
 
-**AI** *pro se* is being built with a simple priority: make legal problem-solving more structured, more transparent, and more usable for real people.
+**AI** *pro se* is being built with a simple priority: make complex legal information more structured, more transparent, and more usable for real people.
 
-This is not a black-box "AI lawyer" pitch. The stack is designed around clarity, iteration, and modularity. The goal is to create a system that can evolve quickly, remain understandable, and avoid locking itself into one model, one workflow, or one vendor.
+This is not a black-box "AI lawyer" pitch. The stack is designed around clarity, iteration, and modularity. The goal is to create a system that can evolve quickly, remain understandable, and support legal education, document organization, research support, and attorney-ready communication without pretending to replace licensed legal judgment.
 
 At a high level, **AI** *pro se* rests on three pillars:
 
-1. **GitHub** - for code, prompts, versioning, and public development  
-2. **AI models** - for reasoning, drafting, synthesis, and workflow support  
-3. **Human judgment** - for oversight, refinement, and real-world usefulness  
+1. **GitHub** - for code, prompts, versioning, and public development
+2. **AI models** - for synthesis, summarization, writing support, and workflow structure
+3. **Human judgment** - for oversight, refinement, and clear boundaries
 
 ## GitHub: The Operational Backbone
 
 GitHub is the backbone of the project.
 
-It is where the site lives, where prompts and workflows can be refined over time, and where every meaningful change can be tracked instead of guessed at. That matters in a legal context, where wording changes can have real consequences.
+It is where the site lives, where prompts and workflows can be refined over time, and where every meaningful change can be tracked instead of guessed at. That matters in a legal-information context, where wording, structure, and framing can materially change how understandable a tool is.
 
 ### What GitHub does here
 
@@ -32,15 +32,15 @@ It is where the site lives, where prompts and workflows can be refined over time
 
 ### Why that matters
 
-Legal tools should not feel magical. They should feel inspectable. GitHub helps make the project more transparent, more portable, and easier to improve without breaking everything each time a change is made.
+Legal-information tools should not feel magical. They should feel inspectable. GitHub helps make the project more transparent, more portable, and easier to improve without breaking everything each time a change is made.
 
-## AI Models: The Reasoning Layer
+## AI Models: The Information Layer
 
 **AI** *pro se* is model-flexible by design.
 
-The project is not being built around blind loyalty to one provider. Different models are better at different things: some are stronger at structured reasoning, some at long-context synthesis, some at document handling, and some at speed or cost control.
+The project is not being built around blind loyalty to one provider. Different models are better at different things: some are stronger at long-context synthesis, some at summarization, some at document handling, some at classification, and some at speed or cost control.
 
-That flexibility matters because legal workflows are varied. A user may need issue spotting, procedural sequencing, document explanation, summarization, drafting support, or structured intake. No single model is automatically best at all of that.
+That flexibility matters because educational and organizational workflows are varied. A user may need chronology building, document explanation, issue-spotting frameworks for learning, summarization, research support, or structured intake materials. No single model is automatically best at all of that.
 
 ### Current design approach
 
@@ -51,17 +51,17 @@ That flexibility matters because legal workflows are varied. A user may need iss
 
 ### What the models are actually for
 
-- Turning messy facts into organized legal issues
-- Helping users think through procedure and next steps
-- Drafting and revising legal-adjacent materials
-- Summarizing doctrine, cases, and rules into usable structure
+- Turning scattered records into cleaner summaries and organized information
+- Supporting chronology building and document grouping
+- Helping users understand legal vocabulary, doctrine, and process at a general level
+- Providing educational writing support and structured research assistance
 - Supporting guided workflows rather than one-shot guesswork
 
 ## Human Judgment: The Constraint That Matters
 
 **AI** *pro se* is not based on the fantasy that model output is self-validating.
 
-Human judgment remains essential - not as a marketing flourish, but as the actual constraint that keeps the system useful. Legal reasoning can be powerful without being final. The point is not to remove human review. The point is to make human review more efficient, more structured, and more informed.
+Human judgment remains essential, not as a marketing flourish, but as the actual constraint that keeps the system useful. Model output can be clarifying without being authoritative. The point is not to remove human review. The point is to make review, revision, and communication more efficient, more structured, and more legible.
 
 ### Human oversight shows up in three ways
 
@@ -94,14 +94,14 @@ The current stack is intentionally lean.
 ### AI layer
 
 - API-accessible large language models
-- Reusable prompt patterns for legal workflows
+- Reusable prompt patterns for educational and organizational workflows
 - Modular architecture so workflows can be upgraded as models improve
 
 ## Why This Stack Fits the Project
 
 This stack works because it matches the stage and purpose of the project.
 
-A legal access tool does not need inflated infrastructure on day one. It needs a clean foundation, honest design choices, and the ability to improve without collapsing under its own complexity.
+A public-facing legal-literacy platform does not need inflated infrastructure on day one. It needs a clean foundation, honest design choices, and the ability to improve without collapsing under its own complexity.
 
 ### The advantages are straightforward
 
@@ -116,14 +116,22 @@ AIProSe is being built in layers.
 
 The first layer is a solid public-facing foundation: site structure, content, prompts, and workflows.
 
-The next layer is deeper usability: guided tools, better intake structure, cleaner legal workflows, and more refined outputs.
+The next layer is deeper usability: guided tools, better intake structure, stronger document organization, cleaner summaries, and more refined educational outputs.
 
-After that comes selective expansion - only where it materially improves the user experience. Not every feature deserves to exist just because it sounds impressive on a roadmap.
+After that comes selective expansion, only where it materially improves the user experience. Not every feature deserves to exist just because it sounds impressive on a roadmap.
 
 ## Final Note
 
 The real stack is not just Jekyll, GitHub, and AI models.
 
-The real stack is version control, disciplined prompting, careful iteration, and a refusal to fake certainty in a domain where precision matters.
+The real stack is version control, disciplined prompting, careful iteration, and a refusal to fake certainty in a domain where clarity and precision matter.
 
 That is the approach behind AIProSe.
+
+## Key risk-reduction changes made
+
+- Replaced "practical legal work" and "legal problem-solving" language with structured legal information, legal literacy, and educational workflow framing.
+- Changed the "reasoning layer" description to an information and synthesis layer so the models do not read like they are making legal judgments for users.
+- Removed references to procedure, next steps, drafting support, and legal workflows where those phrases could imply matter-specific legal guidance or execution.
+- Reframed model outputs around summaries, chronology building, document grouping, educational writing support, and research assistance rather than dispute analysis or tactical recommendations.
+- Tightened the boundary language so the page stays technically confident while making clear that the platform supports learning, organization, and communication, not representation or legal decision-making.

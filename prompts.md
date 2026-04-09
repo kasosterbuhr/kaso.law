@@ -419,6 +419,22 @@ title: Prompt Library
     </div>
   </div>
 
+  <div class="prompt-modal" id="voice-style-modal" hidden>
+    <div class="prompt-modal-backdrop" data-dismiss-modal="true"></div>
+    <div class="prompt-modal-panel" role="dialog" aria-modal="true" aria-labelledby="voice-style-title">
+      <div>
+        <h2 id="voice-style-title">Choose a DRQ style</h2>
+        <p>
+          Pick the prompt style you want before copying, so your directed-question workflow is already shaped for the class moment you are in.
+        </p>
+      </div>
+      <div class="prompt-choice-grid" id="voice-style-options"></div>
+      <div class="prompt-modal-actions">
+        <button class="prompt-secondary" type="button" data-dismiss-modal="true">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <section class="prompt-grid">
     <article class="prompt-card">
       <span class="prompt-tag">FIRAC</span>
@@ -530,6 +546,8 @@ title: Prompt Library
     const firacSubjectOptions = document.getElementById("firac-subject-options");
     const nlmModal = document.getElementById("nlm-focus-modal");
     const nlmFocusOptions = document.getElementById("nlm-focus-options");
+    const voiceModal = document.getElementById("voice-style-modal");
+    const voiceStyleOptions = document.getElementById("voice-style-options");
     const previewIds = {
       firac: "preview-firac",
       nlm: "preview-nlm",
@@ -544,8 +562,10 @@ title: Prompt Library
     };
     let activeFiracButton = null;
     let activeNlmButton = null;
+    let activeVoiceButton = null;
     let firacSubjects = [];
     let nlmFocuses = [];
+    let voiceStyles = [];
     let firacBasePrompt = "";
     let nlmBasePrompt = "";
 
@@ -593,6 +613,14 @@ title: Prompt Library
       }
     }
 
+    function setVoicePreview(style) {
+      prompts.voice = style && style.prompt ? style.prompt : "";
+      const target = document.getElementById(previewIds.voice);
+      if (target) {
+        target.textContent = prompts.voice;
+      }
+    }
+
     function openFiracModal(button) {
       activeFiracButton = button;
 
@@ -631,6 +659,26 @@ title: Prompt Library
       }
 
       activeNlmButton = null;
+    }
+
+    function openVoiceModal(button) {
+      activeVoiceButton = button;
+
+      if (voiceModal) {
+        voiceModal.hidden = false;
+      }
+
+      if (status) {
+        status.textContent = "Choose a DRQ prompt style.";
+      }
+    }
+
+    function closeVoiceModal() {
+      if (voiceModal) {
+        voiceModal.hidden = true;
+      }
+
+      activeVoiceButton = null;
     }
 
     async function copyPromptText(prompt, button, statusLabel) {
@@ -692,6 +740,17 @@ title: Prompt Library
         return;
       }
 
+      if (key === "voice") {
+        if (!voiceStyles.length) {
+          if (status) {
+            status.textContent = "The shared prompt library is not available right now.";
+          }
+          return;
+        }
+        openVoiceModal(button);
+        return;
+      }
+
       await copyPromptText(prompts[key], button, button.textContent.replace("Copy ", ""));
     }
 
@@ -713,10 +772,12 @@ title: Prompt Library
       const library = await loadPromptLibrary();
       const courses = Array.isArray(library.courses) ? library.courses : [];
       const generalFocus = library.notebooklm && library.notebooklm.generalFocus ? library.notebooklm.generalFocus : null;
+      const voiceLibrary = library.voice || {};
+      const voiceStyleList = Array.isArray(voiceLibrary.styles) ? voiceLibrary.styles : [];
+      const defaultVoiceStyleId = assertString(voiceLibrary.defaultStyleId);
 
       firacBasePrompt = assertString(library.firac && library.firac.basePrompt);
       nlmBasePrompt = assertString(library.notebooklm && library.notebooklm.basePrompt);
-      prompts.voice = assertString(library.voice && library.voice.prompt);
       prompts.justiceDetail = assertString(library.justiceDetail && library.justiceDetail.prompt);
 
       firacSubjects = courses.map((course) => ({
@@ -744,12 +805,24 @@ title: Prompt Library
         });
       });
 
-      if (!firacBasePrompt || !nlmBasePrompt || !prompts.voice || !prompts.justiceDetail || !firacSubjects.length || !nlmFocuses.length) {
+      voiceStyles = voiceStyleList
+        .map((style) => ({
+          id: style.id,
+          label: style.label,
+          summary: style.summary,
+          prompt: assertString(style.prompt),
+        }))
+        .filter((style) => style.id && style.label && style.summary && style.prompt);
+
+      if (!firacBasePrompt || !nlmBasePrompt || !prompts.justiceDetail || !firacSubjects.length || !nlmFocuses.length || !voiceStyles.length) {
         throw new Error("Prompt library is missing required content.");
       }
 
       setFiracPreview(firacSubjects[0]);
       setNlmPreview(nlmFocuses[0]);
+      setVoicePreview(
+        voiceStyles.find((style) => style.id === defaultVoiceStyleId) || voiceStyles[0]
+      );
 
       Object.entries(previewIds).forEach(([key, id]) => {
         if (key === "firac" || key === "nlm") {
@@ -794,6 +867,22 @@ title: Prompt Library
         });
       }
 
+      if (voiceStyleOptions) {
+        voiceStyles.forEach((style) => {
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className = "prompt-secondary prompt-choice";
+          option.innerHTML = buildChoiceOption(style.label, style.summary);
+          option.addEventListener("click", async function () {
+            const sourceButton = activeVoiceButton || option;
+            setVoicePreview(style);
+            closeVoiceModal();
+            await copyPromptText(style.prompt, sourceButton, style.label);
+          });
+          voiceStyleOptions.appendChild(option);
+        });
+      }
+
       if (status) {
         status.textContent = "Choose a prompt to copy.";
       }
@@ -807,6 +896,7 @@ title: Prompt Library
       button.addEventListener("click", function () {
         closeFiracModal();
         closeNlmModal();
+        closeVoiceModal();
       });
     });
 
@@ -817,6 +907,10 @@ title: Prompt Library
 
       if (event.key === "Escape" && nlmModal && !nlmModal.hidden) {
         closeNlmModal();
+      }
+
+      if (event.key === "Escape" && voiceModal && !voiceModal.hidden) {
+        closeVoiceModal();
       }
     });
 
