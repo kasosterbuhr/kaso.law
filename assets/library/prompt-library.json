@@ -66,7 +66,21 @@
     }
   },
   "voice": {
-    "prompt": "Attached is the full reading for class today. I need short answers to the directed reading questions below. Answer every question posed. When appropriate, reference the Federal Rules of Evidence and any other rules, cases, or class materials that matter.\n\nMatch my voice: casual, direct, and smart, like a capable law student talking through the material without sounding robotic or overly formal. Aim for about 1 to 4 sentences per answer unless a question clearly needs more.\n\nPut the full text of each question in bold before its answer. Do not embed citations. If you mention a rule, work it naturally into the sentence instead of sounding like a treatise."
+    "defaultStyleId": "general-my-voice",
+    "styles": [
+      {
+        "id": "general-my-voice",
+        "label": "General MyVoice",
+        "summary": "Casual, smart DRQ answers that sound like you across classes.",
+        "prompt": "Attached is the full reading for class today. I need short answers to the directed reading questions below. Answer every question posed. When appropriate, reference the Federal Rules of Evidence and any other rules, cases, or class materials that matter.\n\nMatch my voice: casual, direct, and smart, like a capable law student talking through the material without sounding robotic or overly formal. Aim for about 1 to 4 sentences per answer unless a question clearly needs more.\n\nPut the full text of each question in bold before its answer. Do not embed citations. If you mention a rule, work it naturally into the sentence instead of sounding like a treatise."
+      },
+      {
+        "id": "civpro-cold-call",
+        "label": "Civ Pro II Cold Call",
+        "summary": "Verbatim questions, quick-scan answers, and dense cold-call prep for Civ Pro II.",
+        "prompt": "While including all of the original questions verbatim, please insert answers in the context of the reading and the cases we covered today. This is my Civil Procedure II class, I am an early 3L, and the answers should be quick to scan and data-dense rather than multiple paragraphs.\n\nImagine yourself having to read this and then answer a cold call without just reading a whole bunch of words out loud. I am fine with anywhere from 1 to 4 sentences per answer.\n\nPut each original question in bold exactly as written before its answer. Ground the answers in the assigned reading and the cases from today. Keep the tone smart, direct, and classroom-usable. Do not embed citations unless I specifically ask for them."
+      }
+    ]
   },
   "justiceDetail": {
     "prompt": "I want you to prepare about 1 to 3 paragraphs for each justice in our reading for ONLY the 44 Liquormart case. In total, aim for about 1 page of text, and go to 2 pages only if absolutely necessary.\n\nUse heavy highlighting through bolding and italics on the key colloquy, framing language, and doctrinal moves for each justice. Keep the writing tight, readable, and class-useful rather than bloated.\n\nStay strictly confined to 44 Liquormart. Do not bring in other cases from the reading except where a justice directly invokes them in a way that is necessary to explain that justice's reasoning. Focus on what each justice is doing, emphasizing the distinctive tone, constitutional framing, agreement or disagreement, and the most important lines of analysis."
