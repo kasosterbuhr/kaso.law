@@ -214,8 +214,8 @@ title: Account
 
       <div class="account-field">
         <label for="display-name">Display Name</label>
-        <input id="display-name" type="text" maxlength="80" placeholder="Kas" autocomplete="off">
-        <p class="account-help">Used for greetings like "Welcome in Kas! Let's go get 'em."</p>
+        <input id="display-name" type="text" maxlength="80" placeholder="John Doe" autocomplete="off">
+        <p class="account-help">Used for greetings like "Welcome in John Doe! Let's go get 'em."</p>
       </div>
 
       <div class="account-actions">
@@ -292,6 +292,7 @@ title: Account
       claude: { label: "Anthropic Claude", cookieName: "kaso_key_claude" }
     };
     const profileCookie = "kaso_profile_name";
+    const defaultDisplayName = "John Doe";
     const providerKeys = Object.keys(providerMap);
 
     refreshAccount();
@@ -331,7 +332,7 @@ title: Account
         }
       });
 
-      displayNameInput.value = "";
+      displayNameInput.value = defaultDisplayName;
       setStatus("All saved cookies cleared from this browser.");
       announceAccountUpdate();
       refreshAccount();
@@ -387,7 +388,7 @@ title: Account
     });
 
     function refreshAccount() {
-      displayNameInput.value = cookies.get(profileCookie) || "";
+      displayNameInput.value = cookies.get(profileCookie) || defaultDisplayName;
 
       providerKeys.forEach(function (provider) {
         const providerData = providerMap[provider];
