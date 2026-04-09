@@ -6,14 +6,140 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+    <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
     <title>{{ page.title | default: site.title }}</title>
     <meta name="description" content="{{ page.description | default: site.description }}">
     <link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}?v={{ site.time | date: '%s' }}">
     <link rel="shortcut icon" href="{{ '/favicon.ico' | relative_url }}?v={{ site.time | date: '%s' }}">
     <link rel="icon" type="image/png" sizes="256x256" href="{{ '/assets/images/favicon-256.png' | relative_url }}?v={{ site.time | date: '%s' }}">
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <style>
+      .human-check-lock {
+        overflow: hidden;
+      }
+
+      .human-check[hidden] {
+        display: none;
+      }
+
+      .human-check {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(15, 34, 55, 0.6);
+        backdrop-filter: blur(8px);
+      }
+
+      .human-check-panel {
+        width: min(520px, 100%);
+        display: grid;
+        gap: 16px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 24px;
+        background: linear-gradient(135deg, #fbfdff 0%, #eef5fb 100%);
+        box-shadow: 0 24px 54px rgba(16, 36, 58, 0.24);
+      }
+
+      .human-check-panel h2 {
+        margin: 0;
+        color: #10243a;
+        font-size: 1.6rem;
+      }
+
+      .human-check-panel p,
+      .human-check-panel label,
+      .human-check-status {
+        color: #41576d;
+      }
+
+      .human-check-kicker {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 6px 11px;
+        border-radius: 999px;
+        background: rgba(13, 94, 166, 0.1);
+        color: #0d5ea6;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .human-check-row {
+        display: grid;
+        gap: 10px;
+      }
+
+      .human-check-question {
+        color: #10243a;
+        font-weight: 700;
+      }
+
+      .human-check-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cfd9e3;
+        border-radius: 14px;
+        font: inherit;
+      }
+
+      .human-check-toggle {
+        display: flex;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .human-check-button {
+        appearance: none;
+        border: none;
+        border-radius: 14px;
+        padding: 12px 16px;
+        background: #0d5ea6;
+        color: #ffffff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .human-check-button:hover,
+      .human-check-button:focus-visible {
+        background: #0a4c85;
+      }
+
+      .human-check-status {
+        min-height: 1.2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+    </style>
   </head>
   <body>
+    <div class="human-check" id="human-check" hidden>
+      <div class="human-check-panel" role="dialog" aria-modal="true" aria-labelledby="human-check-title">
+        <span class="human-check-kicker">Human Check</span>
+        <h2 id="human-check-title">Quick verification before entering the site</h2>
+        <p>
+          This lightweight check helps keep automated bots out. It is simple by design, and it lasts for this browser session.
+        </p>
+        <div class="human-check-row">
+          <label class="human-check-question" for="human-check-answer">What is <span id="human-check-math"></span>?</label>
+          <input class="human-check-input" id="human-check-answer" name="human_check_answer" type="text" inputmode="numeric" autocomplete="off">
+        </div>
+        <label class="human-check-toggle" for="human-check-box">
+          <input id="human-check-box" type="checkbox">
+          <span>I am a real person using this site directly.</span>
+        </label>
+        <button class="human-check-button" id="human-check-submit" type="button">Enter Site</button>
+        <div class="human-check-status" id="human-check-status" aria-live="polite"></div>
+      </div>
+    </div>
     <header class="top-nav">
       <div class="nav-container">
         <a class="nav-brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
@@ -111,9 +237,120 @@
     </script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        const humanCheck = document.getElementById('human-check');
+        const humanCheckMath = document.getElementById('human-check-math');
+        const humanCheckAnswer = document.getElementById('human-check-answer');
+        const humanCheckBox = document.getElementById('human-check-box');
+        const humanCheckSubmit = document.getElementById('human-check-submit');
+        const humanCheckStatus = document.getElementById('human-check-status');
         const hamburger = document.querySelector('.hamburger');
         const navMenu = document.querySelector('.nav-menu');
         const greeting = document.getElementById('account-greeting');
+        const humanCheckStorageKey = 'kaso_human_verified';
+        let humanCheckExpected = null;
+
+        function randomBetween(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function buildHumanCheck() {
+          const left = randomBetween(2, 9);
+          const right = randomBetween(1, 9);
+          humanCheckExpected = left + right;
+
+          if (humanCheckMath) {
+            humanCheckMath.textContent = String(left) + ' + ' + String(right);
+          }
+
+          if (humanCheckAnswer) {
+            humanCheckAnswer.value = '';
+          }
+
+          if (humanCheckBox) {
+            humanCheckBox.checked = false;
+          }
+
+          if (humanCheckStatus) {
+            humanCheckStatus.textContent = '';
+          }
+        }
+
+        function unlockHumanCheck() {
+          if (humanCheck) {
+            humanCheck.hidden = true;
+          }
+
+          document.body.classList.remove('human-check-lock');
+
+          try {
+            window.sessionStorage.setItem(humanCheckStorageKey, 'true');
+          } catch (error) {
+            // Ignore storage failures and rely on the current page state.
+          }
+        }
+
+        function lockHumanCheck() {
+          if (!humanCheck) {
+            return;
+          }
+
+          buildHumanCheck();
+          humanCheck.hidden = false;
+          document.body.classList.add('human-check-lock');
+
+          window.setTimeout(function() {
+            if (humanCheckAnswer) {
+              humanCheckAnswer.focus();
+            }
+          }, 20);
+        }
+
+        function hasHumanSession() {
+          try {
+            return window.sessionStorage.getItem(humanCheckStorageKey) === 'true';
+          } catch (error) {
+            return false;
+          }
+        }
+
+        function verifyHumanCheck() {
+          const answer = humanCheckAnswer ? humanCheckAnswer.value.trim() : '';
+          const isChecked = Boolean(humanCheckBox && humanCheckBox.checked);
+
+          if (!isChecked) {
+            if (humanCheckStatus) {
+              humanCheckStatus.textContent = 'Please check the box to confirm you are using the site directly.';
+            }
+            return;
+          }
+
+          if (answer === '' || Number(answer) !== humanCheckExpected) {
+            if (humanCheckStatus) {
+              humanCheckStatus.textContent = 'That answer did not match. Please try the new question.';
+            }
+            buildHumanCheck();
+            return;
+          }
+
+          unlockHumanCheck();
+        }
+
+        if (humanCheckSubmit) {
+          humanCheckSubmit.addEventListener('click', verifyHumanCheck);
+        }
+
+        if (humanCheckAnswer) {
+          humanCheckAnswer.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              verifyHumanCheck();
+            }
+          });
+        }
+
+        if (!hasHumanSession()) {
+          lockHumanCheck();
+        }
 
         if (hamburger && navMenu) {
           hamburger.addEventListener('click', function() {
