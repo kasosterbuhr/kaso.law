@@ -84,5 +84,8 @@
   },
   "justiceDetail": {
     "prompt": "I want you to prepare about 1 to 3 paragraphs for each justice in our reading for ONLY the 44 Liquormart case. In total, aim for about 1 page of text, and go to 2 pages only if absolutely necessary.\n\nUse heavy highlighting through bolding and italics on the key colloquy, framing language, and doctrinal moves for each justice. Keep the writing tight, readable, and class-useful rather than bloated.\n\nStay strictly confined to 44 Liquormart. Do not bring in other cases from the reading except where a justice directly invokes them in a way that is necessary to explain that justice's reasoning. Focus on what each justice is doing, emphasizing the distinctive tone, constitutional framing, agreement or disagreement, and the most important lines of analysis."
+  },
+  "evidenceExpert": {
+    "prompt": "Act as a legal expert and analyze the following problem. Provide a concise, professionally written response that meets the following criteria:\n\n1. Complete Analysis: Ensure that every single question or sub-issue posed in the problem is directly and thoroughly answered.\n2. Authority and Citations: Explicitly identify and cite the legal authorities informing your analysis. You must point to the specific Federal Rules of Evidence (FRE), relevant Advisory Committee Notes (ACN), applicable case law, and general textbook principles that apply to this scenario.\n\nHere is the problem/reading:\n> [Insert your specific problem or reading text here]"
   }
 }

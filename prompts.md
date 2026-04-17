@@ -381,6 +381,7 @@ title: Prompt Library
     <button class="prompt-action" type="button" data-copy-key="nlm">Copy NLM</button>
     <button class="prompt-action" type="button" data-copy-key="voice">DRQ MyVoice</button>
     <button class="prompt-action" type="button" data-copy-key="justiceDetail">Justice-detail</button>
+    <button class="prompt-action" type="button" data-copy-key="evidenceExpert">Evidence Expert</button>
     <a class="prompt-action" href="/brief">AI FIRAC</a>
     <a class="prompt-download" href="/assets/downloads/BriefTemplate.txt" download>Download Brief Template</a>
   </section>
@@ -481,6 +482,17 @@ title: Prompt Library
     </article>
 
     <article class="prompt-card">
+      <span class="prompt-tag">Evidence</span>
+      <h2>Evidence Class Analysis</h2>
+      <p>
+        Use this when you want a concise but fully responsive Evidence answer that directly addresses every sub-issue and grounds the analysis in the Federal Rules of Evidence, Advisory Committee Notes, cases, and class principles.
+      </p>
+      <div class="prompt-card-footer">
+        <button class="prompt-secondary" type="button" data-copy-key="evidenceExpert">Copy Prompt</button>
+      </div>
+    </article>
+
+    <article class="prompt-card">
       <span class="prompt-tag">Live Tool</span>
       <h2>AI FIRAC Builder</h2>
       <p>
@@ -524,6 +536,14 @@ title: Prompt Library
       </div>
       <pre id="preview-justiceDetail"></pre>
     </article>
+
+    <article class="prompt-preview">
+      <div class="prompt-preview-header">
+        <h3>Evidence Class Analysis</h3>
+        <button class="prompt-secondary" type="button" data-copy-key="evidenceExpert">Copy Prompt</button>
+      </div>
+      <pre id="preview-evidenceExpert"></pre>
+    </article>
   </section>
 
   <section class="prompt-steps">
@@ -553,12 +573,14 @@ title: Prompt Library
       nlm: "preview-nlm",
       voice: "preview-voice",
       justiceDetail: "preview-justiceDetail",
+      evidenceExpert: "preview-evidenceExpert",
     };
     const prompts = {
       firac: "",
       nlm: "",
       voice: "",
       justiceDetail: "",
+      evidenceExpert: "",
     };
     let activeFiracButton = null;
     let activeNlmButton = null;
@@ -779,6 +801,7 @@ title: Prompt Library
       firacBasePrompt = assertString(library.firac && library.firac.basePrompt);
       nlmBasePrompt = assertString(library.notebooklm && library.notebooklm.basePrompt);
       prompts.justiceDetail = assertString(library.justiceDetail && library.justiceDetail.prompt);
+      prompts.evidenceExpert = assertString(library.evidenceExpert && library.evidenceExpert.prompt);
 
       firacSubjects = courses.map((course) => ({
         id: course.id,
@@ -814,7 +837,7 @@ title: Prompt Library
         }))
         .filter((style) => style.id && style.label && style.summary && style.prompt);
 
-      if (!firacBasePrompt || !nlmBasePrompt || !prompts.justiceDetail || !firacSubjects.length || !nlmFocuses.length || !voiceStyles.length) {
+      if (!firacBasePrompt || !nlmBasePrompt || !prompts.justiceDetail || !prompts.evidenceExpert || !firacSubjects.length || !nlmFocuses.length || !voiceStyles.length) {
         throw new Error("Prompt library is missing required content.");
       }
 
