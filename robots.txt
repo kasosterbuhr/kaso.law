@@ -4,3 +4,5 @@ permalink: /robots.txt
 ---
 User-agent: *
 Disallow: /
+Allow: /policy
+Allow: /policy/
