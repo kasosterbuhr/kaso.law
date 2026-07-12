@@ -51,8 +51,8 @@ Kaso Law uses reasonable administrative, technical, and organizational measures 
 
 ### Your Choices
 You may opt out of SMS messages at any time by replying **STOP** to any message from Kaso Law. You may request help by replying **HELP**. You may also contact Kaso Law at:
-* **Email:** REDACTED_EMAIL
-* **Phone:** REDACTED_PHONE
+* **Email:** policy_a2p@kaso.law
+* **Phone:** 650.640.1093
 
 ---
 
@@ -94,7 +94,7 @@ After you send STOP, Kaso Law will send you a confirmation message stating that 
 * REVOKE
 
 ### Re-Subscribe Instructions
-You may opt in again by texting **START** to: **REDACTED_PHONE**. Other supported opt-in keywords include:
+You may opt in again by texting **START** to: 650.640.1093. Other supported opt-in keywords include:
 * START
 * SUBSCRIBE
 * UNSTOP
@@ -102,11 +102,11 @@ You may opt in again by texting **START** to: **REDACTED_PHONE**. Other supporte
 ### Help Instructions
 For help, reply **HELP** or **INFO** to any message from Kaso Law. You may also contact Kaso Law directly:
 * **Email:** policy_a2p@kaso.law
-* **Phone:** REDACTED_PHONE
+* **Phone:** 650.640.1093
 
 ### Help Message
 If you reply HELP, you may receive a message similar to: 
-> “Kaso Law: For help, contact policy_a2p@kaso.law or REDACTED_PHONE. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out.”
+> “Kaso Law: For help, contact policy_a2p@kaso.law or 650.640.1093. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out.”
 
 ### Privacy
 Kaso Law’s privacy practices are described in the Privacy Policy above. Mobile phone numbers and SMS consent are not sold, rented, or shared with third parties or affiliates for marketing or promotional purposes.
@@ -117,4 +117,4 @@ Kaso Law’s privacy practices are described in the Privacy Policy above. Mobile
 For questions about this Privacy Policy or SMS Terms & Conditions, contact:
 
 **Kaso Law** **Email:** policy_a2p@kaso.law 
-**Phone:** REDACTED_PHONE
+**Phone:** 650.640.1093
