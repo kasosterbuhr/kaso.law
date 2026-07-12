@@ -9,7 +9,9 @@ permalink: /privacy/
 **Effective Date:** July 11, 2026  
 **Website:** kaso.law
 
-Kaso Law ("we," "us," or "our") is committed to protecting the privacy and security of your personal information. This Privacy Policy describes how we collect, use, and safeguard your information when you visit our website, communicate with us, or utilize our professional services, including our SMS/text messaging program.
+Kaso Law ("we," "us," or "our") is committed to protecting the privacy and security of your personal information. This Privacy Policy describes how we collect, use, and safeguard your information when you communicate with us through our website, email, and SMS messaging channels.
+
+---
 
 ## Part 1: Privacy Policy
 
@@ -29,15 +31,20 @@ Kaso Law utilizes the information collected strictly for professional and operat
 ### 3. SMS Consent and Text Messaging
 By providing your mobile phone number, you explicitly consent to receive SMS and text messages from Kaso Law regarding professional communications, logistics, and account updates. 
 
-**Strict A2P Privacy Clause:** No mobile information will be shared with third parties or affiliates for marketing or promotional purposes. All the above categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties under any circumstances. Kaso Law does not sell, rent, or lease your consent or mobile number.
+SMS consent is recipient-initiated and inbound. Individuals receive our dedicated business SMS number directly from Kaso Law (including through in-person verbal sharing, business cards, handwritten notes, or publication on our website) and choose to send the first text message themselves. We do not use web-form SMS signups, purchased lead lists, or third-party data sources to enroll recipients.
+
+**Strict A2P Privacy Clause:** No mobile information will be shared with third parties or affiliates for marketing or promotional purposes. All the above categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties under any circumstances.
 
 ### 4. Information Sharing and Disclosure
 We do not sell or rent your personal data. We may only share your information in the following limited circumstances:
 * **Legal Compliance:** When required to do so by law, court order, or legal process.
-* **Service Providers:** With trusted cloud and infrastructure providers (e.g., secure hosting, Twilio, email processing) solely to facilitate our internal operations. *Note: As stated above, this explicitly excludes the sharing of SMS opt-in data and mobile numbers for third-party marketing.*
+* **Service Providers:** With trusted cloud and infrastructure providers (e.g., secure hosting, Twilio, email processing) solely to facilitate our internal operations. *Note: As stated above, this expressly excludes mobile opt-in and consent data for marketing use.*
 
-### 5. Data Security
-Kaso Law employs industry-standard administrative, technical, and organizational security measures—utilizing secure cloud infrastructure—to protect your personal information from unauthorized access, disclosure, or misuse. While we strive to protect your data, no method of digital transmission or storage is completely impenetrable.
+### 5. Data Security and Confidentiality
+Kaso Law employs industry-standard administrative, technical, and organizational security measures—utilizing secure cloud infrastructure—to protect your personal information from unauthorized access, disclosure, alteration, or destruction. We also maintain reasonable safeguards designed to preserve the confidentiality of legal matter details and privileged communications shared through our systems, consistent with applicable professional obligations.
+
+### 6. Data Retention
+We retain personal information only for as long as reasonably necessary to provide professional services, maintain communication records, satisfy legal or ethical obligations, resolve disputes, and enforce our agreements. When information is no longer required for these purposes, we take reasonable steps to delete or de-identify it in accordance with our internal retention practices.
 
 ---
 
@@ -55,7 +62,7 @@ Kaso Law utilizes a low-volume, two-way SMS communication program to send operat
 This program strictly prohibits the transmission of mass marketing, promotional campaigns, direct lending, lead generation, or age-gated content.
 
 ### 2. Opt-Out Instructions
-You may cancel your SMS subscription at any time. To opt out, reply **STOP** to any text message received from Kaso Law. Upon receiving your request, we will send one final confirmation message stating that you have been successfully unsubscribed. No further messages will be sent unless you explicitly opt in again. 
+You may cancel your SMS subscription at any time. To opt out, reply **STOP** to any text message received from Kaso Law. Upon receiving your request, we will send one final confirmation message stating that you have been unsubscribed. You will no longer receive SMS messages from that program unless you opt in again.
 
 Other recognized opt-out commands include: STOPALL, UNSUBSCRIBE, CANCEL, END, and QUIT.
 
