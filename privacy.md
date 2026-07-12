@@ -101,12 +101,12 @@ You may opt in again by texting **START** to: **REDACTED_PHONE**. Other supporte
 
 ### Help Instructions
 For help, reply **HELP** or **INFO** to any message from Kaso Law. You may also contact Kaso Law directly:
-* **Email:** REDACTED_EMAIL
+* **Email:** policy_a2p@kaso.law
 * **Phone:** REDACTED_PHONE
 
 ### Help Message
 If you reply HELP, you may receive a message similar to: 
-> “Kaso Law: For help, contact REDACTED_EMAIL or REDACTED_PHONE. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out.”
+> “Kaso Law: For help, contact policy_a2p@kaso.law or REDACTED_PHONE. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out.”
 
 ### Privacy
 Kaso Law’s privacy practices are described in the Privacy Policy above. Mobile phone numbers and SMS consent are not sold, rented, or shared with third parties or affiliates for marketing or promotional purposes.
@@ -116,5 +116,5 @@ Kaso Law’s privacy practices are described in the Privacy Policy above. Mobile
 ## Contact Information
 For questions about this Privacy Policy or SMS Terms & Conditions, contact:
 
-**Kaso Law** **Email:** REDACTED_EMAIL  
+**Kaso Law** **Email:** policy_a2p@kaso.law 
 **Phone:** REDACTED_PHONE
