@@ -348,7 +348,15 @@
           });
         }
 
-        if (!hasHumanSession()) {
+        // Policy and legal pages must always be accessible without any interactive
+        // gating so that A2P compliance bots, search crawlers, and assistive tools
+        // can reach them freely. Never show the human-check overlay on these routes.
+        // Entries are lowercase without trailing slashes to match the normalized currentPath below.
+        var policyPaths = ['/privacy', '/terms', '/policy'];
+        var currentPath = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+        var isOnPolicyPage = policyPaths.includes(currentPath);
+
+        if (!hasHumanSession() && !isOnPolicyPage) {
           lockHumanCheck();
         }
 
