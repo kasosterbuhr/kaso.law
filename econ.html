@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kaso.law/econ — Law & Economics AI Decision Tree Simulator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --bg-dark: #090d16;
+    --panel: #111827;
+    --panel-alt: #1e293b;
+    --border: #334155;
+    --accent: #38bdf8;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --indigo: #818cf8;
+  }
+  body {
+    background-color: var(--bg-dark);
+    color: #f1f5f9;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    height: 270px;
+    max-height: 320px;
+  }
+  input[type=range] {
+    accent-color: #38bdf8;
+    cursor: pointer;
+  }
+  input[type=range].rep-slider {
+    accent-color: #818cf8;
+  }
+  .tree-node {
+    transition: all 0.25s ease;
+  }
+  .active-path {
+    border-color: #10b981 !important;
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.16), rgba(15, 23, 42, 0.95)) !important;
+    box-shadow: 0 0 22px rgba(16, 185, 129, 0.25);
+  }
+  .active-badge {
+    background-color: #10b981;
+    color: #022c22;
+  }
+  .inactive-path {
+    opacity: 0.58;
+  }
+  .math-symbol {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-style: italic;
+  }
+  .branch-elbow-top {
+    border-left: 2px solid #475569;
+    border-top: 2px solid #475569;
+    border-top-left-radius: 6px;
+  }
+  .branch-elbow-bottom {
+    border-left: 2px solid #475569;
+    border-bottom: 2px solid #475569;
+    border-bottom-left-radius: 6px;
+  }
+  .branch-active-line {
+    border-color: #10b981 !important;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-slate-950">
+
+  <header class="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-[1600px] mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="https://www.kaso.law" class="font-black text-lg tracking-tight text-white">kaso<span class="text-sky-400">.</span>law<span class="text-slate-400 font-normal">/econ</span></a>
+        <span class="hidden sm:inline-block text-xs px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 font-medium">The $500 Wrong · Extensive-Form Lab</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="text-slate-400 hidden md:inline">Washburn Law · Law &amp; Economics Presentation Lab</span>
+        <button id="randomProbBtn" type="button" class="px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 font-semibold transition">🎲 Randomize Probabilities</button>
+        <button id="resetBtn" type="button" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">Reset Scenario</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 py-4 space-y-5">
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-lg space-y-3">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider font-bold text-sky-400">Step 1 · Select Preloaded Legal Dispute Scenario (8 Archetypes)</span>
+          <h1 class="text-base sm:text-lg font-bold text-white leading-snug" id="caseTitle">Loading Scenario...</h1>
+        </div>
+        <div class="flex flex-wrap gap-1.5" id="scenarioButtons"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+
+        <div class="lg:col-span-4 bg-slate-950/75 border border-indigo-500/30 rounded-lg p-3 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-1 gap-2">
+              <label for="repSlider" class="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                ⚖️ Representation Blend (<span class="math-symbol">λ</span>)
+              </label>
+              <span id="repLevelDisplay" class="text-xs font-black text-indigo-300 bg-indigo-950/90 px-2 py-0.5 rounded border border-indigo-700/70">0% (Pure Pro Se)</span>
+            </div>
+            <input id="repSlider" type="range" min="0" max="100" step="5" value="0" class="rep-slider w-full h-2 bg-slate-800 rounded-lg">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>0% Pro Se</span>
+              <span>50% Hybrid Rule 115A</span>
+              <span>100% Hired Attorney</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mt-2.5 pt-2 border-t border-slate-800/80">
+            <button type="button" data-rep="0" class="rep-preset flex-1 px-2 py-1 rounded text-[11px] font-semibold bg-indigo-500 text-slate-950 transition">Pure Pro Se</button>
+            <button type="button" data-rep="50" class="rep-preset flex-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-900 text-slate-300 border border-slate-700 hover:border-indigo-400 transition">Hybrid (115A)</button>
+            <button type="button" data-rep="100" class="rep-preset flex-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-900 text-slate-300 border border-slate-700 hover:border-indigo-400 transition">Hired Attorney</button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-slate-950/75 border border-sky-500/30 rounded-lg p-3 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-1 gap-2">
+              <label for="aiSlider" class="text-xs font-bold uppercase tracking-wider text-sky-300">
+                ⚡ AI Force Multiplier (<span class="math-symbol">α</span>)
+              </label>
+              <span id="aiLevelDisplay" class="text-xs font-black text-sky-300 bg-sky-950/90 px-2 py-0.5 rounded border border-sky-700/70">0% (No AI)</span>
+            </div>
+            <input id="aiSlider" type="range" min="0" max="100" step="5" value="0" class="w-full h-2 bg-slate-800 rounded-lg">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>0% Traditional</span>
+              <span>50% Co-Pilot Assist</span>
+              <span>100% Max AI Assist</span>
+            </div>
+          </div>
+          <p id="aiNarrative" class="text-[11px] text-slate-300 mt-2 leading-snug"></p>
+        </div>
+
+        <div class="lg:col-span-4 grid grid-cols-2 gap-2">
+          <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-2.5">
+            <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Stakes / Harm (<span class="math-symbol">V</span>)</span>
+              <output id="valOut" class="font-bold text-white">$0</output>
+            </div>
+            <input id="valSlider" type="range" min="500" max="250000" step="500" class="w-full h-1.5 bg-slate-800 rounded">
+          </div>
+
+          <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-2.5">
+            <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Merit Prob. (<span class="math-symbol">p<sub>p</sub></span>)</span>
+              <output id="probOut" class="font-bold text-white">50%</output>
+            </div>
+            <input id="probSlider" type="range" min="5" max="95" step="5" class="w-full h-1.5 bg-slate-800 rounded">
+          </div>
+
+          <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-2.5">
+            <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Full Atty Fee (<span class="math-symbol">C<sub>atty</sub></span>)</span>
+              <output id="costOut" class="font-bold text-white">$0</output>
+            </div>
+            <input id="costSlider" type="range" min="500" max="80000" step="500" class="w-full h-1.5 bg-slate-800 rounded">
+          </div>
+
+          <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-2.5">
+            <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Opponent AI (<span class="math-symbol">β</span>)</span>
+              <output id="oppAiOut" class="font-bold text-amber-400">Symmetric</output>
+            </div>
+            <select id="oppAiSelect" class="w-full bg-slate-900 border border-slate-700 rounded text-[11px] text-slate-200 px-1.5 py-1 mt-0.5">
+              <option value="symmetric">Symmetric (Both adopt AI)</option>
+              <option value="asymmetric_player">Claimant-Only AI (Equalizer)</option>
+              <option value="asymmetric_repeat">Repeat-Player AI (Magnifier)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider font-bold text-sky-400">Visual Branching Decision Tree · Cumulative Sunk Costs &amp; Stage Probabilities</span>
+          <h2 class="text-base font-bold text-white" id="plainTreeHeading">Sequential Case Stages: Sunk Cost Escalation &amp; Branching Outcomes</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="randomBadge" class="hidden text-[11px] font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">🎲 Real-Life Random Probabilities Active</span>
+          <button id="treeRandomBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition shadow">
+            🎲 Roll Real-Life Probabilities
+          </button>
+          <button id="treeRestoreProbBtn" type="button" class="hidden px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            Restore Baseline
+          </button>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400">
+        At each stage of a civil or criminal case, the litigant has already incurred a cumulative <span class="text-rose-300 font-semibold">Sunk Cost</span> and faces a conditional <span class="text-sky-300 font-semibold">Probability of Success</span> on each branch. Click <strong class="text-amber-300">Roll Real-Life Probabilities</strong> to simulate unpredictable judicial rulings, witness surprises, and settlement shifts.
+      </p>
+
+      <div id="plainBranchingTree" class="overflow-x-auto pb-2"></div>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+
+      <div class="xl:col-span-8 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div>
+            <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-400">Step 2 · Cooter &amp; Ulen Extensive-Form Game Tree</span>
+            <h2 class="text-base font-bold text-white">Sequential Litigation &amp; Bargaining Nodes (<span class="math-symbol">EU<sub>P</sub></span> vs. <span class="math-symbol">EC<sub>D</sub></span>)</h2>
+          </div>
+          <div class="flex items-center gap-3 text-[11px]">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Optimal Equilibrium Path</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-sky-500 inline-block"></span> Decision Node [□]</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Chance Node (○)</span>
+          </div>
+        </div>
+
+        <div id="caseContextBar" class="my-3 bg-slate-950/80 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-300 flex flex-wrap justify-between gap-2"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center my-auto py-2">
+
+          <div class="md:col-span-3 flex flex-col gap-3">
+            <div class="bg-slate-950 border-2 border-sky-500 rounded-xl p-3 relative">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-sky-400 mb-1">
+                <span>[□] Node 1: Claim Filing</span>
+                <span>t = 1</span>
+              </div>
+              <p class="text-xs font-bold text-white">Claimant Choice</p>
+              <p class="text-[11px] text-slate-400 mt-1">Compare <span class="math-symbol">EV<sub>file</sub></span> against <span class="math-symbol">C<sub>f</sub></span> (filing fee + initial legal/time prep).</p>
+              <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Cash Fee + Time (<span class="math-symbol">C<sub>total</sub></span>):</span>
+                  <span id="nodeCtotal" class="font-mono font-bold text-slate-200">$0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Initial Sunk (<span class="math-symbol">C<sub>f</sub></span>):</span>
+                  <span id="nodeCf" class="font-mono font-bold text-rose-300">$0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Expected Value (<span class="math-symbol">EV<sub>file</sub></span>):</span>
+                  <span id="nodeEvFile" class="font-mono font-bold text-emerald-300">$0</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="branchAbandon" class="tree-node border border-slate-700 bg-slate-950/60 rounded-xl p-3">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Path 1A · Lump / Abandon</span>
+                <span id="badgeAbandon" class="hidden text-[10px] font-black px-2 py-0.5 rounded active-badge">OPTIMAL</span>
+              </div>
+              <div class="text-sm font-black text-slate-200">Payoff: <span class="math-symbol">U<sub>P</sub></span> = $0</div>
+              <p class="text-[11px] text-slate-400 mt-1">Occurs when <span class="math-symbol">EV<sub>file</sub> &le; 0</span> ("Missing Middle" / $500 Wrong).</p>
+            </div>
+          </div>
+
+          <div class="md:col-span-4 flex flex-col gap-3">
+            <div id="branchFileNode" class="tree-node bg-slate-950 border-2 border-sky-500 rounded-xl p-3">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-sky-400 mb-1">
+                <span>[□] Node 2: Bargaining / Plea</span>
+                <span>t = 2</span>
+              </div>
+              <p class="text-xs font-bold text-white">Pre-Trial Settlement Zone (<span class="math-symbol">ZOPA</span>)</p>
+              <p class="text-[11px] text-slate-400 mt-1">Coasean bargaining range between Plaintiff's threat point (<span class="math-symbol">T<sub>P</sub></span>) and Defendant's max willingness to pay (<span class="math-symbol">T<sub>D</sub></span>).</p>
+              <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] space-y-1 font-mono">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Plaintiff Min (<span class="math-symbol">T<sub>P</sub></span>):</span>
+                  <span id="nodeTp" class="text-sky-300 font-bold">$0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Defendant Max (<span class="math-symbol">T<sub>D</sub></span>):</span>
+                  <span id="nodeTd" class="text-amber-300 font-bold">$0</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Optimism Gap (<span class="math-symbol">&Delta;p</span>):</span>
+                  <span id="nodeOptimism" class="text-rose-300 font-bold">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="branchSettle" class="tree-node border border-slate-700 bg-slate-950/60 rounded-xl p-3">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Path 2A · Settle / Plea Bargain</span>
+                <span id="badgeSettle" class="hidden text-[10px] font-black px-2 py-0.5 rounded active-badge">OPTIMAL</span>
+              </div>
+              <div class="text-sm font-black text-white">Settlement (<span class="math-symbol">S*</span>): <span id="nodeSettleVal" class="text-emerald-400">$0</span></div>
+              <p class="text-[11px] text-slate-400 mt-1">Net Claimant Gain: <span id="nodeSettleNet" class="font-mono text-slate-200">$0</span>. Avoids trial cost <span class="math-symbol">C<sub>t</sub></span> and court congestion.</p>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 flex flex-col gap-2.5">
+            <div id="branchTrialNode" class="tree-node bg-slate-950 border-2 border-amber-500/80 rounded-xl p-3">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1">
+                <span>(○) Node 3: Trial / Adjudication</span>
+                <span>t = 3</span>
+              </div>
+              <p class="text-xs font-bold text-white">Nature / Court Resolves Uncertainty</p>
+              <p class="text-[11px] text-slate-400 mt-1">Triggered if <span class="math-symbol">EV<sub>file</sub> &gt; 0</span> AND <span class="math-symbol">T<sub>P</sub> &gt; T<sub>D</sub></span> (bargaining breakdown due to mutual optimism or asymmetric stakes).</p>
+              <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] flex justify-between font-mono">
+                <span class="text-slate-400">Remaining Trial Cost (<span class="math-symbol">C<sub>t</sub></span>):</span>
+                <span id="nodeCt" class="text-rose-300 font-bold">$0</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div id="branchWin" class="tree-node border border-slate-700 bg-slate-950/60 rounded-xl p-2.5">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[10px] font-bold uppercase text-sky-400">Path 3A · Win (<span class="math-symbol">p<sub>eff</sub></span>)</span>
+                  <span id="badgeTrial" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded active-badge">TRIAL</span>
+                </div>
+                <div class="text-xs font-bold text-white">Prob: <span id="nodeWinProb" class="text-sky-300 font-mono">0%</span></div>
+                <div class="text-xs font-mono text-emerald-400 mt-0.5">Net: <span id="nodeWinPayoff">$0</span></div>
+                <p class="text-[10px] text-slate-400 mt-1"><span class="math-symbol">V &minus; C<sub>f</sub> &minus; C<sub>t</sub></span></p>
+              </div>
+
+              <div id="branchLose" class="tree-node border border-slate-700 bg-slate-950/60 rounded-xl p-2.5">
+                <div class="text-[10px] font-bold uppercase text-rose-400 mb-1">Path 3B · Lose (<span class="math-symbol">1&minus;p<sub>eff</sub></span>)</div>
+                <div class="text-xs font-bold text-white">Prob: <span id="nodeLoseProb" class="text-rose-300 font-mono">0%</span></div>
+                <div class="text-xs font-mono text-rose-400 mt-0.5">Net: <span id="nodeLosePayoff">$0</span></div>
+                <p class="text-[10px] text-slate-400 mt-1"><span class="math-symbol">&minus;(C<sub>f</sub> + C<sub>t</sub>)</span></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="equilibriumBanner" class="mt-2 bg-slate-950 border border-emerald-500/40 rounded-lg p-3 text-xs text-slate-200 leading-relaxed"></div>
+      </div>
+
+      <div class="xl:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col justify-between">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider font-bold text-amber-400">Step 3 · Social Welfare &amp; Externalities</span>
+          <h2 class="text-base font-bold text-white">Multi-Stakeholder Surplus Matrix</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Cooter &amp; Ulen Social Cost: <span class="math-symbol text-slate-200">SC = c<sub>admin</sub> + c<sub>error</sub></span></p>
+        </div>
+
+        <div class="chart-container my-2">
+          <canvas id="stakeholderChart"></canvas>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
+            <div class="text-[10px] uppercase text-slate-400 font-bold">Judicial Congestion Impact</div>
+            <div id="metricCongestion" class="text-sm font-black text-amber-400 mt-0.5">Moderate</div>
+            <p id="descCongestion" class="text-[11px] text-slate-400 mt-0.5 leading-tight"></p>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
+            <div class="text-[10px] uppercase text-slate-400 font-bold">Error &amp; Hallucination Risk</div>
+            <div id="metricError" class="text-sm font-black text-sky-400 mt-0.5">Low</div>
+            <p id="descError" class="text-[11px] text-slate-400 mt-0.5 leading-tight"></p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider font-bold text-indigo-400">Step 4 · System-Wide Impact Across Every Aspect of Law</span>
+          <h2 class="text-base font-bold text-white">How Representation Regime (<span class="math-symbol">λ</span>) &amp; AI (<span class="math-symbol">α</span>) Shift Welfare</h2>
+        </div>
+        <span class="text-xs text-slate-400">Updates dynamically with Scenario, Representation Blend, &amp; AI Intensity</span>
+      </div>
+
+      <div id="stakeholderCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pt-3 text-xs"></div>
+    </section>
+
+    <section class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-400 flex flex-col md:flex-row justify-between gap-4">
+      <div class="space-y-1 max-w-3xl">
+        <div class="font-bold text-slate-200">Theoretical Grounding &amp; Classroom Reference</div>
+        <p>Built on <em>The $500 Wrong: Artificial Intelligence, Transaction Costs, and the Economics of Enforcing Legal Rights</em>, Robert Cooter &amp; Thomas Ulen (<em>Law and Economics</em>, Chs. 10–11), George Priest &amp; Benjamin Klein (1984), Marc Galanter (1974), and Kansas Supreme Court Rule 115A unbundled representation frameworks.</p>
+      </div>
+      <div class="md:text-right shrink-0 space-y-1">
+        <div class="font-bold text-sky-400">kaso.law · Legal Access &amp; AI Economics</div>
+        <p>Interactive Teaching Tool · Zero external tracking</p>
+      </div>
+    </section>
+
+  </main>
+
+<script>
+const SCENARIOS = [
+  {
+    id: 'five_hundred_wrong',
+    short: '1. The $500 Wrong',
+    caseType: 'civil',
+    title: 'The $500 Wrong: Unlawful Security Deposit Withholding (Kansas Ch. 61 Small Claims)',
+    domain: 'Civil · Consumer / Housing',
+    context: 'Tenant owed $500 deposit + statutory penalty. Traditional attorney fees ($2,500) or unassisted pro se time/procedural friction ($650) exceed claim value.',
+    V: 500,
+    p: 0.75,
+    pStage2: 0.85,
+    C0: 2500,
+    proseTimeBase: 650,
+    filingFee: 55,
+    defendantV: 500,
+    defendantC0: 1500,
+    publicCostBase: 450,
+    deterrenceWeight: 1.6,
+    victimImpact: 'Tenant recovers wrongfully withheld $500 liquidity; AI-augmented self-help or Rule 115A review makes small-value enforcement rational.',
+    publicImpact: 'High positive externality: enforces statutory housing norms previously dead-letter due to transaction cost barriers.',
+    courtImpact: 'Moderate docket uptick if friction drops, mitigated when AI generates structured demand letters that settle pre-suit.',
+    barImpact: 'Traditional hourly lawyers priced out completely; creates new Rule 115A flat-fee ($100) limited-scope review market.',
+    opponentImpact: 'Property management repeat players lose asymmetric advantage of ignoring unrepresented tenants.'
+  },
+  {
+    id: 'small_claims',
+    short: '2. Deposit & Repair ($3.2k)',
+    caseType: 'civil',
+    title: 'Landlord Habitability & Repair-and-Deduct Dispute ($3,200 Claim)',
+    domain: 'Civil · Housing & Property',
+    context: 'Tenant seeks $3,200 damages. Classic "Missing Middle" claim where full attorney fees ($3,800) exceed expected recovery.',
+    V: 3200,
+    p: 0.70,
+    pStage2: 0.80,
+    C0: 3800,
+    proseTimeBase: 1450,
+    filingFee: 75,
+    defendantV: 3200,
+    defendantC0: 2500,
+    publicCostBase: 650,
+    deterrenceWeight: 1.4,
+    victimImpact: 'Restores tenant bargaining power without sacrificing half the recovery to hourly billing.',
+    publicImpact: 'Improves rental housing stock maintenance through credible private enforcement.',
+    courtImpact: 'Cleaner evidentiary timelines reduce judicial time spent deciphering unorganized pro se exhibits.',
+    barImpact: 'Shifts representation from all-or-nothing retainers to hybrid unbundled consultations.',
+    opponentImpact: 'Landlords face credible threat of suit, expanding the Coasean settlement zone (ZOPA).'
+  },
+  {
+    id: 'wage_theft',
+    short: '3. Wage Theft ($8.5k)',
+    caseType: 'civil',
+    title: 'Unpaid Overtime & Misclassification Claim (FLSA / State Wage Act)',
+    domain: 'Employment · Administrative & Civil',
+    context: 'Hourly worker owed $8,500 in unpaid overtime. Employer uses corporate counsel to delay and exhaust worker.',
+    V: 8500,
+    p: 0.65,
+    pStage2: 0.78,
+    C0: 9500,
+    proseTimeBase: 3400,
+    filingFee: 120,
+    defendantV: 14000,
+    defendantC0: 8000,
+    publicCostBase: 1400,
+    deterrenceWeight: 1.8,
+    victimImpact: 'Direct household solvency restoration; AI payroll-log parsing turns impossible evidence assembly into automated exhibits.',
+    publicImpact: 'Protects tax base and fair labor market competition against non-compliant employers.',
+    courtImpact: 'Administrative agencies and civil dockets see higher claim volume but structured damages calculations.',
+    barImpact: 'Lowers minimum viable claim size for plaintiff employment attorneys using AI intake and drafting.',
+    opponentImpact: 'Employers face credible threat of suit, incentivizing prompt wage compliance.'
+  },
+  {
+    id: 'debt_collection',
+    short: '4. Debt Defense ($4.5k)',
+    caseType: 'civil',
+    title: 'Mass-Assigned Consumer Debt Collection Defense (Default Judgment Trap)',
+    domain: 'Civil · Consumer Finance',
+    context: 'Debt buyer sues consumer for $4,500 lacking chain-of-title proof. Over 70% of consumers normally default due to complexity.',
+    V: 4500,
+    p: 0.60,
+    pStage2: 0.75,
+    C0: 4200,
+    proseTimeBase: 1900,
+    filingFee: 50,
+    defendantV: 4500,
+    defendantC0: 600,
+    publicCostBase: 900,
+    deterrenceWeight: 1.6,
+    victimImpact: 'Prevents wage garnishment and credit ruin from time-barred or unverified debt portfolios.',
+    publicImpact: 'Curbs rubber-stamp judicial processing and reduces downstream social safety-net strain.',
+    courtImpact: 'Transforms uncontested default-judgment assembly lines into contested evidentiary hearings.',
+    barImpact: 'Virtually no private defense bar existed here; AI creates consumer self-defense and flat-fee defense tools.',
+    opponentImpact: 'Debt buyers face sharp drop in default-judgment windfalls when consumers answer complaints.'
+  },
+  {
+    id: 'family_custody',
+    short: '5. Family / Custody ($15k)',
+    caseType: 'civil',
+    title: 'Post-Decree Parenting Time & Child Support Modification',
+    domain: 'Family Law · Equitable Jurisdiction',
+    context: 'Parent seeks modification after job relocation. High emotional stakes, ongoing co-parenting externality, complex guidelines.',
+    V: 15000,
+    p: 0.55,
+    pStage2: 0.82,
+    C0: 14000,
+    proseTimeBase: 4800,
+    filingFee: 195,
+    defendantV: 15000,
+    defendantC0: 14000,
+    publicCostBase: 2800,
+    deterrenceWeight: 1.1,
+    victimImpact: 'Children and parents benefit from faster, lower-conflict guideline calculations and parenting schedules.',
+    publicImpact: 'Lower parental acrimony reduces long-term child welfare and state enforcement burdens.',
+    courtImpact: 'Pro se family dockets consume massive judicial time; AI-structured financial affidavits save clerk hours.',
+    barImpact: 'Compresses routine motion drafting revenue; elevates value of mediation and strategic counseling.',
+    opponentImpact: 'If both parents use partisan AI to draft aggressive motions, conflict escalates unless checked by counsel.'
+  },
+  {
+    id: 'med_mal',
+    short: '6. Complex Tort ($180k)',
+    caseType: 'civil',
+    title: 'Surgical Complication & Informed Consent Medical Malpractice',
+    domain: 'Tort Law · High-Stakes Expert Litigation',
+    context: 'Severe injury ($180k damages), uncertain causation (p = 0.40), heavy expert witness and discovery requirements.',
+    V: 180000,
+    p: 0.40,
+    pStage2: 0.68,
+    C0: 68000,
+    proseTimeBase: 26000,
+    filingFee: 450,
+    defendantV: 220000,
+    defendantC0: 65000,
+    publicCostBase: 9500,
+    deterrenceWeight: 1.5,
+    victimImpact: 'AI-assisted attorney representation lowers contingency screening threshold so mid-tier injuries are accepted.',
+    publicImpact: 'Calibrates hospital safety incentives (Hand Formula precaution) without inducing defensive medicine.',
+    courtImpact: 'Complex discovery disputes may multiply if AI generates automated interrogatories and boilerplate motions.',
+    barImpact: 'AI medical-record chronology reduces paralegal/associate hours, expanding contingency firm capacity.',
+    opponentImpact: 'Medical malpractice insurers deploy predictive AI valuation, narrowing Priest-Klein trial selection.'
+  },
+  {
+    id: 'commercial_ip',
+    short: '7. B2B Contract / SaaS ($95k)',
+    caseType: 'civil',
+    title: 'Software Vendor Breach & Trade Secret Misappropriation',
+    domain: 'Commercial · Corporate Litigation',
+    context: 'Mid-sized firm sues former vendor for $95k contract breach. Both sides are well-capitalized and adopt AI.',
+    V: 95000,
+    p: 0.50,
+    pStage2: 0.74,
+    C0: 45000,
+    proseTimeBase: 16000,
+    filingFee: 350,
+    defendantV: 95000,
+    defendantC0: 45000,
+    publicCostBase: 6200,
+    deterrenceWeight: 1.2,
+    victimImpact: 'Preserves commercial contract reliability for smaller enterprises previously priced out of enforcing NDAs.',
+    publicImpact: 'Reduces deadweight transaction friction in B2B contracting and innovation markets.',
+    courtImpact: 'Risk of "AI discovery arms race" (automated document dumps) taxing commercial court bandwidth.',
+    barImpact: 'Shifts corporate litigation from hourly associate leverage toward fixed-fee / value-based AI workflows.',
+    opponentImpact: 'Symmetric AI adoption lowers both sides’ litigation costs, shifting bargaining leverage toward merits.'
+  },
+  {
+    id: 'criminal_misd',
+    short: '8. Criminal / Plea ($12k)',
+    caseType: 'criminal',
+    title: 'Class A Misdemeanor / Suppression Motion (Public Defender / Counsel)',
+    domain: 'Criminal Process · Constitutional Due Process',
+    context: 'Defendant faces $12k equivalent collateral loss (job, license, fines). Overworked public defender has 15 minutes per file.',
+    V: 12000,
+    p: 0.45,
+    pStage2: 0.35,
+    C0: 8500,
+    proseTimeBase: 3200,
+    filingFee: 0,
+    defendantV: 12000,
+    defendantC0: 3500,
+    publicCostBase: 3200,
+    deterrenceWeight: 2.0,
+    victimImpact: 'Prevents coercive "innocence penalty" plea bargains via automated body-cam & Fourth Amendment suppression checks.',
+    publicImpact: 'Massive social welfare gain: avoids wrongful incarceration costs and preserves constitutional legitimacy.',
+    courtImpact: 'Increases suppression motion filings, forcing genuine adversarial scrutiny in high-volume courts.',
+    barImpact: 'Multiplies defense counsel capacity; underscores ethical duty to verify AI authorities.',
+    opponentImpact: 'Prosecutors face higher trial/motion burden on weak charges, incentivizing early dismissal or diversion.'
+  }
+];
+
+let state = {
+  scenarioIndex: 0,
+  rep: 0,
+  ai: 0,
+  V: 500,
+  p: 0.75,
+  pStage2: 0.85,
+  isRandomized: false,
+  C0: 2500,
+  oppMode: 'symmetric'
+};
+
+let chartInstance = null;
+
+const fmt = n => (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US');
+
+function initButtons() {
+  const container = document.getElementById('scenarioButtons');
+  container.innerHTML = SCENARIOS.map((s, idx) => `
+    <button data-idx="${idx}" class="scenario-btn px-2.5 py-1 rounded-lg text-xs font-semibold border transition ${idx === 0 ? 'bg-sky-500 text-slate-950 border-sky-400 shadow' : 'bg-slate-950 text-slate-300 border-slate-700 hover:border-slate-500'}">
+      ${s.short}
+    </button>
+  `).join('');
+
+  container.querySelectorAll('.scenario-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      loadScenario(parseInt(btn.dataset.idx, 10));
+    });
+  });
+
+  document.querySelectorAll('.rep-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.rep = parseInt(btn.dataset.rep, 10);
+      document.getElementById('repSlider').value = state.rep;
+      recalculate();
+    });
+  });
+}
+
+function loadScenario(idx) {
+  state.scenarioIndex = idx;
+  const s = SCENARIOS[idx];
+  state.V = s.V;
+  state.p = s.p;
+  state.pStage2 = s.pStage2;
+  state.C0 = s.C0;
+  state.isRandomized = false;
+
+  document.getElementById('valSlider').value = state.V;
+  document.getElementById('probSlider').value = Math.round(state.p * 100);
+  document.getElementById('costSlider').value = state.C0;
+  document.getElementById('randomBadge').classList.add('hidden');
+  document.getElementById('treeRestoreProbBtn').classList.add('hidden');
+
+  document.querySelectorAll('.scenario-btn').forEach((b, i) => {
+    if (i === idx) {
+      b.className = 'scenario-btn px-2.5 py-1 rounded-lg text-xs font-semibold border transition bg-sky-500 text-slate-950 border-sky-400 shadow';
+    } else {
+      b.className = 'scenario-btn px-2.5 py-1 rounded-lg text-xs font-semibold border transition bg-slate-950 text-slate-300 border-slate-700 hover:border-slate-500';
+    }
+  });
+
+  recalculate();
+}
+
+function randomizeProbabilities() {
+  const randomStage2 = (Math.floor(Math.random() * 16) + 3) * 5 / 100;
+  const randomTrial = (Math.floor(Math.random() * 17) + 2) * 5 / 100;
+  state.pStage2 = Number(randomStage2.toFixed(2));
+  state.p = Number(randomTrial.toFixed(2));
+  state.isRandomized = true;
+
+  document.getElementById('probSlider').value = Math.round(state.p * 100);
+  document.getElementById('randomBadge').classList.remove('hidden');
+  document.getElementById('treeRestoreProbBtn').classList.remove('hidden');
+  recalculate();
+}
+
+function renderPlainBranchingTree(params) {
+  const {
+    isCriminal,
+    sunkStage1,
+    sunkStage2,
+    sunkStage3,
+    pMotionSuccess,
+    pWin,
+    V,
+    settleAmount,
+    equilibrium
+  } = params;
+
+  const pMotionPct = Math.round(pMotionSuccess * 100);
+  const pMotionFailPct = 100 - pMotionPct;
+  const pWinPct = Math.round(pWin * 100);
+  const pLosePct = 100 - pWinPct;
+
+  const stage1Title = isCriminal ? 'Stage 1: Arrest & Arraignment' : 'Stage 1: Intake & Filing';
+  const stage2Title = isCriminal ? 'Stage 2: Suppression / Plea Offer' : 'Stage 2: Discovery & Pre-Trial';
+  const stage3Title = isCriminal ? 'Stage 3: Criminal Jury Trial' : 'Stage 3: Civil Merits Trial';
+
+  const branch2TopLabel = isCriminal
+    ? `Motion Granted / Dismissed (${pMotionPct}%)`
+    : `Survives Dismissal / ZOPA (${pMotionPct}%)`;
+  const branch2BottomLabel = isCriminal
+    ? `Motion Denied → Coercive Plea (${pMotionFailPct}%)`
+    : `Dismissed / Dropped Early (${pMotionFailPct}%)`;
+
+  const winLabel = isCriminal ? `Acquitted / Rights Vindicated (${pWinPct}%)` : `Plaintiff Judgment (${pWinPct}%)`;
+  const loseLabel = isCriminal ? `Convicted + Collateral Loss (${pLosePct}%)` : `Defense Verdict (${pLosePct}%)`;
+
+  const earlyResolvePayoff = isCriminal ? V - sunkStage2 : settleAmount - sunkStage2;
+  const earlyFailPayoff = -sunkStage2;
+  const trialWinPayoff = V - sunkStage3;
+  const trialLosePayoff = -sunkStage3;
+
+  const proceedActive = equilibrium !== 'abandon';
+  const trialActive = equilibrium === 'trial';
+
+  document.getElementById('plainTreeHeading').textContent = isCriminal
+    ? 'Criminal Case Decision Tree: Sunk Defense Costs & Stage Probabilities'
+    : 'Civil Case Decision Tree: Sunk Litigation Costs & Stage Probabilities';
+
+  document.getElementById('plainBranchingTree').innerHTML = `
+    <div class="min-w-[940px] bg-slate-950/90 border border-slate-800 rounded-xl p-4 font-mono text-xs">
+      <div class="grid grid-cols-12 gap-2 items-center">
+
+        <div class="col-span-3">
+          <div class="bg-slate-900 border-2 ${proceedActive ? 'border-emerald-500' : 'border-sky-500'} rounded-lg p-3">
+            <div class="text-[10px] uppercase font-bold text-sky-400">[□] ${stage1Title}</div>
+            <div class="mt-1.5 flex justify-between items-center bg-slate-950 px-2 py-1 rounded border border-slate-800">
+              <span class="text-slate-400">Sunk Cost:</span>
+              <span class="text-rose-400 font-bold">${fmt(sunkStage1)}</span>
+            </div>
+            <div class="mt-1 flex justify-between items-center bg-slate-950 px-2 py-1 rounded border border-slate-800">
+              <span class="text-slate-400">Stakes (V):</span>
+              <span class="text-emerald-400 font-bold">${fmt(V)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-4 flex flex-col justify-between gap-4">
+          <div class="flex items-stretch">
+            <div class="w-6 branch-elbow-top ${proceedActive ? 'branch-active-line' : ''} my-3"></div>
+            <div class="flex-1 bg-slate-900 border ${proceedActive ? 'border-emerald-500' : 'border-slate-700'} rounded-lg p-2.5">
+              <div class="flex justify-between items-center text-[10px] font-bold">
+                <span class="text-emerald-400">PROCEED (100%)</span>
+                <span class="text-rose-300">Sunk: ${fmt(sunkStage2)}</span>
+              </div>
+              <div class="text-white font-bold mt-1">[○] ${stage2Title}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Cumulative Sunk Cost: <span class="text-rose-400 font-bold">${fmt(sunkStage2)}</span></div>
+            </div>
+          </div>
+
+          <div class="flex items-stretch">
+            <div class="w-6 branch-elbow-bottom ${!proceedActive ? 'branch-active-line' : ''} my-3"></div>
+            <div class="flex-1 bg-slate-900/70 border ${!proceedActive ? 'border-emerald-500' : 'border-slate-800'} rounded-lg p-2.5">
+              <div class="flex justify-between items-center text-[10px] font-bold">
+                <span class="text-slate-400">ABANDON / LUMP</span>
+                <span class="text-slate-400">Sunk: $0</span>
+              </div>
+              <div class="text-slate-300 font-bold mt-1">◄ Terminal Payoff: $0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-5 flex flex-col justify-between gap-3">
+          <div class="flex items-stretch">
+            <div class="w-6 branch-elbow-top ${proceedActive ? 'branch-active-line' : ''} my-4"></div>
+            <div class="flex-1 space-y-2">
+              <div class="bg-slate-900 border ${trialActive ? 'border-amber-500' : 'border-sky-500/60'} rounded-lg p-2.5">
+                <div class="flex justify-between items-center text-[10px] font-bold">
+                  <span class="text-sky-300">${branch2TopLabel}</span>
+                  <span class="text-rose-300">Sunk: ${fmt(sunkStage3)}</span>
+                </div>
+                <div class="text-white font-bold mt-0.5">[○] ${stage3Title}</div>
+                <div class="text-[10px] text-slate-400">Early Settlement Option: <span class="text-emerald-300 font-bold">${fmt(earlyResolvePayoff)}</span></div>
+              </div>
+
+              <div class="pl-4 space-y-1.5">
+                <div class="flex items-stretch">
+                  <div class="w-5 branch-elbow-top ${trialActive ? 'branch-active-line' : ''} my-2"></div>
+                  <div class="flex-1 bg-emerald-950/35 border border-emerald-500/50 rounded px-2.5 py-1.5 flex justify-between items-center">
+                    <span class="text-emerald-300 font-bold text-[11px]">◄ ${winLabel}</span>
+                    <span class="text-emerald-400 font-black">${fmt(trialWinPayoff)}</span>
+                  </div>
+                </div>
+                <div class="flex items-stretch">
+                  <div class="w-5 branch-elbow-bottom my-2"></div>
+                  <div class="flex-1 bg-rose-950/35 border border-rose-500/40 rounded px-2.5 py-1.5 flex justify-between items-center">
+                    <span class="text-rose-300 font-bold text-[11px]">◄ ${loseLabel}</span>
+                    <span class="text-rose-400 font-black">${fmt(trialLosePayoff)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-stretch">
+            <div class="w-6 branch-elbow-bottom my-3"></div>
+            <div class="flex-1 bg-slate-900/75 border border-slate-800 rounded-lg p-2 flex justify-between items-center">
+              <span class="text-amber-300 text-[11px] font-bold">◄ ${branch2BottomLabel}</span>
+              <span class="text-rose-400 font-bold">Net: ${fmt(earlyFailPayoff)}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+function recalculate() {
+  const s = SCENARIOS[state.scenarioIndex];
+  const lambda = state.rep / 100;
+  const alpha = state.ai / 100;
+  const V = state.V;
+  const pBase = state.p;
+  const C_atty_full = state.C0;
+
+  document.getElementById('caseTitle').textContent = s.title;
+  document.getElementById('valOut').textContent = fmt(V);
+  document.getElementById('probOut').textContent = Math.round(pBase * 100) + '%';
+  document.getElementById('costOut').textContent = fmt(C_atty_full);
+
+  document.querySelectorAll('.rep-preset').forEach(btn => {
+    const targetRep = parseInt(btn.dataset.rep, 10);
+    if (state.rep === targetRep) {
+      btn.className = 'rep-preset flex-1 px-2 py-1 rounded text-[11px] font-semibold bg-indigo-500 text-slate-950 transition';
+    } else {
+      btn.className = 'rep-preset flex-1 px-2 py-1 rounded text-[11px] font-semibold bg-slate-900 text-slate-300 border border-slate-700 hover:border-indigo-400 transition';
+    }
+  });
+
+  let repLabel = `${state.rep}% `;
+  if (state.rep === 0) repLabel += '(Pure Pro Se)';
+  else if (state.rep < 35) repLabel += '(Pro Se + Consult)';
+  else if (state.rep <= 65) repLabel += '(Hybrid Rule 115A)';
+  else if (state.rep < 100) repLabel += '(Limited Counsel)';
+  else repLabel += '(Hired Attorney)';
+  document.getElementById('repLevelDisplay').textContent = repLabel;
+
+  let aiLabel = `${state.ai}% `;
+  if (state.ai === 0) aiLabel += '(No AI)';
+  else if (state.ai <= 40) aiLabel += '(Research & Intake)';
+  else if (state.ai <= 75) aiLabel += '(Drafting Co-Pilot)';
+  else aiLabel += '(Max AI Force Multiplier)';
+  document.getElementById('aiLevelDisplay').textContent = aiLabel;
+
+  let narrative = '';
+  if (lambda === 0) {
+    narrative = alpha === 0
+      ? 'Unassisted Pro Se: $0 attorney fee, but heavy personal time, procedural search friction, and high risk of fatal procedural error.'
+      : `AI-Augmented Pro Se (${state.ai}% AI): AI slashes search/drafting friction, though court fees, time, evidence gathering, and hallucination risk at high α remain.`;
+  } else if (lambda < 0.75) {
+    narrative = alpha === 0
+      ? 'Traditional Unbundled Counsel: Attorney handles discrete tasks at lower cost than full retainer, but manual drafting limits savings.'
+      : `Hybrid Rule 115A Model (${state.ai}% AI): AI prepares structured timeline & draft pleadings; attorney validates legal judgment for a predictable flat fee.`;
+  } else {
+    narrative = alpha === 0
+      ? 'Traditional Hired Attorney: High hourly/retainer cost prices out small claims, but delivers full procedural mastery and accountability.'
+      : `AI-Augmented Attorney (${state.ai}% AI): AI compresses paralegal/associate research & drafting hours, lowering the minimum viable claim size.`;
+  }
+  document.getElementById('aiNarrative').textContent = narrative;
+
+  const scaleRatio = Math.max(0.25, V / s.V);
+  const filingFee = s.filingFee * Math.pow(scaleRatio, 0.35);
+  const baseProSeTimeCost = s.proseTimeBase * Math.pow(scaleRatio, 0.65);
+
+  const proSeShare = 1 - lambda;
+  const proSeAiEfficiency = 1 - (0.62 * Math.pow(alpha, 0.85));
+  const claimantTimeAndFrictionCost = proSeShare * baseProSeTimeCost * proSeAiEfficiency;
+
+  const attorneyScopeFactor = Math.pow(lambda, 1.45);
+  const attorneyAiEfficiency = 1 - (0.55 * Math.pow(alpha, 0.90));
+  const attorneyFeeCost = C_atty_full * attorneyScopeFactor * attorneyAiEfficiency;
+
+  const totalPlaintiffCost = filingFee + claimantTimeAndFrictionCost + attorneyFeeCost;
+  const Cf = filingFee + (claimantTimeAndFrictionCost + attorneyFeeCost) * 0.32;
+  const Ct = Math.max(0, totalPlaintiffCost - Cf);
+
+  let oppAlpha = alpha;
+  if (state.oppMode === 'asymmetric_player') oppAlpha = alpha * 0.15;
+  if (state.oppMode === 'asymmetric_repeat') oppAlpha = Math.min(1, alpha + 0.45);
+
+  const baseDefCost = s.defendantC0 * Math.pow(scaleRatio, 0.65);
+  const totalDefCost = Math.max(120, baseDefCost * (1 - 0.60 * Math.pow(oppAlpha, 0.85)));
+  const defCt = totalDefCost * 0.68;
+
+  const humanAdvocacyGap = (1 - lambda) * -0.18 + (lambda * 0.04);
+  const aiProSeBoost = (1 - lambda) * (0.16 * Math.sin(alpha * Math.PI * 0.72));
+  const unverifiedHallucinationPenalty = (1 - lambda) * (alpha > 0.70 ? (alpha - 0.70) * 0.30 : 0);
+  const oppStrengthPenalty = (oppAlpha - (0.5 * alpha + 0.5 * lambda)) * 0.08;
+
+  const pEff = Math.min(0.96, Math.max(0.05, pBase + humanAdvocacyGap + aiProSeBoost - unverifiedHallucinationPenalty - oppStrengthPenalty));
+  const pStage2Eff = Math.min(0.96, Math.max(0.05, state.pStage2 + (0.08 * lambda) + (0.08 * alpha * (1 - lambda))));
+
+  const optimismBias = (1 - 0.7 * lambda) * (alpha > 0.60 ? (alpha - 0.60) * 0.32 : 0.03 * alpha);
+  const pPlaintiffBelief = Math.min(0.98, pEff + optimismBias);
+  const pDefendantBelief = Math.max(0.02, pEff - optimismBias);
+
+  const Tp = (pPlaintiffBelief * V) - Ct;
+  const defStakes = V * (s.defendantV / s.V);
+  const Td = (pDefendantBelief * defStakes) + defCt;
+
+  const evTrialFromStart = (pEff * V) - totalPlaintiffCost;
+  const zopaExists = Td >= Tp;
+  const settleAmount = zopaExists ? (Tp + Td) / 2 : 0;
+  const evFile = zopaExists ? Math.max(evTrialFromStart, settleAmount - Cf) : evTrialFromStart;
+
+  let equilibrium = 'abandon';
+  if (evFile <= 0) {
+    equilibrium = 'abandon';
+  } else if (zopaExists) {
+    equilibrium = 'settle';
+  } else {
+    equilibrium = 'trial';
+  }
+
+  const sunkStage1 = Cf;
+  const sunkStage2 = Cf + Ct * 0.45;
+  const sunkStage3 = totalPlaintiffCost;
+
+  renderPlainBranchingTree({
+    isCriminal: s.caseType === 'criminal',
+    sunkStage1,
+    sunkStage2,
+    sunkStage3,
+    pMotionSuccess: pStage2Eff,
+    pWin: pEff,
+    V,
+    settleAmount,
+    equilibrium
+  });
+
+  document.getElementById('caseContextBar').innerHTML = `
+    <div><span class="text-sky-400 font-bold">${s.domain}:</span> ${s.context}</div>
+    <div class="font-mono text-slate-400">Cost Breakdown: <span class="text-slate-200">Fee ${fmt(filingFee)} + Time ${fmt(claimantTimeAndFrictionCost)} + Atty ${fmt(attorneyFeeCost)}</span></div>
+  `;
+
+  document.getElementById('nodeCtotal').textContent = fmt(totalPlaintiffCost);
+  document.getElementById('nodeCf').textContent = fmt(Cf);
+  document.getElementById('nodeEvFile').textContent = fmt(evFile);
+  document.getElementById('nodeEvFile').className = `font-mono font-bold ${evFile > 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+  document.getElementById('nodeTp').textContent = fmt(Tp);
+  document.getElementById('nodeTd').textContent = fmt(Td);
+  document.getElementById('nodeOptimism').textContent = Math.round(optimismBias * 200) + '%';
+
+  document.getElementById('nodeSettleVal').textContent = zopaExists ? fmt(settleAmount) : 'No ZOPA (Tp > Td)';
+  document.getElementById('nodeSettleNet').textContent = zopaExists ? fmt(settleAmount - Cf) : 'N/A';
+
+  document.getElementById('nodeCt').textContent = fmt(Ct);
+  document.getElementById('nodeWinProb').textContent = Math.round(pEff * 100) + '%';
+  document.getElementById('nodeLoseProb').textContent = Math.round((1 - pEff) * 100) + '%';
+  document.getElementById('nodeWinPayoff').textContent = fmt(V - totalPlaintiffCost);
+  document.getElementById('nodeLosePayoff').textContent = fmt(-totalPlaintiffCost);
+
+  const elAbandon = document.getElementById('branchAbandon');
+  const elFileNode = document.getElementById('branchFileNode');
+  const elSettle = document.getElementById('branchSettle');
+  const elTrialNode = document.getElementById('branchTrialNode');
+  const elWin = document.getElementById('branchWin');
+  const elLose = document.getElementById('branchLose');
+
+  [elAbandon, elFileNode, elSettle, elTrialNode, elWin, elLose].forEach(el => {
+    el.classList.remove('active-path', 'inactive-path');
+  });
+  ['badgeAbandon', 'badgeSettle', 'badgeTrial'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+
+  const banner = document.getElementById('equilibriumBanner');
+
+  if (equilibrium === 'abandon') {
+    elAbandon.classList.add('active-path');
+    [elFileNode, elSettle, elTrialNode, elWin, elLose].forEach(el => el.classList.add('inactive-path'));
+    document.getElementById('badgeAbandon').classList.remove('hidden');
+    banner.innerHTML = `<strong class="text-rose-400">EQUILIBRIUM: CLAIM ABANDONED (Rational Ignorance / Market Failure).</strong> Expected recovery (<span class="font-mono">${fmt(pEff * V)}</span>) is exceeded by combined cash &amp; time transaction costs (<span class="font-mono">${fmt(totalPlaintiffCost)}</span>). Adjust <span class="math-symbol">&lambda;</span> (Hybrid Rule 115A) or increase AI assist (<span class="math-symbol">&alpha;</span>) to unlock access.`;
+  } else if (equilibrium === 'settle') {
+    elFileNode.classList.add('active-path');
+    elSettle.classList.add('active-path');
+    [elAbandon, elTrialNode, elWin, elLose].forEach(el => el.classList.add('inactive-path'));
+    document.getElementById('badgeSettle').classList.remove('hidden');
+    banner.innerHTML = `<strong class="text-emerald-400">EQUILIBRIUM: CREDIBLE FILING &rarr; COASEAN SETTLEMENT (<span class="math-symbol">S*</span> = ${fmt(settleAmount)}).</strong> Transaction costs (<span class="font-mono">${fmt(totalPlaintiffCost)}</span>) are low enough for a credible threat (<span class="font-mono">EV = ${fmt(evFile)}</span>), while preserving a positive Zone of Possible Agreement (<span class="font-mono">T<sub>D</sub> ${fmt(Td)} &ge; T<sub>P</sub> ${fmt(Tp)}</span>).`;
+  } else {
+    elFileNode.classList.add('active-path');
+    elTrialNode.classList.add('active-path');
+    elWin.classList.add('active-path');
+    elLose.classList.add('active-path');
+    [elAbandon, elSettle].forEach(el => el.classList.add('inactive-path'));
+    document.getElementById('badgeTrial').classList.remove('hidden');
+    banner.innerHTML = `<strong class="text-amber-400">EQUILIBRIUM: LITIGATION &amp; TRIAL (<span class="math-symbol">T<sub>P</sub> &gt; T<sub>D</sub></span>).</strong> Bargaining breaks down because ${optimismBias > 0.05 ? 'unsupervised AI optimism inflates expectations' : 'low trial costs reduce settlement urgency'}. Parties expend <span class="font-mono">${fmt(totalPlaintiffCost + totalDefCost)}</span> in combined legal/time costs plus public court resources.`;
+  }
+
+  const publicCourtCost = equilibrium === 'abandon' ? 0 : (equilibrium === 'settle' ? s.publicCostBase * Math.pow(scaleRatio, 0.5) * 0.25 : s.publicCostBase * Math.pow(scaleRatio, 0.5) * (1 + 0.35 * alpha * (1 - 0.5 * lambda)));
+  const deterrenceBenefit = equilibrium === 'abandon' ? -0.35 * V * s.deterrenceWeight : (pEff * V * 0.55 * s.deterrenceWeight);
+  const claimantSurplus = equilibrium === 'abandon' ? 0 : (equilibrium === 'settle' ? (settleAmount - totalPlaintiffCost) : evTrialFromStart);
+  const barRevenue = equilibrium === 'abandon' ? 0 : attorneyFeeCost + (totalDefCost * 0.65);
+  const netSocialWelfare = claimantSurplus + deterrenceBenefit - publicCourtCost - (equilibrium === 'abandon' ? 0 : totalDefCost * 0.3);
+
+  updateStakeholderChart(claimantSurplus, deterrenceBenefit, -publicCourtCost, barRevenue, netSocialWelfare);
+
+  const congEl = document.getElementById('metricCongestion');
+  const congDesc = document.getElementById('descCongestion');
+  if (equilibrium === 'abandon') {
+    congEl.textContent = 'Zero (Chilled)';
+    congEl.className = 'text-sm font-black text-slate-400 mt-0.5';
+    congDesc.textContent = 'Courts are quiet because meritorious claimants are priced out.';
+  } else if (equilibrium === 'settle') {
+    congEl.textContent = 'Low (Settled)';
+    congEl.className = 'text-sm font-black text-emerald-400 mt-0.5';
+    congDesc.textContent = 'Early Coasean settlement resolves dispute using minimal clerk time.';
+  } else {
+    congEl.textContent = (alpha > 0.7 && lambda < 0.4) ? 'High (AI Flood)' : 'Elevated';
+    congEl.className = 'text-sm font-black text-rose-400 mt-0.5';
+    congDesc.textContent = (alpha > 0.7 && lambda < 0.4) ? 'Unfiltered AI filings & optimism strain judicial dockets.' : 'Full evidentiary trial consumes scarce judicial hours.';
+  }
+
+  const errEl = document.getElementById('metricError');
+  const errDesc = document.getElementById('descError');
+  if (equilibrium === 'abandon') {
+    errEl.textContent = 'High (Type II Loss)';
+    errEl.className = 'text-sm font-black text-amber-400 mt-0.5';
+    errDesc.textContent = 'Valid rights abandoned due to prohibitive transaction costs.';
+  } else if (lambda >= 0.4 && alpha >= 0.2) {
+    errEl.textContent = 'Minimized (Verified)';
+    errEl.className = 'text-sm font-black text-emerald-400 mt-0.5';
+    errDesc.textContent = 'AI thoroughness paired with attorney review minimizes both error & hallucination.';
+  } else if (lambda < 0.3 && alpha > 0.7) {
+    errEl.textContent = 'Elevated (Hallucination)';
+    errEl.className = 'text-sm font-black text-rose-400 mt-0.5';
+    errDesc.textContent = 'Unverified pro se AI citations and procedural missteps increase judicial error costs.';
+  } else {
+    errEl.textContent = 'Moderate';
+    errEl.className = 'text-sm font-black text-sky-400 mt-0.5';
+    errDesc.textContent = 'Balanced procedural accuracy; attorney review further reduces citation risk.';
+  }
+
+  document.getElementById('stakeholderCards').innerHTML = `
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+      <div class="text-[11px] font-bold uppercase text-emerald-400">1. Victims &amp; Claimants</div>
+      <div class="font-mono text-xs text-white">Net Surplus: ${fmt(claimantSurplus)}</div>
+      <p class="text-slate-400 leading-relaxed">${s.victimImpact}</p>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+      <div class="text-[11px] font-bold uppercase text-sky-400">2. Public &amp; Greater Good</div>
+      <div class="font-mono text-xs text-white">Deterrence Value: ${fmt(deterrenceBenefit)}</div>
+      <p class="text-slate-400 leading-relaxed">${s.publicImpact}</p>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+      <div class="text-[11px] font-bold uppercase text-amber-400">3. Courts &amp; Taxpayers</div>
+      <div class="font-mono text-xs text-white">Admin Cost: ${fmt(publicCourtCost)}</div>
+      <p class="text-slate-400 leading-relaxed">${s.courtImpact}</p>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+      <div class="text-[11px] font-bold uppercase text-indigo-400">4. Legal Profession &amp; Bar</div>
+      <div class="font-mono text-xs text-white">Attorney Fee Pool: ${fmt(barRevenue)}</div>
+      <p class="text-slate-400 leading-relaxed">${s.barImpact}</p>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+      <div class="text-[11px] font-bold uppercase text-rose-400">5. Defendants &amp; Repeat Players</div>
+      <div class="font-mono text-xs text-white">Defense Cost: ${fmt(totalDefCost)}</div>
+      <p class="text-slate-400 leading-relaxed">${s.opponentImpact}</p>
+    </div>
+  `;
+}
+
+function updateStakeholderChart(claimant, deterrence, courtCost, barFees, netWelfare) {
+  const ctx = document.getElementById('stakeholderChart').getContext('2d');
+  const dataValues = [
+    Math.round(claimant),
+    Math.round(deterrence),
+    Math.round(courtCost),
+    Math.round(barFees),
+    Math.round(netWelfare)
+  ];
+
+  if (chartInstance) {
+    chartInstance.data.datasets[0].data = dataValues;
+    chartInstance.update();
+    return;
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [
+        ['Claimant', 'Net Payoff'],
+        ['Public', 'Deterrence'],
+        ['Court Admin', 'Cost (-)'],
+        ['Legal Bar', 'Fee Pool'],
+        ['Net Social', 'Welfare']
+      ],
+      datasets: [{
+        label: 'Economic Impact ($ USD)',
+        data: dataValues,
+        backgroundColor: ['#10b981', '#38bdf8', '#f43f5e', '#818cf8', '#f59e0b'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: function(items) {
+              const lbl = items[0].chart.data.labels[items[0].dataIndex];
+              return Array.isArray(lbl) ? lbl.join(' ') : lbl;
+            },
+            label: function(ctx) {
+              return ' ' + fmt(ctx.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#94a3b8', font: { size: 10 } },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 10 },
+            callback: v => '$' + (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k'
+          },
+          grid: { color: '#1e293b' }
+        }
+      }
+    }
+  });
+}
+
+document.getElementById('repSlider').addEventListener('input', e => {
+  state.rep = parseInt(e.target.value, 10);
+  recalculate();
+});
+document.getElementById('aiSlider').addEventListener('input', e => {
+  state.ai = parseInt(e.target.value, 10);
+  recalculate();
+});
+document.getElementById('valSlider').addEventListener('input', e => {
+  state.V = parseInt(e.target.value, 10);
+  recalculate();
+});
+document.getElementById('probSlider').addEventListener('input', e => {
+  state.p = parseInt(e.target.value, 10) / 100;
+  recalculate();
+});
+document.getElementById('costSlider').addEventListener('input', e => {
+  state.C0 = parseInt(e.target.value, 10);
+  recalculate();
+});
+document.getElementById('oppAiSelect').addEventListener('change', e => {
+  state.oppMode = e.target.value;
+  document.getElementById('oppAiOut').textContent = e.target.options[e.target.selectedIndex].text.split(' ')[0];
+  recalculate();
+});
+document.getElementById('randomProbBtn').addEventListener('click', randomizeProbabilities);
+document.getElementById('treeRandomBtn').addEventListener('click', randomizeProbabilities);
+document.getElementById('treeRestoreProbBtn').addEventListener('click', () => {
+  const s = SCENARIOS[state.scenarioIndex];
+  state.p = s.p;
+  state.pStage2 = s.pStage2;
+  state.isRandomized = false;
+  document.getElementById('probSlider').value = Math.round(state.p * 100);
+  document.getElementById('randomBadge').classList.add('hidden');
+  document.getElementById('treeRestoreProbBtn').classList.add('hidden');
+  recalculate();
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  state.rep = 0;
+  state.ai = 0;
+  state.oppMode = 'symmetric';
+  document.getElementById('repSlider').value = 0;
+  document.getElementById('aiSlider').value = 0;
+  document.getElementById('oppAiSelect').value = 'symmetric';
+  document.getElementById('oppAiOut').textContent = 'Symmetric';
+  loadScenario(state.scenarioIndex);
+});
+
+initButtons();
+loadScenario(0);
+</script>
+</body>
+</html>
