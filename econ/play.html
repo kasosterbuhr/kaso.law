@@ -236,6 +236,22 @@ function primeExplorer(){
  frameBusy=false;
 }
 function openExplorer(){
+  // Transfer the exact randomized case, decisions and roll via URL, without cookies.
+  const params=new URLSearchParams();
+  if(state && state.answers.length===5 && state.noise!==null){
+    const m=model(),result=outcome(m,state.answers[4],state.noise);
+    params.set('from','play');params.set('case',String(state.case.id));
+    params.set('rep',state.answers[0]);params.set('ai',state.answers[1]);
+    params.set('prep',state.answers[2]);params.set('bargain',state.answers[3]);
+    params.set('exit',state.answers[4]);params.set('budget',String(state.budget));
+    params.set('hourly',String(state.hourly));params.set('opp',state.opponent);
+    params.set('win',m.p.toFixed(5));params.set('settle',m.settleChance.toFixed(5));
+    params.set('time',String(m.timeCost));params.set('cost',String(result.cost));
+    params.set('expected',m.expected.toFixed(2));params.set('actual',result.net.toFixed(2));
+    params.set('outcome',result.event);params.set('draw',state.noise.toFixed(7));
+  }
+  location.assign('./'+(params.toString()?'?'+params.toString():''));
+  return;
  show('explore');
  const data=explorerSeed();
  if(data){
