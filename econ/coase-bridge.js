@@ -83,8 +83,8 @@ if(c.flag==='criminal'||c.flag==='high')row('Nonfinancial consequences (liberty,
 row('The figures above are from your completed game. The original explorer below uses its own multi-stage economic model, so recomputed values may differ. Adjust the sliders to compare possible alternatives.','text-xs text-amber-200 mt-3 leading-relaxed');
 const actions=document.createElement('div');actions.className='flex flex-wrap gap-2 mt-3';panel.appendChild(actions);
 function link(t,path){const a=document.createElement('a');a.href=path;a.textContent=t;a.className='inline-block px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs sm:text-sm hover:bg-emerald-400';actions.appendChild(a)}
-link('New five-decision game','./play.html?play=1');link('Project classroom QR','./play.html?present=1');
-const fresh=document.createElement('button');fresh.type='button';fresh.textContent='Randomize explorer case';fresh.className='px-4 py-2 rounded-lg bg-slate-800 text-white font-bold text-xs sm:text-sm border border-slate-600 hover:bg-slate-700';fresh.addEventListener('click',()=>location.assign('./'));actions.appendChild(fresh);
+link('New five-decision game','./?play=1');link('Project classroom QR','./?present=1');
+const fresh=document.createElement('button');fresh.type='button';fresh.textContent='Randomize explorer case';fresh.className='px-4 py-2 rounded-lg bg-slate-800 text-white font-bold text-xs sm:text-sm border border-slate-600 hover:bg-slate-700';fresh.addEventListener('click',()=>location.assign('./explorer.html'));actions.appendChild(fresh);
 const main=document.getElementById('view-simulator');main.parentElement.insertBefore(header,main);
 window.__coaseHandoff={caseId:c.id,fromGame:coming,rep,aiTier:ai,prep,bargaining,final:decision,prob:chance,scenarioIndex:idx};
 })();
